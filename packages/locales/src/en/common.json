@@ -1,0 +1,22 @@
+{
+  "states": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success!"
+  },
+  "actions": {
+    "confirm": "Are you sure?",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete"
+  },
+  "messages": {
+    "noData": "No data available",
+    "tryAgain": "Please try again",
+    "savedSuccessfully": "Saved successfully"
+  }
+}

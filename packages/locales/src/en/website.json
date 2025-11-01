@@ -1,0 +1,25 @@
+{
+  "homepage": {
+    "welcome": "Welcome to our Learning Platform",
+    "subscribe": "Subscribe",
+    "login": "Login",
+    "signup": "Sign Up",
+    "seeDemo": "See Demo"
+  },
+  "navbar": {
+    "home": "Home",
+    "courses": "Courses",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "forms": {
+    "email": "Email",
+    "password": "Password",
+    "name": "Name"
+  }
+}

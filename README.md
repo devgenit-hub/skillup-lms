@@ -12,6 +12,7 @@ This Turborepo includes the following packages/apps:
 - `dashboard`: Admin [Next.js](https://nextjs.org/) app for course management (port 3001)
 - `@repo/api`: Express API server with REST endpoints (port 4000)
 - `@repo/db`: Shared Prisma database client and schema
+- `@repo/locales`: Shared localization package with auto-generated imports (supports en, bn)
 - `@repo/ui`: Shared React component library used by both applications
 - `@repo/eslint-config`: Shared ESLint configurations (includes `eslint-config-next` and `eslint-config-prettier`)
 - `@repo/typescript-config`: Shared TypeScript configurations used throughout the monorepo
@@ -33,6 +34,35 @@ Install dependencies:
 ```bash
 pnpm install
 ```
+
+### Generate
+
+Generate all necessary files (Prisma client, locale imports, etc.):
+
+```bash
+pnpm generate
+```
+
+This will run:
+
+- `pnpm generate:db` - Generates Prisma Client from schema
+- `pnpm generate:locales` - Auto-generates locale imports from JSON files
+
+Run individual generators:
+
+```bash
+# Generate only Prisma client
+pnpm generate:db
+
+# Generate only locale imports
+pnpm generate:locales
+```
+
+**Note**: Run `pnpm generate` after:
+
+- Cloning the repository for the first time
+- Modifying Prisma schema
+- Adding new languages or translation files
 
 ### Build
 
@@ -81,6 +111,7 @@ skill-up/
 ├── packages/
 │   ├── api/             # Express REST API
 │   ├── db/              # Prisma database client & schema
+│   ├── locales/         # i18n translations (en, bn)
 │   ├── ui/              # Shared UI components
 │   ├── eslint-config/   # Shared ESLint configs
 │   └── typescript-config/ # Shared TypeScript configs
@@ -122,6 +153,7 @@ Package-specific READMEs:
 
 - [API Package](./packages/api/README.md)
 - [Database Package](./packages/db/README.md)
+- [Locales Package](./packages/locales/README.md)
 
 ## Useful Links
 

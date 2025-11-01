@@ -1,0 +1,25 @@
+{
+  "homepage": {
+    "welcome": "Welcome to Dashboard",
+    "overview": "Overview"
+  },
+  "navbar": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "courses": "Courses",
+    "settings": "Settings"
+  },
+  "buttons": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "status": "Status",
+    "actions": "Actions"
+  }
+}

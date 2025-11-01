@@ -7,7 +7,10 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate": "pnpm run generate:db && pnpm run generate:locales",
+    "generate:db": "pnpm --filter @repo/db generate",
+    "generate:locales": "pnpm --filter @repo/locales generate"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
