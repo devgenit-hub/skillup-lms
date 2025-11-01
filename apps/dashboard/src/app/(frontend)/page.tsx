@@ -3,6 +3,7 @@
 import { ThemeToggle } from '../../components/utils/theme-toggle';
 import { LanguageToggle } from '../../components/utils/language-toggle';
 import { useLocale } from '../../providers/locale-provider';
+import { Button } from '@repo/ui/button';
 
 export default function Home() {
   const { t } = useLocale();
@@ -30,6 +31,15 @@ export default function Home() {
             <button className="px-6 py-3 bg-destructive text-destructive-foreground rounded-lg hover:opacity-90 transition-all">
               {buttons['delete']}
             </button>
+          </div>
+
+          <div className="flex gap-4 justify-center mt-8">
+            <Button
+              appName="Dashboard"
+              className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-all font-medium"
+            >
+              {buttons['save']} (Shared UI)
+            </Button>
           </div>
         </div>
       </div>

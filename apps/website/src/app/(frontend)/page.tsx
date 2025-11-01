@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useLocale } from '../../providers/locale-provider';
 import { LanguageToggle } from '../../components/utils/language-toggle';
 import { ThemeToggle } from '../../components/utils/theme-toggle';
+import { Button } from '@repo/ui/button';
 
 export default function Home() {
   const { t } = useLocale();
@@ -38,6 +39,15 @@ export default function Home() {
         <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all">
           {pageText['signup']}
         </button>
+      </div>
+
+      <div className="mt-8">
+        <Button
+          appName="Website"
+          className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-all font-medium"
+        >
+          Shared UI Component Demo
+        </Button>
       </div>
     </div>
   );
