@@ -28,7 +28,10 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const theme = cookieStore.get('airdreads-theme')?.value || 'light';
-  const locale = cookieStore.get('airdreads-locale')?.value || 'en';
+  const localeCookie = cookieStore.get('airdreads-locale')?.value;
+  const locale = (localeCookie === 'en' || localeCookie === 'bn' ? localeCookie : 'en') as
+    | 'en'
+    | 'bn';
 
   return (
     <html lang={locale} data-theme={theme} suppressHydrationWarning>
@@ -41,7 +44,7 @@ export default async function RootLayout({
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AppContextProvider>
-          <LocaleProvider>
+          <LocaleProvider initialLocale={locale}>
             <ThemeProvider>{children}</ThemeProvider>
           </LocaleProvider>
         </AppContextProvider>

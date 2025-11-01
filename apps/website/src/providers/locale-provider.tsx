@@ -14,16 +14,11 @@ const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
 interface LocaleProviderProps {
   children: ReactNode;
+  initialLocale?: Locale;
 }
 
-export function LocaleProvider({ children }: LocaleProviderProps) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('airdreads-locale');
-      return stored === 'en' || stored === 'bn' ? stored : 'en';
-    }
-    return 'en';
-  });
+export function LocaleProvider({ children, initialLocale = 'en' }: LocaleProviderProps) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
