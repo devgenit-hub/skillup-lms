@@ -1,0 +1,96 @@
+// Prisma schema for Skill Up LMS
+
+generator client {
+ provider = "prisma-client-js"
+}
+
+datasource db {
+ provider = "postgresql"
+ url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+ id        String   @id @default(cuid())
+ email     String   @unique
+ name      String?
+ role      UserRole @default(STUDENT)
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ // Relations
+ enrollments Enrollment[]
+ courses     Course[]     @relation("instructor")
+
+ @@map("users")
+}
+
+enum UserRole {
+ STUDENT
+ INSTRUCTOR
+ ADMIN
+}
+
+// Course model
+model Course {
+ id           String   @id @default(cuid())
+ title        String
+ description  String?
+ published    Boolean  @default(false)
+ instructorId String
+ createdAt    DateTime @default(now())
+ updatedAt    DateTime @updatedAt
+
+ // Relations
+ instructor  User         @relation("instructor", fields: [instructorId], references: [id], onDelete: Cascade)
+ enrollments Enrollment[]
+ lessons     Lesson[]
+
+ @@index([instructorId])
+ @@map("courses")
+}
+
+// Lesson model
+model Lesson {
+ id        String   @id @default(cuid())
+ title     String
+ content   String?
+ order     Int
+ published Boolean  @default(false)
+ courseId  String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ // Relations
+ course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+ @@index([courseId])
+ @@map("lessons")
+}
+
+// Enrollment model
+model Enrollment {
+ id          String           @id @default(cuid())
+ userId      String
+ courseId    String
+ status      EnrollmentStatus @default(ACTIVE)
+ progress    Int              @default(0)
+ enrolledAt  DateTime         @default(now())
+ completedAt DateTime?
+ updatedAt   DateTime         @updatedAt
+
+ // Relations
+ user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+ course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+ @@unique([userId, courseId])
+ @@index([userId])
+ @@index([courseId])
+ @@map("enrollments")
+}
+
+enum EnrollmentStatus {
+ ACTIVE
+ COMPLETED
+ DROPPED
+}
