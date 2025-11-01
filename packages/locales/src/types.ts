@@ -1,11 +1,15 @@
-import enWebsite from './en/website.json';
-import enDashboard from './en/dashboard.json';
-import enCommon from './en/common.json';
+// Auto-generated file - DO NOT EDIT MANUALLY
+// Run 'pnpm generate:locales' to regenerate this file
+// Generated on: 2025-11-01T12:24:12.160Z
 
-export type WebsiteTranslations = typeof enWebsite;
-export type DashboardTranslations = typeof enDashboard;
-export type CommonTranslations = typeof enCommon;
+import bnCommon from './bn/common.json';
+import bnDashboard from './bn/dashboard.json';
+import bnWebsite from './bn/website.json';
 
-export type Locale = 'en' | 'bn';
+export type CommonTranslations = typeof bnCommon;
+export type DashboardTranslations = typeof bnDashboard;
+export type WebsiteTranslations = typeof bnWebsite;
+
+export type Locale = 'bn' | 'en';
 
 export type TranslationKey<T> = keyof T;
