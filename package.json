@@ -10,9 +10,15 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "prepare": "husky",
+    "postinstall": "pnpm run generate",
     "generate": "pnpm run generate:db && pnpm run generate:locales",
     "generate:db": "pnpm --filter @repo/db generate",
-    "generate:locales": "pnpm --filter @repo/locales generate"
+    "generate:locales": "pnpm --filter @repo/locales generate",
+    "db:migrate": "pnpm --filter @repo/db db:migrate",
+    "db:migrate:deploy": "pnpm --filter @repo/db db:migrate:deploy",
+    "db:seed": "pnpm --filter @repo/db db:seed",
+    "db:studio": "pnpm --filter @repo/db db:studio",
+    "db:push": "pnpm --filter @repo/db db:push"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
