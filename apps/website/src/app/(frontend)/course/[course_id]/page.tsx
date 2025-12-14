@@ -61,12 +61,11 @@ export default function Page() {
   return (
     <>
       <Hero {...courseData} />
-      <div
-        id="details"
-        className="w-full rounded-xl mx-auto flex flex-col lg:flex-row gap-6 relative max-w-7xl"
-      >
-        <MainContent AboutCourse={aboutCourseData} />
-        <SideBar AboutCourse={aboutCourseData} />
+      <div className="container px-4 w-full max-w-7xl mx-auto my-8">
+        <div id="details" className="rounded-xl flex flex-col lg:flex-row gap-12 relative">
+          <MainContent AboutCourse={aboutCourseData} />
+          <SideBar AboutCourse={aboutCourseData} />
+        </div>
       </div>
     </>
   );

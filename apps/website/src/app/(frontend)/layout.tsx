@@ -20,10 +20,22 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const localeCookie = cookieStore.get('airdreads-locale')?.value;
-  const locale = (localeCookie === 'en' || localeCookie === 'bn' ? localeCookie : 'en') as Locale;
+  const locale = (localeCookie === 'en' || localeCookie === 'bn' ? localeCookie : 'bn') as Locale;
 
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('skillup-theme') || 'dark';
+                document.documentElement.classList.add(theme);
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body className={`subpixel-antialiased`}>
         <AppContextProvider>
           <LocaleProvider initialLocale={locale}>

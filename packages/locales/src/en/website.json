@@ -11,7 +11,9 @@
     "about": "About",
     "contact": "Contact",
     "webinar": "Webinar",
-    "demo": "Demo"
+    "demo": "Demo",
+    "aboutUs": "About Us",
+    "career": "Career"
   },
   "landing": {
     "courses_heading": "Our Best Courses",
@@ -58,5 +60,19 @@
     "account_deactivate": "Deactivate Account",
     "account_delete": "Delete Account",
     "password_secure": "Update your password to keep your account secure"
+  },
+  "about": {
+    "page_title": "About Us",
+    "page_subtitle": "Who we are and what we aim for",
+    "comingSoon_title": "Coming Soon",
+    "comingSoon_description": "We are building this page. You will find detailed information about us here soon.",
+    "backToHome": "Back to Home"
+  },
+  "career": {
+    "page_title": "Career",
+    "page_subtitle": "Work with us and fulfill your dreams",
+    "comingSoon_title": "Coming Soon",
+    "comingSoon_description": "We are bringing new opportunities. You will find career related information here soon.",
+    "backToHome": "Back to Home"
   }
 }
