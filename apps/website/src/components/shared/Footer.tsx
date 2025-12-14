@@ -6,7 +6,7 @@ import { Facebook, Youtube, Instagram, Linkedin, Phone, Mail, MapPin } from 'luc
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   return (
-    <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-gray-200">
+    <footer className="bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-gray-200">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 py-12 lg:py-16">
@@ -131,7 +131,7 @@ export default function Footer() {
               </li>
               <li>
                 <div className="flex items-start gap-3 text-gray-400">
-                  <MapPin size={18} className="mt-1 text-red-400 flex-shrink-0" />
+                  <MapPin size={18} className="mt-1 text-red-400 shrink-0" />
                   <div>
                     <span className="block text-sm">আমাদের ঠিকানা</span>
                     <span className="text-xs text-gray-500">ঢাকা, বাংলাদেশ</span>
@@ -184,7 +184,7 @@ export default function Footer() {
               <Link
                 href="https://www.devgenit.com"
                 target="_blank"
-                className="bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-pink-500 to-purple-500 font-semibold hover:from-orange-300 hover:via-pink-400 hover:to-purple-400 transition-all duration-300"
+                className="bg-clip-text text-transparent bg-linear-to-r from-orange-400 via-pink-500 to-purple-500 font-semibold hover:from-orange-300 hover:via-pink-400 hover:to-purple-400 transition-all duration-300"
               >
                 DevGenit
               </Link>

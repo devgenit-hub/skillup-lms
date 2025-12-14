@@ -30,7 +30,7 @@ export default function MainContent({ AboutCourse }: AboutCourseProps) {
             </li>
             {/* Divider (except after last item) */}
             {i < links.length - 1 && (
-              <li className="flex-shrink-0">
+              <li className="shrink-0">
                 <span className="h-4 sm:h-5 w-px bg-foreground/30 mx-1 sm:mx-2 block" />
               </li>
             )}

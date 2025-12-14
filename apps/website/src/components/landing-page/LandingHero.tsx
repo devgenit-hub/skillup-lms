@@ -11,7 +11,7 @@ const stats = [
 export default function LandingHero() {
   return (
     <div className="relative pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 mx-auto">
-      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-2xl md:rounded-3xl bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600">
+      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-2xl md:rounded-3xl bg-linear-to-br from-purple-600 via-blue-600 to-cyan-600">
         <Image
           src="/UI/LandingPage/waves-bg.png"
           alt="Background"
@@ -24,10 +24,10 @@ export default function LandingHero() {
         <div className="absolute -bottom-20 sm:-bottom-16 md:-bottom-15 left-1/2 -translate-x-1/2 w-[95%] sm:w-[90%] max-w-4xl flex justify-center items-center">
           <div className="relative w-full">
             {/* Gradient Shadow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-yellow-500 rounded-xl md:rounded-2xl blur-xl opacity-30 translate-y-2 not-md:scale-75"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-yellow-500 rounded-xl md:rounded-2xl blur-xl opacity-30 translate-y-2 not-md:scale-75"></div>
 
             {/* Gradient Border */}
-            <div className="relative bg-gradient-to-r from-blue-500 via-red-800 to-yellow-500 p-0.5 rounded-xl md:rounded-2xl not-md:scale-75">
+            <div className="relative bg-linear-to-r from-blue-500 via-red-800 to-yellow-500 p-0.5 rounded-xl md:rounded-2xl not-md:scale-75">
               <div className="relative flex items-center bg-black backdrop-blur-xl rounded-xl md:rounded-2xl shadow-2xl">
                 {/* Stats List */}
                 <ul className="grid grid-cols-2 sm:flex flex-col sm:flex-row w-full py-6 sm:py-8 md:py-10 sm:divide-y-0 sm:divide-x divide-gray-700/50">

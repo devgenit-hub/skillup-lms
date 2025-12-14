@@ -3,8 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import CourseCard from '../course/CourseCard/CourseCard';
 import { CourseCardProps } from '../course/types/CourseCardProps/CourseCardProps';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLocale } from '@/providers/locale-provider';
 
 export default function OurCourses() {
+  const { t } = useLocale();
+  const pageText = t('landing');
   const [selected, setSelected] = useState<string>('');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -51,7 +54,7 @@ export default function OurCourses() {
   return (
     <div className="container px-4 w-full max-w-7xl mx-auto my-20">
       <h3 className="text-center font-bold text-2xl sm:text-3xl md:text-4xl bg-linear-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text my-8 py-8">
-        আমাদের সেরা কোর্স
+        {pageText['courses_heading']}
       </h3>
 
       {/* Categories Section with Enhanced UI */}
@@ -142,7 +145,7 @@ export default function OurCourses() {
           href="/allcourse"
           className="border border-vibrant-blue font-bold rounded-full px-6 py-2 hover:bg-white/5 text-sm flex items-center gap-2 mt-20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20"
         >
-          সবগুলো কোর্স দেখুন <ArrowRight size={25} />
+          {pageText['courses_viewAll']} <ArrowRight size={25} />
         </a>
       </div>
     </div>

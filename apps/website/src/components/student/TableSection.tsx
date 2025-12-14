@@ -2,8 +2,12 @@ import React from 'react';
 import { CourseTable } from './CourseTable';
 import { BookOpen, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from '@/providers/locale-provider';
 
 export default function TableSection() {
+  const { t, c } = useLocale();
+  const pageText = t('student');
+  const commonText = c('actions');
   const router = useRouter();
   return (
     <div className="mt-5 bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border max-h-screen flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl">
@@ -14,8 +18,10 @@ export default function TableSection() {
               <BookOpen className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-sm lg:text-base text-foreground">My Courses</h3>
-              <p className="text-xs text-muted-foreground">Track your learning progress</p>
+              <h3 className="font-bold text-sm lg:text-base text-foreground">
+                {pageText['courses_my']}
+              </h3>
+              <p className="text-xs text-muted-foreground">{pageText['progress_track']}</p>
             </div>
           </div>
           <button
@@ -24,7 +30,7 @@ export default function TableSection() {
               router.push('/student/mycourse');
             }}
           >
-            View all
+            {commonText['viewAll']}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

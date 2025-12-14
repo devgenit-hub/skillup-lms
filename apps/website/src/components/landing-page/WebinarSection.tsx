@@ -3,8 +3,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import WebinarCard from '@/components/webinar/WebinarCard/WebinarCard';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useLocale } from '@/providers/locale-provider';
 
 export default function WebinarSection() {
+  const { t } = useLocale();
+  const pageText = t('landing');
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     align: 'center',
@@ -77,7 +80,7 @@ export default function WebinarSection() {
     <div className="container px-4 w-full max-w-7xl mx-auto mt-20 py-8">
       <div className="w-full">
         <h3 className="text-center font-bold text-2xl bg-linear-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text">
-          ইন্টারেক্টিভ ওয়েবিনার
+          {pageText['webinar_heading']}
         </h3>
         <div className="relative">
           {/* <div className="absolute top-0 bottom-0 z-10 h-full w-1/3 from-background to-transparent left-0 bg-gradient-to-r pointer-events-none"></div>

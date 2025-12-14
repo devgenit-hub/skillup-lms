@@ -27,7 +27,7 @@ export default function DashboardContent({ children, userData }: DashboardConten
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20">
       <div className="mx-auto p-4 lg:p-6 h-screen flex flex-col gap-4 lg:gap-6 max-w-[1440px]">
         {/* Top Navigation Bar */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-stretch">

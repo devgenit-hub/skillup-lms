@@ -75,7 +75,7 @@ export default function SessionAgenda() {
               }}
             >
               <div className="flex gap-4 items-start font-semibold text-left">
-                <MdAccessTime className="text-xl mt-1 flex-shrink-0" />
+                <MdAccessTime className="text-xl mt-1 shrink-0" />
                 <div>
                   <div className="text-sm opacity-80">{time}</div>
                   <div>{title}</div>

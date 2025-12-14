@@ -2,8 +2,11 @@
 import { Calendar, Award, BookOpen, CheckCircle2, Clock } from 'lucide-react';
 import React from 'react';
 import { NumberCardProps } from './types/NumberCardProps';
+import { useLocale } from '@/providers/locale-provider';
 
 export default function NameCard() {
+  const { t } = useLocale();
+  const pageText = t('student');
   const date = new Date();
 
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -14,25 +17,25 @@ export default function NameCard() {
 
   const greeting = () => {
     const hour = date.getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return pageText['greeting_morning'];
+    if (hour < 17) return pageText['greeting_afternoon'];
+    return pageText['greeting_evening'];
   };
 
   const numberCardData: NumberCardProps[] = [
     {
       numb: 12,
-      chipText: 'Owned',
+      chipText: pageText['stats_owned'],
       style: 'bg-[#FFA800]/20 text-[#FFA800]',
     },
     {
       numb: 7,
-      chipText: 'Completed',
+      chipText: pageText['stats_completed'],
       style: 'bg-[#04C56C]/20 text-[#04C56C]',
     },
     {
       numb: 5,
-      chipText: 'Remaining ',
+      chipText: pageText['stats_remaining'],
       style: 'bg-[#FF3F34]/20 text-[#FF3F34]',
     },
   ];

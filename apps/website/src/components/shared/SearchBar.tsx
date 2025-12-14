@@ -2,6 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { useLocale } from '@/providers/locale-provider';
 
 export default function SearchBar({
   name,
@@ -12,6 +13,8 @@ export default function SearchBar({
   placeholder?: string;
   Icon?: React.ElementType;
 }) {
+  const { t } = useLocale();
+  const pageText = t('search');
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -25,7 +28,7 @@ export default function SearchBar({
       )}
       <Input
         name={name}
-        placeholder={placeholder || 'অনুসন্ধান'}
+        placeholder={placeholder || pageText['placeholder']}
         className={`${Icon ? 'pl-8' : ''} placeholder:text-foreground my-auto transition-all duration-300`}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}

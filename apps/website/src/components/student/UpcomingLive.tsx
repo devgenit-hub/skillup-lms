@@ -1,6 +1,7 @@
 import React from 'react';
 import { LiveListProps } from './types/LiveListProps';
 import { BellRing, Clock, Video } from 'lucide-react';
+import { useLocale } from '@/providers/locale-provider';
 
 const liveList: LiveListProps[] = [
   {
@@ -27,6 +28,8 @@ const liveList: LiveListProps[] = [
 ];
 
 export default function UpcomingLive() {
+  const { t } = useLocale();
+  const pageText = t('student');
   return (
     <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-4 lg:p-5 transition-all duration-300">
       <div className="flex items-center justify-between mb-5">
@@ -34,10 +37,12 @@ export default function UpcomingLive() {
           <div className="p-2 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600">
             <Video className="w-4 h-4 text-white" />
           </div>
-          <h1 className="text-sm lg:text-base font-bold text-foreground">Upcoming Live</h1>
+          <h1 className="text-sm lg:text-base font-bold text-foreground">
+            {pageText['live_upcoming']}
+          </h1>
         </div>
         <span className="text-xs text-muted-foreground font-medium">
-          {liveList.length} sessions
+          {liveList.length} {pageText['sessions_viewAll']}
         </span>
       </div>
 

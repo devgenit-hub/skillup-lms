@@ -41,7 +41,7 @@ export default function Hero({
 
         {/* Foreground content */}
         <div className="relative z-10 min-h-[500px] p-6 w-full max-w-7xl mx-auto flex items-center justify-center">
-          <div className="container mx-auto flex flex-col gap-10 md:flex-row items-center justify-between w-full bg-gradient-to-r py-6 md:py-8 rounded-2xl">
+          <div className="container mx-auto flex flex-col gap-10 md:flex-row items-center justify-between w-full bg-linear-to-r py-6 md:py-8 rounded-2xl">
             {/* Left side - course info */}
             <div className="text-white space-y-4 w-full md:w-2/3">
               <div>

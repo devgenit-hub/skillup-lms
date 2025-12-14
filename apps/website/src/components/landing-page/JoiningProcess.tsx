@@ -36,7 +36,7 @@ export default function JoiningProcess() {
   return (
     <section className="container px-4 w-full max-w-7xl mx-auto my-20">
       {/* Section Title */}
-      <h2 className="text-center text-xl md:text-2xl font-bold bg-gradient-to-b from-[#C3C0D8] via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text py-8 mb-8">
+      <h2 className="text-center text-xl md:text-2xl font-bold bg-linear-to-b from-[#C3C0D8] via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text py-8 mb-8">
         কোর্সে যোগদানের ধাপসমূহ
       </h2>
 

@@ -15,7 +15,7 @@ export default function LandingPageFaQ() {
             </p>
           </div>
 
-          <div className="relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0">
+          <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0">
             {/* Glow effect */}
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-40 h-40 bg-white/50 blur-2xl opacity-40 rounded-full z-0" />
             <Image
@@ -51,7 +51,7 @@ export default function LandingPageFaQ() {
               ভিডিও দেখুন <MdArrowOutward className="text-lg" />
             </a>
           </div>
-          <div className="relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0">
+          <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0">
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-16 bg-red-500 blur-2xl opacity-40 rounded-full z-0" />
             <Image
               src="/CourseDetails/yt.png"
@@ -74,7 +74,7 @@ export default function LandingPageFaQ() {
               যোগ দিন <MdArrowOutward className="text-lg" />
             </a>
           </div>
-          <div className="relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0">
+          <div className="relative w-24 h-24 md:w-28 md:h-28 shrink-0">
             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-24 h-16 bg-blue-500 blur-2xl opacity-40 rounded-full z-0" />
             <Image
               src="/CourseDetails/fb.png"

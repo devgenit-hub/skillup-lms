@@ -2,24 +2,61 @@
   "homepage": {
     "welcome": "আমাদের শিক্ষা প্ল্যাটফর্মে স্বাগতম",
     "subscribe": "সাবস্ক্রাইব করুন",
-    "login": "লগইন",
-    "signup": "সাইন আপ",
     "seeDemo": "ডেমো দেখুন"
   },
   "navbar": {
     "home": "হোম",
     "courses": "কোর্স",
+    "allCourses": "সব কোর্স",
     "about": "সম্পর্কে",
-    "contact": "যোগাযোগ"
+    "contact": "যোগাযোগ",
+    "webinar": "ওয়েবিনার",
+    "demo": "ডেমো"
   },
-  "buttons": {
-    "submit": "জমা দিন",
-    "cancel": "বাতিল",
-    "save": "সংরক্ষণ করুন"
+  "landing": {
+    "courses_heading": "আমাদের সেরা কোর্স",
+    "courses_viewAll": "সবগুলো কোর্স দেখুন",
+    "courses_category_all": "সব",
+    "webinar_heading": "ইন্টারেক্টিভ ওয়েবিনার",
+    "sessions": "সেশন",
+    "daysLeft": "দিন বাকি",
+    "studentsEnrolled": "জন শিক্ষার্থী",
+    "totalSessions": "টি সেশন"
   },
-  "forms": {
-    "email": "ইমেইল",
-    "password": "পাসওয়ার্ড",
-    "name": "নাম"
+  "student": {
+    "dashboard_title": "ড্যাশবোর্ড",
+    "courses_my": "আমার কোর্স",
+    "courses_all": "সব কোর্স",
+    "live_upcoming": "আসন্ন লাইভ",
+    "live_now": "লাইভ চলছে",
+    "sessions_viewAll": "সব সেশন দেখুন",
+    "progress_track": "আপনার শিক্ষার অগ্রগতি ট্র্যাক করুন",
+    "stats_owned": "মালিকানা",
+    "stats_completed": "সম্পন্ন",
+    "stats_remaining": "বাকি",
+    "greeting_morning": "সুপ্রভাত",
+    "greeting_afternoon": "শুভ অপরাহ্ন",
+    "greeting_evening": "শুভ সন্ধ্যা"
+  },
+  "course": {
+    "batch": "ব্যাচ",
+    "category": "ক্যাটাগরি",
+    "enrolled": "ভর্তি হয়েছে",
+    "enroll": "ভর্তি হন",
+    "enrollNow": "এখনই ভর্তি হন",
+    "startLearning": "শেখা শুরু করুন"
+  },
+  "search": {
+    "placeholder": "অনুসন্ধান",
+    "searchCourses": "কোর্স, ক্লাস খুঁজুন..."
+  },
+  "profile": {
+    "photo_recommendation": "কমপক্ষে ১০৮০ x ১০৮০ পিক্সেল প্রস্তাবিত। JPG বা PNG অনুমোদিত।",
+    "email_cannotChange": "ইমেইল পরিবর্তন করা যাবে না",
+    "phone_cannotChange": "ফোন নম্বর পরিবর্তন করা যাবে না",
+    "account_actions": "অ্যাকাউন্ট অ্যাকশন",
+    "account_deactivate": "অ্যাকাউন্ট নিষ্ক্রিয় করুন",
+    "account_delete": "অ্যাকাউন্ট মুছে ফেলুন",
+    "password_secure": "আপনার অ্যাকাউন্ট সুরক্ষিত রাখতে পাসওয়ার্ড আপডেট করুন"
   }
 }

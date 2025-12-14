@@ -65,7 +65,7 @@ export default function SideBar({ AboutWebinar }: AboutWebinarProps) {
                     ul: ({ children }) => <ul className="space-y-4">{children}</ul>,
                     li: ({ children }) => (
                       <li className="flex items-start gap-3 list-none">
-                        <div className="w-2 h-2 rounded-full bg-chart-4 dark:bg-chart-2 mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 rounded-full bg-chart-4 dark:bg-chart-2 mt-2 shrink-0"></div>
                         <span className="text-white leading-relaxed">{children}</span>
                       </li>
                     ),
@@ -91,7 +91,7 @@ export default function SideBar({ AboutWebinar }: AboutWebinarProps) {
                   ul: ({ children }) => <ul className="space-y-4">{children}</ul>,
                   li: ({ children }) => (
                     <li className="flex items-start gap-3 list-none">
-                      <div className="w-2 h-2 rounded-full bg-chart-4 dark:bg-chart-2 mt-2 flex-shrink-0"></div>
+                      <div className="w-2 h-2 rounded-full bg-chart-4 dark:bg-chart-2 mt-2 shrink-0"></div>
                       <span className="text-white leading-relaxed">{children}</span>
                     </li>
                   ),
