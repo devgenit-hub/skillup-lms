@@ -64,7 +64,7 @@ export default function UserModal({
         <div className="flex gap-6 items-start">
           <div className="flex-1">
             <div className="flex gap-7 items-center">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <div className="h-28 w-28 rounded-full overflow-hidden ring-2 ring-gray-100">
                   <Image src={imageUrl} alt={name} width={112} height={112} />
                 </div>
@@ -80,7 +80,7 @@ export default function UserModal({
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          console.log('Selected file:', file);
+                          // TODO: Handle file upload
                         }
                       }}
                     />

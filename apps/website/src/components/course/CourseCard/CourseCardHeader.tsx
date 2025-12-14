@@ -46,7 +46,7 @@ export default function CourseCardHeader({
           </span>
         </span>
 
-        <span className="flex gap-0.25">
+        <span className="flex gap-px">
           {Array.from({ length: 5 }, (_, index) => {
             if (index < rating) {
               return (

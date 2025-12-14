@@ -50,7 +50,7 @@ export default function OurCourses() {
   }, []);
   return (
     <div className="container px-4 w-full max-w-7xl mx-auto my-20">
-      <h3 className="text-center font-bold text-2xl sm:text-3xl md:text-4xl bg-gradient-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text my-8 py-8">
+      <h3 className="text-center font-bold text-2xl sm:text-3xl md:text-4xl bg-linear-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text my-8 py-8">
         আমাদের সেরা কোর্স
       </h3>
 
@@ -63,7 +63,7 @@ export default function OurCourses() {
           <button
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+            className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
               canScrollLeft
                 ? 'bg-black hover:shadow-lg hover:shadow-purple-500/50 cursor-pointer'
                 : 'bg-gray-800/50 cursor-not-allowed opacity-30'
@@ -82,7 +82,7 @@ export default function OurCourses() {
               <button
                 key={idx}
                 onClick={() => setSelected(category)}
-                className={`group relative overflow-hidden rounded-xl py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-300 transform flex-shrink-0 ${
+                className={`group relative overflow-hidden rounded-xl py-2.5 sm:py-3 px-4 sm:px-6 text-xs sm:text-sm font-semibold cursor-pointer transition-all duration-300 transform shrink-0 ${
                   selected === category
                     ? 'text-white shadow-lg shadow-purple-500/30'
                     : 'dark:text-gray-300 hover:text-white'
@@ -92,8 +92,8 @@ export default function OurCourses() {
                 <div
                   className={`absolute inset-0 transition-all duration-500 ${
                     selected === category
-                      ? 'bg-black dark:bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 opacity-100'
-                      : 'bg-black dark:bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100'
+                      ? 'bg-black dark:bg-linear-to-br from-purple-600 via-blue-600 to-cyan-600 opacity-100'
+                      : 'bg-black dark:bg-linear-to-br from-purple-600/20 via-blue-600/20 to-cyan-600/20 opacity-0 group-hover:opacity-100'
                   }`}
                 ></div>
 
@@ -108,7 +108,7 @@ export default function OurCourses() {
 
                 {/* Shimmer Effect on Hover */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 </div>
 
                 {/* Text */}
@@ -121,9 +121,9 @@ export default function OurCourses() {
           <button
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+            className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
               canScrollRight
-                ? 'bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-600 hover:scale-110 hover:shadow-lg hover:shadow-purple-500/50 cursor-pointer'
+                ? 'bg-linear-to-br from-purple-600 via-blue-600 to-cyan-600 hover:scale-110 hover:shadow-lg hover:shadow-purple-500/50 cursor-pointer'
                 : 'bg-gray-800/50 cursor-not-allowed opacity-30'
             }`}
           >

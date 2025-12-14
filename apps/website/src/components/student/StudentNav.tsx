@@ -18,7 +18,7 @@ export default function StudentNav({
     <div className="h-full bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border py-4 px-5 lg:px-8 flex justify-between items-center transition-all duration-300 hover:shadow-xl">
       <a
         href="/"
-        className="px-3 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform cursor-pointer bg-gradient-to-br from-vibrant-blue to-indigo-600"
+        className="px-3 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform cursor-pointer bg-linear-to-br from-vibrant-blue to-indigo-600"
       >
         <h1 className="text-sm lg:text-base font-bold text-white">Skill Up</h1>
       </a>
@@ -46,7 +46,13 @@ export default function StudentNav({
           <div className="relative">
             <div className="absolute inset-0 bg-linear-to-br from-vibrant-blue to-indigo-600 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity"></div>
             <div className="relative w-8 h-8 lg:w-9 lg:h-9 rounded-full overflow-hidden ring-2 ring-white shadow-sm group-hover:ring-1 group-hover:ring-vibrant-blue/70 transition-all">
-              <Image src={imageUrl} alt={name} fill className="object-cover" />
+              <Image
+                src={imageUrl}
+                alt={name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 32px, 36px"
+              />
             </div>
           </div>
         </Link>

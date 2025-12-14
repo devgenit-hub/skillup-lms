@@ -49,7 +49,7 @@ export default function SideBar() {
                 href={item.path}
                 className={`group flex items-center gap-3 px-4 py-3.5 rounded-2xl w-full transition-all duration-300 relative overflow-hidden ${
                   active
-                    ? 'bg-gradient-to-r from-vibrant-blue to-indigo-600 text-white shadow-lg scale-[1.02]'
+                    ? 'bg-linear-to-r from-vibrant-blue to-indigo-600 text-white shadow-lg scale-[1.02]'
                     : 'text-foreground hover:bg-muted hover:shadow-md'
                 }`}
                 aria-current={active ? 'page' : undefined}

@@ -51,7 +51,7 @@ export default function MobileRightPanel({ isOpen, onClose }: MobileRightPanelPr
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="h-full p-4 bg-gradient-to-br from-background via-background to-muted/20 overflow-y-auto">
+        <div className="h-full p-4 bg-linear-to-br from-background via-background to-muted/20 overflow-y-auto">
           <div className="space-y-5">
             <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-4">
               <Calendar

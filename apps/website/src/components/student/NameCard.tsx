@@ -47,7 +47,7 @@ export default function NameCard() {
       }}
     >
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/90 via-blue-600/90 to-purple-600/90"></div>
+      <div className="absolute inset-0 bg-linear-to-br from-indigo-600/90 via-blue-600/90 to-purple-600/90"></div>
 
       {/* Animated Particles Effect */}
       <div className="absolute inset-0 opacity-30">
@@ -64,7 +64,7 @@ export default function NameCard() {
               <span className="text-sm lg:text-base font-medium text-blue-100">{greeting()},</span>
               <Award className="w-5 h-5 text-yellow-300 animate-bounce" />
             </div>
-            <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+            <h2 className="text-3xl lg:text-4xl font-bold bg-linear-to-r from-white to-blue-100 bg-clip-text text-transparent">
               Mahadi Hasan Fardin
             </h2>
             <div className="flex items-center gap-3 text-sm">

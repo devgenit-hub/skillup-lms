@@ -49,8 +49,7 @@ const webinarData: HeroProps = {
 };
 
 export default function CoursePage() {
-  const { webinar_id } = useParams();
-  console.log(webinar_id);
+  const { webinar_id: _webinar_id } = useParams();
 
   return (
     <>

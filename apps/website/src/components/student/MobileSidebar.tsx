@@ -48,7 +48,7 @@ export default function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="h-full p-4 bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="h-full p-4 bg-linear-to-br from-background via-background to-muted/20">
           <SideBar />
         </div>
       </div>

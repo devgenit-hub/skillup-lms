@@ -59,7 +59,14 @@ export default function Hero() {
       <div className="relative w-full min-h-[500px] overflow-hidden rounded-2xl">
         {/* Background with Blur */}
         <div className="absolute inset-0 w-full">
-          <Image src={bg} alt="Course background" fill className="object-cover" priority />
+          <Image
+            src={bg}
+            alt="Course background"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
         </div>
 
         {/* Foreground content */}

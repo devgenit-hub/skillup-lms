@@ -10,7 +10,7 @@ export default function SearchBar() {
         className="bg-transparent border-none focus:ring-0 text-sm lg:text-base placeholder:text-muted-foreground"
       />
       <InputGroupAddon align="inline-end">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-vibrant-blue to-indigo-600 hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
+        <div className="p-2 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600 hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
           <Search className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-white" />
         </div>
       </InputGroupAddon>

@@ -7,10 +7,10 @@ export default function TableSection() {
   const router = useRouter();
   return (
     <div className="mt-5 bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border max-h-screen flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl">
-      <div className="px-5 lg:px-6 py-4 lg:py-5 border-b border-border bg-gradient-to-r from-card to-muted/20">
+      <div className="px-5 lg:px-6 py-4 lg:py-5 border-b border-border bg-linear-to-r from-card to-muted/20">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-vibrant-blue to-indigo-600 shadow-lg">
+            <div className="p-2 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600 shadow-lg">
               <BookOpen className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
             </div>
             <div>
@@ -19,7 +19,7 @@ export default function TableSection() {
             </div>
           </div>
           <button
-            className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-muted to-muted/80 hover:from-vibrant-blue hover:to-indigo-600 text-foreground hover:text-white transition-all duration-300 hover:shadow-lg text-xs lg:text-sm font-medium cursor-pointer"
+            className="group flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-muted to-muted/80 hover:from-vibrant-blue hover:to-indigo-600 text-foreground hover:text-white transition-all duration-300 hover:shadow-lg text-xs lg:text-sm font-medium cursor-pointer"
             onClick={() => {
               router.push('/student/mycourse');
             }}

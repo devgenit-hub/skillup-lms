@@ -56,8 +56,7 @@ const courseData: HeroProps = {
 };
 
 export default function Page() {
-  const { course_id } = useParams();
-  console.log(course_id);
+  const { course_id: _course_id } = useParams();
 
   return (
     <>

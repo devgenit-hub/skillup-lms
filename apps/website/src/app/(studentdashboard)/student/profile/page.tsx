@@ -36,7 +36,7 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/50 p-3 lg:p-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 lg:p-2.5 rounded-xl bg-gradient-to-br from-vibrant-blue to-indigo-600 shadow-lg">
+          <div className="p-2 lg:p-2.5 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600 shadow-lg">
             <User className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
           </div>
           <div>
@@ -50,13 +50,19 @@ export default function ProfilePage() {
       <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-br from-vibrant-blue to-indigo-600 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-vibrant-blue to-indigo-600 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
             <div className="relative h-32 w-32 rounded-full overflow-hidden ring-4 ring-white dark:ring-border shadow-xl">
-              <Image src={userData.imageUrl} alt={userData.name} fill className="object-cover" />
+              <Image
+                src={userData.imageUrl}
+                alt={userData.name}
+                fill
+                className="object-cover"
+                sizes="128px"
+              />
             </div>
             <label
               htmlFor="profile-upload"
-              className="absolute bottom-2 right-2 p-3 rounded-full bg-gradient-to-br from-vibrant-blue to-indigo-600 text-white shadow-lg cursor-pointer hover:scale-110 transition-transform"
+              className="absolute bottom-2 right-2 p-3 rounded-full bg-linear-to-br from-vibrant-blue to-indigo-600 text-white shadow-lg cursor-pointer hover:scale-110 transition-transform"
             >
               <Camera className="w-4 h-4" />
               <input
@@ -81,7 +87,7 @@ export default function ProfilePage() {
             </p>
             <label
               htmlFor="profile-upload-btn"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-muted to-muted/80 hover:from-vibrant-blue hover:to-indigo-600 text-foreground hover:text-white transition-all duration-300 hover:shadow-lg cursor-pointer font-medium text-sm"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-muted to-muted/80 hover:from-vibrant-blue hover:to-indigo-600 text-foreground hover:text-white transition-all duration-300 hover:shadow-lg cursor-pointer font-medium text-sm"
             >
               <Camera className="w-4 h-4" />
               Upload new photo
@@ -93,7 +99,7 @@ export default function ProfilePage() {
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    console.log('Selected file:', file);
+                    // TODO: Handle file upload
                   }
                 }}
               />
@@ -106,7 +112,7 @@ export default function ProfilePage() {
       <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-4 lg:p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 lg:mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-vibrant-blue to-indigo-600">
+            <div className="p-2 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600">
               <User className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
             </div>
             <h4 className="font-bold text-sm lg:text-lg text-foreground">Personal Information</h4>
@@ -114,7 +120,7 @@ export default function ProfilePage() {
           {!isEditingPersonalInfo ? (
             <button
               onClick={() => setIsEditingPersonalInfo(true)}
-              className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-gradient-to-r from-muted to-muted/80 hover:from-vibrant-blue hover:to-indigo-600 text-foreground hover:text-white transition-all duration-300 hover:shadow-lg text-xs lg:text-sm font-medium w-full sm:w-auto justify-center"
+              className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-linear-to-r from-muted to-muted/80 hover:from-vibrant-blue hover:to-indigo-600 text-foreground hover:text-white transition-all duration-300 hover:shadow-lg text-xs lg:text-sm font-medium w-full sm:w-auto justify-center"
             >
               <Edit className="w-3 h-3 lg:w-4 lg:h-4" />
               Edit
@@ -130,7 +136,7 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={handleSavePersonalInfo}
-                className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-gradient-to-r from-vibrant-blue to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200/50 transition-all duration-300 text-xs lg:text-sm font-medium flex-1 sm:flex-none justify-center"
+                className="flex items-center gap-2 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl bg-linear-to-r from-vibrant-blue to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200/50 transition-all duration-300 text-xs lg:text-sm font-medium flex-1 sm:flex-none justify-center"
               >
                 <Save className="w-3 h-3 lg:w-4 lg:h-4" />
                 Save
@@ -215,7 +221,7 @@ export default function ProfilePage() {
       {/* Change Password Section */}
       <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-6 lg:p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-vibrant-blue to-indigo-600">
+          <div className="p-2 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600">
             <Lock className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -252,7 +258,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-6 flex justify-end">
-          <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-vibrant-blue to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200/50 transition-all duration-300 font-medium">
+          <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-vibrant-blue to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200/50 transition-all duration-300 font-medium">
             <Save className="w-4 h-4" />
             Update Password
           </button>

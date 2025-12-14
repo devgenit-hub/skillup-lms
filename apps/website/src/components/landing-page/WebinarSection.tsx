@@ -76,7 +76,7 @@ export default function WebinarSection() {
   return (
     <div className="container px-4 w-full max-w-7xl mx-auto mt-20 py-8">
       <div className="w-full">
-        <h3 className="text-center font-bold text-2xl bg-gradient-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text">
+        <h3 className="text-center font-bold text-2xl bg-linear-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text">
           ইন্টারেক্টিভ ওয়েবিনার
         </h3>
         <div className="relative">
