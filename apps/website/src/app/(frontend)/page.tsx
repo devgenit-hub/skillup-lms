@@ -1,54 +1,42 @@
-'use client';
+import React from 'react';
+import LandingHero from '@/components/landing-page/LandingHero';
+import LogoMarquee from '@/components/landing-page/LogoMarquee';
+import OurCourses from '@/components/landing-page/OurCourses';
+import Testimonial from '@/components/landing-page/Testimonial';
+import WebinarSection from '@/components/landing-page/WebinarSection';
+import SkillSection from '@/components/landing-page/SkillSection';
+import JoiningProcess from '@/components/landing-page/JoiningProcess';
+import FaQ from '@/components/landing-page/FaQ';
+import LandingPageFaQ from '@/components/landing-page/LandingPageFaQ';
 
-import Link from 'next/link';
-import { useLocale } from '../../providers/locale-provider';
-import { LanguageToggle } from '../../components/utils/language-toggle';
-import { ThemeToggle } from '../../components/utils/theme-toggle';
-import { Button } from '@repo/ui/button';
+// Move outside component to avoid recreation on every render
+const LOGO_URL_LIST: string[] = [
+  '/icons/Marquee/1.png',
+  '/icons/Marquee/2.png',
+  '/icons/Marquee/3.png',
+  '/icons/Marquee/4.png',
+  '/icons/Marquee/5.png',
+  '/icons/Marquee/6.png',
+  '/icons/Marquee/7.png',
+  '/icons/Marquee/8.png',
+] as const;
 
-export default function Home() {
-  const { t } = useLocale();
-  const pageText = t('homepage');
-
+function Home() {
   return (
-    <div className="min-h-screen w-full flex flex-col gap-4 items-center justify-center">
-      <div className="absolute top-4 right-4 flex gap-4">
-        <LanguageToggle />
-        <ThemeToggle />
+    <>
+      <LandingHero />
+      <div className="w-full mx-auto max-w-7xl">
+        <LogoMarquee logoUrlList={LOGO_URL_LIST} />
+        <OurCourses />
+        <Testimonial />
+        <WebinarSection />
+        <SkillSection />
+        <JoiningProcess />
+        <FaQ />
+        <LandingPageFaQ />
       </div>
-
-      <h1 className="text-4xl font-sans">{pageText['welcome']}</h1>
-
-      <div className="mt-8 flex gap-4">
-        <Link
-          href={'demo'}
-          className="p-6 px-8 bg-background-main text-primary-foreground rounded-xl hover:shadow-2xl hover:scale-[1.02] transition-all border border-border flex items-center gap-2"
-        >
-          {pageText['seeDemo']}
-        </Link>
-
-        <button className="p-6 px-8 bg-primary text-primary-foreground rounded-xl hover:shadow-2xl hover:scale-[1.02] transition-all">
-          {pageText['subscribe']}
-        </button>
-      </div>
-
-      <div className="mt-8 flex gap-4">
-        <button className="px-6 py-3 bg-background-main text-foreground rounded-lg border border-border hover:bg-secondary transition-all">
-          {pageText['login']}
-        </button>
-        <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all">
-          {pageText['signup']}
-        </button>
-      </div>
-
-      <div className="mt-8">
-        <Button
-          appName="Website"
-          className="px-6 py-3 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-all font-medium"
-        >
-          Shared UI Component Demo
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }
+
+export default Home;
