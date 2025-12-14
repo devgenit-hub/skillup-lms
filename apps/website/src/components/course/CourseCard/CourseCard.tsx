@@ -9,8 +9,8 @@ export default function CourseCard(props: CourseCardProps) {
   const router = useRouter();
   const pn = usePathname();
   return (
-    <div className="grid h-full relative rounded-3xl pb-10 bg-card border-black/10 dark:border-white/10 border-2 text-card-foreground shadow-md shadow-black/25">
-      <div className="overflow-hidden w-full h-full flex flex-col justify-between gap-2 rounded-3xl">
+    <div className="flex flex-col h-full relative rounded-3xl pb-10 bg-card border-black/10 dark:border-white/10 border-2 text-card-foreground shadow-md shadow-black/25">
+      <div className="overflow-hidden w-full flex-1 flex flex-col justify-between gap-2 rounded-3xl">
         <CourseCardHeader
           imageUrl={props.imageUrl || '/test_images/course_test.png'}
           title={props.title || 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস'}

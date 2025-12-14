@@ -18,7 +18,7 @@ export default function CourseCardHeader({
       <Image
         src={imageUrl}
         alt={title}
-        className="z-10 rounded-[18px] object-center aspect-video w-full"
+        className="z-10 rounded-[18px] object-cover aspect-video w-full"
         width={286}
         height={286}
       />

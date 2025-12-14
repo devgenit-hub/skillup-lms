@@ -25,16 +25,14 @@ function Home() {
   return (
     <>
       <LandingHero />
-      <div className="w-full mx-auto max-w-7xl">
-        <LogoMarquee logoUrlList={LOGO_URL_LIST} />
-        <OurCourses />
-        <Testimonial />
-        <WebinarSection />
-        <SkillSection />
-        <JoiningProcess />
-        <FaQ />
-        <LandingPageFaQ />
-      </div>
+      <LogoMarquee logoUrlList={LOGO_URL_LIST} />
+      <OurCourses />
+      <Testimonial />
+      <WebinarSection />
+      <SkillSection />
+      <JoiningProcess />
+      <FaQ />
+      <LandingPageFaQ />
     </>
   );
 }

@@ -35,7 +35,7 @@ export default function FaQ() {
   const [curId, setCurId] = React.useState<number | null>(null);
 
   return (
-    <div className="container mx-auto my-36 grid grid-cols-1 md:grid-cols-2 gap-10">
+    <div className="container px-4 w-full max-w-7xl mx-auto my-36 grid grid-cols-1 md:grid-cols-2 gap-10">
       {/* Left Section */}
       <div className="flex flex-col justify-between gap-10 h-full">
         <div>

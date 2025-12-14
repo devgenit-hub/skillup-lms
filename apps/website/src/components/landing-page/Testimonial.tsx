@@ -25,7 +25,7 @@ export default function Testimonial() {
   const { theme } = useTheme();
 
   return (
-    <div className="container mx-auto my-20 py-8">
+    <div className="container px-4 w-full max-w-7xl mx-auto my-20 py-8">
       {/* <div className="flex justify-center items-center">
         <h2 className="border border-vibrant-blue font-bold rounded-full px-6 py-2 bg-vibrant-blue/80 text-white text-xs gap-2 mt-10">
           আমাদের প্রশংসাপত্র

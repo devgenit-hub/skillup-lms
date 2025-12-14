@@ -2,13 +2,13 @@
 import { useState } from 'react';
 import SearchBar from '../SearchBar';
 import { LucideSearch, Menu, X } from 'lucide-react';
-import { NavProps } from './NavProps';
+// import { NavProps } from './NavProps';
 import { navLinks } from './NavLinks';
 import NavLink from './NavLink';
 import { ThemeToggle } from '../../utils/theme-toggle';
 import NavButton from './NavButton';
 
-export default function NavBar(props: NavProps) {
+export default function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -16,7 +16,12 @@ export default function NavBar(props: NavProps) {
       <div className="container px-4 w-full max-w-7xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className={props.logoClassName}>LOGO</span>
+            <a
+              href="/"
+              className="text-2xl font-bold bg-linear-to-r from-vibrant-blue via-indigo-500 to-purple-600 text-transparent bg-clip-text hover:scale-105 transition-transform cursor-pointer"
+            >
+              Skill Up
+            </a>
           </div>
 
           <div className="flex items-center gap-4">

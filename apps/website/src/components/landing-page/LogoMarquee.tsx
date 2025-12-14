@@ -9,7 +9,7 @@ import Image from 'next/image';
 
 export default function LogoMarquee({ logoUrlList }: { logoUrlList: string[] }) {
   return (
-    <div className="w-full py-8 mt-16 container mx-auto">
+    <div className="w-full py-8 mt-16 container px-4 max-w-7xl mx-auto">
       <Marquee>
         <MarqueeFade side="left" />
         <MarqueeFade side="right" />

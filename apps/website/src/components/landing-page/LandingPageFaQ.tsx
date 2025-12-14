@@ -4,7 +4,7 @@ import { MdArrowOutward } from 'react-icons/md';
 
 export default function LandingPageFaQ() {
   return (
-    <div className="container mx-auto mt-20 grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="container px-4 w-full max-w-7xl mx-auto mt-20 grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* Card-1 */}
       <div className="lg:col-span-2 rounded-3xl overflow-hidden shadow-md dark:shadow-none border bg-white border-vibrant-blue/20 dark:bg-chart-1/10 dark:border-chart-1/20 p-7 flex flex-col justify-between flex-1">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">

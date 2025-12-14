@@ -49,7 +49,7 @@ export default function OurCourses() {
     }
   }, []);
   return (
-    <div className="container mx-auto px-4 sm:px-6 my-20">
+    <div className="container px-4 w-full max-w-7xl mx-auto my-20">
       <h3 className="text-center font-bold text-2xl sm:text-3xl md:text-4xl bg-gradient-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text my-8 py-8">
         আমাদের সেরা কোর্স
       </h3>
