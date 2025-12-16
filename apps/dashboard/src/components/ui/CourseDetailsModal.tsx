@@ -810,7 +810,7 @@ export default function CourseDetailsModal({
 
   const handleCouponSubmit = () => {
     // Handle coupon creation logic here
-    console.log({ couponTag, expiryDate, discount });
+
     // Reset form
     setCouponTag('');
     setExpiryDate(undefined);
@@ -820,12 +820,11 @@ export default function CourseDetailsModal({
 
   const handleFbGroupSubmit = () => {
     // Handle Facebook group link submission logic here
-    console.log({ fbGroupLink });
+
     alert('Facebook Group Link saved successfully!');
   };
 
-  const handleSaveCourse = (updatedCourse: CourseProps) => {
-    console.log('Updated course:', updatedCourse);
+  const handleSaveCourse = (_updatedCourse: CourseProps) => {
     // Handle save logic here (API call)
     alert('Course updated successfully!');
     onClose();

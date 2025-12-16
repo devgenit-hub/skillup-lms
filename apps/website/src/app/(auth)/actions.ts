@@ -10,15 +10,15 @@ export async function setAuthCookies(accessToken: string, refreshToken: string) 
   cookieStore.set('access_token', accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'lax',
-    maxAge: 60 * 60,
+    sameSite: isProduction ? 'strict' : 'lax',
+    maxAge: 60 * 60 * 24 * 7,
     path: '/',
   });
 
   cookieStore.set('refresh_token', refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: isProduction ? 'strict' : 'lax',
     maxAge: 60 * 60 * 24 * 7,
     path: '/',
   });

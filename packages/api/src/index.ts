@@ -9,10 +9,12 @@ import { authRouter } from './routes/auth.js';
 import { coursesRouter } from './routes/courses.js';
 import { usersRouter } from './routes/users.js';
 import { enrollmentsRouter } from './routes/enrollments.js';
+import { teachersRouter } from './routes/teachers.js';
+import { instructorRouter } from './routes/instructor.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { swaggerSpec } from './config/swagger.js';
+import { bootstrapAdmins } from './config/bootstrap-admins.js';
 
-// Load environment variables from root .env file
 dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 
 const app: Express = express();
@@ -95,6 +97,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/courses', coursesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/enrollments', enrollmentsRouter);
+app.use('/api/teachers', teachersRouter);
+app.use('/api/instructor', instructorRouter);
 
 // 404 handler for undefined routes
 app.use(notFoundHandler);
@@ -103,10 +107,12 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Start server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Skill Up API running on http://localhost:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 CORS enabled for: ${allowedOrigins.join(', ')}`);
+
+  await bootstrapAdmins();
 });
 
 // Graceful shutdown

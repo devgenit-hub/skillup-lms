@@ -44,13 +44,12 @@ export default function CreateTeacherPage() {
     }
 
     // Create teacher data object
-    const teacherData = {
+    const _teacherData = {
       ...formData,
       id: `t${Date.now()}`, // Generate temporary ID
       assignedCourses: 0,
     };
 
-    console.log('Teacher Data:', teacherData);
     alert('Teacher account created successfully! Check console for data.');
 
     // Redirect to teachers list

@@ -84,7 +84,7 @@ export default function CreateCoursePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const courseData = {
+    const _courseData = {
       ...formData,
       price: formData.feeType === 'paid' ? parseFloat(formData.price) : undefined,
       numClasses: parseInt(formData.numClasses),
@@ -98,7 +98,6 @@ export default function CreateCoursePage() {
       },
     };
 
-    console.log('Course Data:', courseData);
     // Here you would typically send this to your API
     alert('Course created successfully! Check console for data.');
   };

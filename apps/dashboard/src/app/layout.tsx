@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '../providers/theme-provider';
 import { LocaleProvider } from '../providers/locale-provider';
+import AuthProvider from '../providers/auth-provider';
 import { cookies } from 'next/headers';
 import './globals.css';
 
@@ -82,9 +83,11 @@ export default async function RootLayout({
       <body className="antialiased min-h-screen bg-background text-foreground">
         <LocaleProvider initialLocale={locale}>
           <ThemeProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <div className="flex-1">{children}</div>
-            </div>
+            <AuthProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <div className="flex-1">{children}</div>
+              </div>
+            </AuthProvider>
           </ThemeProvider>
         </LocaleProvider>
       </body>

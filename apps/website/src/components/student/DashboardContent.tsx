@@ -22,16 +22,16 @@ export default function DashboardContent({ children }: DashboardContentProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const isVerified = useAuthStore((state) => state.isVerified);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (isVerified && !user) {
       router.push('/auth/login');
     }
-  }, [user, isLoading, router]);
+  }, [user, isVerified, router]);
 
-  if (isLoading) {
+  if (!isVerified) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vibrant-blue"></div>

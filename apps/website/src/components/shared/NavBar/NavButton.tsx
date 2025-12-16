@@ -8,7 +8,7 @@ import { useLocale } from '@/providers/locale-provider';
 
 export default function NavButton() {
   const user = useAuthStore((state) => state.user);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const isVerified = useAuthStore((state) => state.isVerified);
   const logout = useAuthStore((state) => state.logout);
   const { t } = useLocale();
   const pageText = t('auth');
@@ -22,15 +22,8 @@ export default function NavButton() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Button disabled className="bg-vibrant-blue/50 text-white rounded-full py-3 px-6 w-full">
-        লোড হচ্ছে...
-      </Button>
-    );
-  }
-
-  if (user) {
+  // If we have a verified STUDENT user, show their profile
+  if (isVerified && user) {
     return (
       <div className="flex items-center gap-2">
         <Button
@@ -55,6 +48,7 @@ export default function NavButton() {
     );
   }
 
+  // Default: show login button
   return (
     <Button
       asChild

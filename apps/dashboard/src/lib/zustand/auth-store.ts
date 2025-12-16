@@ -8,17 +8,12 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string | null;
-  avatarUrl: string | null;
-  phone?: string | null;
-  role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
-  emailVerified: boolean;
-  provider: 'EMAIL' | 'GOOGLE';
+  role: typeof UserRole.INSTRUCTOR | typeof UserRole.ADMIN;
 }
 
 interface AuthStore {
   user: AuthUser | null;
   isLoading: boolean;
-  isVerified: boolean;
   setUser: (user: AuthUser | null) => void;
   setLoading: (loading: boolean) => void;
   refreshUser: () => Promise<void>;
@@ -27,8 +22,7 @@ interface AuthStore {
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  isLoading: false,
-  isVerified: false,
+  isLoading: true,
   setUser: (user) => set({ user }),
   setLoading: (isLoading) => set({ isLoading }),
   refreshUser: async () => {
@@ -42,27 +36,24 @@ export const useAuthStore = create<AuthStore>((set) => ({
         await setAuthCookies(session.access_token, session.refresh_token!);
 
         const backendData = await apiClient.getMe();
-        const userData = backendData.data as AuthUser;
+        const user = backendData.data as AuthUser;
 
-        if (userData.role === UserRole.STUDENT) {
-          set({ user: userData, isVerified: true });
+        if (user.role === UserRole.INSTRUCTOR || user.role === UserRole.ADMIN) {
+          set({ user });
         } else {
-          await supabase.auth.signOut();
-          await clearAuthCookies();
-          set({ user: null, isVerified: true });
+          set({ user: null });
         }
       } else {
-        set({ user: null, isVerified: true });
-        await clearAuthCookies();
+        set({ user: null });
       }
     } catch {
-      set({ user: null, isVerified: true });
+      set({ user: null });
     }
   },
   logout: async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     await clearAuthCookies();
-    set({ user: null, isVerified: true });
+    set({ user: null });
   },
 }));

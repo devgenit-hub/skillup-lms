@@ -2,8 +2,9 @@
 
 import { ReactNode } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { BarChart3, BookOpen, Users, Settings, Video } from 'lucide-react';
+import { useAuthStore } from '@/lib/zustand/auth-store';
 
 const sidebarItems = [
   { label: 'Dashboard', href: '/superuser', icon: BarChart3 },
@@ -19,6 +20,14 @@ export default function SuperuserLayout({
   children: ReactNode;
 }>) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  };
+
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 bg-dark-blue text-white hidden md:flex md:flex-col flex-shrink-0 h-screen sticky top-0">
@@ -50,9 +59,7 @@ export default function SuperuserLayout({
 
         <button
           className="mx-4 mb-6 px-4 py-2 bg-red-700/50 text-white rounded-lg hover:bg-red-700/70 transition-colors w-[calc(100%-2rem)] cursor-pointer"
-          onClick={() => {
-            window.location.assign('/');
-          }}
+          onClick={handleLogout}
         >
           Logout
         </button>
