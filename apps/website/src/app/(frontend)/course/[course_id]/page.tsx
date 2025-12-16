@@ -4,7 +4,6 @@ import MainContent from '@/components/course-details/sections/MainContent';
 import SideBar from '@/components/course-details/sections/SideBar';
 import { AboutCourse } from '@/components/course-details/types/AboutCourse';
 import { HeroProps } from '@/components/course-details/types/HeroProps';
-import { useParams } from 'next/navigation';
 import React from 'react';
 
 const aboutCourseData: AboutCourse = {
@@ -56,8 +55,6 @@ const courseData: HeroProps = {
 };
 
 export default function Page() {
-  const { course_id: _course_id } = useParams();
-
   return (
     <>
       <Hero {...courseData} />

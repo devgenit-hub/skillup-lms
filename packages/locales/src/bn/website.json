@@ -38,7 +38,8 @@
     "stats_remaining": "বাকি",
     "greeting_morning": "সুপ্রভাত",
     "greeting_afternoon": "শুভ অপরাহ্ন",
-    "greeting_evening": "শুভ সন্ধ্যা"
+    "greeting_evening": "শুভ সন্ধ্যা",
+    "loading": "লোড হচ্ছে..."
   },
   "course": {
     "batch": "ব্যাচ",
@@ -59,7 +60,26 @@
     "account_actions": "অ্যাকাউন্ট অ্যাকশন",
     "account_deactivate": "অ্যাকাউন্ট নিষ্ক্রিয় করুন",
     "account_delete": "অ্যাকাউন্ট মুছে ফেলুন",
-    "password_secure": "আপনার অ্যাকাউন্ট সুরক্ষিত রাখতে পাসওয়ার্ড আপডেট করুন"
+    "password_secure": "আপনার অ্যাকাউন্ট সুরক্ষিত রাখতে পাসওয়ার্ড আপডেট করুন",
+    "toast_updateSuccess": "প্রোফাইল সফলভাবে আপডেট হয়েছে",
+    "toast_updateError": "প্রোফাইল আপডেট করতে ব্যর্থ হয়েছে",
+    "toast_passwordSuccess": "পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে! আপনার নিবন্ধিত ইমেইল ঠিকানায় একটি নিশ্চিতকরণ ইমেইল পাঠানো হয়েছে।",
+    "toast_passwordError": "পাসওয়ার্ড পরিবর্তন করতে ব্যর্থ হয়েছে",
+    "toast_fillAllFields": "সব ফিল্ড পূরণ করুন",
+    "toast_passwordMismatch": "পাসওয়ার্ড মিলছে না",
+    "toast_passwordMinLength": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে"
+  },
+  "auth": {
+    "toast_passwordMismatch": "পাসওয়ার্ড মিলছে না",
+    "toast_emailAlreadyRegistered": "এই ইমেইল ইতিমধ্যে নিবন্ধিত",
+    "toast_accountCreated": "অ্যাকাউন্ট তৈরি হয়েছে! ইমেইল যাচাই করুন",
+    "toast_invalidCredentials": "ভুল ইমেইল বা পাসওয়ার্ড",
+    "toast_emailNotConfirmed": "অনুগ্রহ করে আপনার ইমেইল যাচাই করুন",
+    "toast_loginSuccess": "সফলভাবে লগইন হয়েছে",
+    "toast_somethingWrong": "একটি সমস্যা হয়েছে",
+    "toast_emailConfirmed": "ইমেইল যাচাই সফল! এখন লগইন করুন",
+    "toast_logoutSuccess": "সফলভাবে লগআউট হয়েছে",
+    "toast_logoutError": "লগআউট করতে সমস্যা হয়েছে"
   },
   "about": {
     "page_title": "আমাদের সম্পর্কে",

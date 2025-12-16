@@ -1,10 +1,60 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-
-import React from 'react';
+import { LogOut, User } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/lib/zustand/auth-store';
+import { useLocale } from '@/providers/locale-provider';
 
 export default function NavButton() {
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const logout = useAuthStore((state) => state.logout);
+  const { t } = useLocale();
+  const pageText = t('auth');
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success(pageText['toast_logoutSuccess']);
+    } catch {
+      toast.error(pageText['toast_logoutError']);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Button disabled className="bg-vibrant-blue/50 text-white rounded-full py-3 px-6 w-full">
+        লোড হচ্ছে...
+      </Button>
+    );
+  }
+
+  if (user) {
+    return (
+      <div className="flex items-center gap-2">
+        <Button
+          asChild
+          variant="outline"
+          className="rounded-full py-3 px-4 flex items-center gap-2"
+        >
+          <Link href="/student/dashboard">
+            <User className="h-4 w-4" />
+            <span className="hidden sm:inline">{user.name || user.email}</span>
+          </Link>
+        </Button>
+        <Button
+          onClick={handleLogout}
+          variant="ghost"
+          className="rounded-full py-3 px-3"
+          title="লগ আউট"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <Button
       asChild

@@ -5,6 +5,9 @@ import NavBar from '@/components/shared/NavBar/NavBar';
 import Footer from '@/components/shared/Footer';
 import { LocaleProvider } from '@/providers/locale-provider';
 import { AppContextProvider } from '@/context/app-context';
+import { AuthProvider } from '@/context/auth-context';
+import { QueryProvider } from '@/providers/query-provider';
+import { Toaster } from 'sonner';
 import { cookies } from 'next/headers';
 import type { Locale } from '@repo/locales';
 
@@ -37,15 +40,20 @@ export default async function RootLayout({
         />
       </head>
       <body className={`subpixel-antialiased`}>
-        <AppContextProvider>
-          <LocaleProvider initialLocale={locale}>
-            <ThemeProvider>
-              <NavBar />
-              <main className="px-4 pb-40 w-full">{children}</main>
-              <Footer />
-            </ThemeProvider>
-          </LocaleProvider>
-        </AppContextProvider>
+        <QueryProvider>
+          <AppContextProvider>
+            <LocaleProvider initialLocale={locale}>
+              <ThemeProvider>
+                <AuthProvider>
+                  <Toaster position="top-right" richColors />
+                  <NavBar />
+                  <main className="px-4 pb-40 w-full">{children}</main>
+                  <Footer />
+                </AuthProvider>
+              </ThemeProvider>
+            </LocaleProvider>
+          </AppContextProvider>
+        </QueryProvider>
       </body>
     </html>
   );

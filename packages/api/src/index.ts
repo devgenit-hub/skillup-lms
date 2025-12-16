@@ -1,9 +1,11 @@
 import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { prisma } from '@repo/db';
+import { authRouter } from './routes/auth.js';
 import { coursesRouter } from './routes/courses.js';
 import { usersRouter } from './routes/users.js';
 import { enrollmentsRouter } from './routes/enrollments.js';
@@ -19,6 +21,7 @@ const PORT = process.env.PORT || 4000;
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
@@ -88,6 +91,7 @@ app.use(
 );
 
 // API Routes
+app.use('/api/auth', authRouter);
 app.use('/api/courses', coursesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/enrollments', enrollmentsRouter);

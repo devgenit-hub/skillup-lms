@@ -27,8 +27,8 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
       try {
         await new Promise((resolve) => setTimeout(resolve, 100));
         setIsReady(true);
-      } catch (error) {
-        console.error('App initialization error:', error);
+      } catch {
+        // Silent fail
       } finally {
         setIsLoading(false);
       }

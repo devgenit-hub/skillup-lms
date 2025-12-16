@@ -38,7 +38,8 @@
     "stats_remaining": "Remaining",
     "greeting_morning": "Good Morning",
     "greeting_afternoon": "Good Afternoon",
-    "greeting_evening": "Good Evening"
+    "greeting_evening": "Good Evening",
+    "loading": "Loading..."
   },
   "course": {
     "batch": "Batch",
@@ -59,7 +60,26 @@
     "account_actions": "Account Actions",
     "account_deactivate": "Deactivate Account",
     "account_delete": "Delete Account",
-    "password_secure": "Update your password to keep your account secure"
+    "password_secure": "Update your password to keep your account secure",
+    "toast_updateSuccess": "Profile updated successfully",
+    "toast_updateError": "Failed to update profile",
+    "toast_passwordSuccess": "Password changed successfully! A confirmation email has been sent to your registered email address.",
+    "toast_passwordError": "Failed to change password",
+    "toast_fillAllFields": "Please fill all fields",
+    "toast_passwordMismatch": "Passwords do not match",
+    "toast_passwordMinLength": "Password must be at least 6 characters"
+  },
+  "auth": {
+    "toast_passwordMismatch": "Passwords do not match",
+    "toast_emailAlreadyRegistered": "This email is already registered",
+    "toast_accountCreated": "Account created! Please verify your email",
+    "toast_invalidCredentials": "Invalid email or password",
+    "toast_emailNotConfirmed": "Please verify your email",
+    "toast_loginSuccess": "Logged in successfully",
+    "toast_somethingWrong": "Something went wrong",
+    "toast_emailConfirmed": "Email verified successfully! You can now login",
+    "toast_logoutSuccess": "Logged out successfully",
+    "toast_logoutError": "Failed to logout"
   },
   "about": {
     "page_title": "About Us",

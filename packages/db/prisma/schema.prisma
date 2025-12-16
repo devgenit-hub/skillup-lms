@@ -11,17 +11,24 @@ datasource db {
 
 // User model for authentication
 model User {
- id        String   @id @default(cuid())
- email     String   @unique
- name      String?
- role      UserRole @default(STUDENT)
- createdAt DateTime @default(now())
- updatedAt DateTime @updatedAt
+ id            String       @id @default(cuid())
+ supabaseId    String       @unique // Maps to Supabase auth.users.id
+ email         String       @unique
+ name          String?
+ avatarUrl     String?
+ phone         String?
+ emailVerified Boolean      @default(false)
+ provider      AuthProvider @default(EMAIL)
+ role          UserRole     @default(STUDENT)
+ lastLoginAt   DateTime?
+ createdAt     DateTime     @default(now())
+ updatedAt     DateTime     @updatedAt
 
  // Relations
  enrollments Enrollment[]
  courses     Course[]     @relation("instructor")
 
+ @@index([supabaseId])
  @@map("users")
 }
 
@@ -29,6 +36,11 @@ enum UserRole {
  STUDENT
  INSTRUCTOR
  ADMIN
+}
+
+enum AuthProvider {
+ EMAIL
+ GOOGLE
 }
 
 // Course model

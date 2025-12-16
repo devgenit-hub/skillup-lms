@@ -16,8 +16,8 @@ export default function Page() {
           linkText="লগ ইন"
           linkTo="/auth/login"
         />
-        <div className="flex flex-col gap-3 justify-center h-2/3 ">
-          <AuthForm inputs={registerFields} isTermsChecked={true} />
+        <div className="flex flex-col gap-3 justify-center h-2/3">
+          <AuthForm inputs={registerFields} isTermsChecked={true} submitButtonText="নিবন্ধন করুন" />
         </div>
       </div>
     </div>

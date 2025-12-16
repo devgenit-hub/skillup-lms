@@ -11,7 +11,6 @@ import {
 } from '../schemas/index.js';
 
 export class UserController {
-  // Get all users with pagination
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const query = paginationSchema.parse(req.query);
 
@@ -41,7 +40,6 @@ export class UserController {
     });
   });
 
-  // Get single user by ID
   static getById = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
 
@@ -76,11 +74,9 @@ export class UserController {
     ApiResponse.success(res, user);
   });
 
-  // Create new user
   static create = asyncHandler(async (req: Request, res: Response) => {
     const data = createUserSchema.parse(req.body);
 
-    // Check if email already exists
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -103,12 +99,10 @@ export class UserController {
     ApiResponse.created(res, user, 'User created successfully');
   });
 
-  // Update user
   static update = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const data = updateUserSchema.parse(req.body);
 
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { id },
     });
@@ -117,7 +111,6 @@ export class UserController {
       throw new NotFoundError('User');
     }
 
-    // Check email uniqueness if updating email
     if (data.email && data.email !== existingUser.email) {
       const emailExists = await prisma.user.findUnique({
         where: { email: data.email },
@@ -143,11 +136,9 @@ export class UserController {
     ApiResponse.success(res, user, 'User updated successfully');
   });
 
-  // Delete user
   static delete = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
 
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
       where: { id },
     });
