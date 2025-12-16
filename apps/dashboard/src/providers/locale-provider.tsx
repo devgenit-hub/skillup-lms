@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { translations, Locale, DashboardTranslations, CommonTranslations } from '@repo/locales';
 
 interface LocaleContextType {
@@ -20,10 +20,22 @@ interface LocaleProviderProps {
 export function LocaleProvider({ children, initialLocale = 'en' }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
+  useEffect(() => {
+    // Load saved locale from localStorage
+    const savedLocale = localStorage.getItem('skillup-dashboard-locale') as Locale | null;
+    if (savedLocale) {
+      setLocaleState(savedLocale);
+    } else {
+      // Save default locale
+      localStorage.setItem('skillup-dashboard-locale', initialLocale);
+      document.cookie = `skillup-dashboard-locale=${initialLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+  }, [initialLocale]);
+
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
-    localStorage.setItem('airdreads-locale', newLocale);
-    document.cookie = `airdreads-locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    localStorage.setItem('skillup-dashboard-locale', newLocale);
+    document.cookie = `skillup-dashboard-locale=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
   };
 
   const t = <K extends keyof DashboardTranslations>(namespace: K): DashboardTranslations[K] => {

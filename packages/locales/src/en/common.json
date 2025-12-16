@@ -12,11 +12,51 @@
     "close": "Close",
     "cancel": "Cancel",
     "save": "Save",
-    "delete": "Delete"
+    "delete": "Delete",
+    "edit": "Edit",
+    "upload": "Upload",
+    "download": "Download",
+    "search": "Search",
+    "viewAll": "View All"
   },
   "messages": {
     "noData": "No data available",
     "tryAgain": "Please try again",
     "savedSuccessfully": "Saved successfully"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password"
+  },
+  "profile": {
+    "profile": "Profile",
+    "myProfile": "My Profile",
+    "settings": "Settings",
+    "profileSettings": "Profile Settings",
+    "personalInformation": "Personal Information",
+    "changePassword": "Change Password",
+    "updatePassword": "Update Password",
+    "profilePhoto": "Profile Photo",
+    "uploadNewPhoto": "Upload New Photo",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "phoneNumber": "Phone Number",
+    "newPassword": "New Password",
+    "manageAccount": "Manage Your Account"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "thisYear": "This Year"
   }
 }

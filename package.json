@@ -1,6 +1,7 @@
 {
   "name": "skill-up",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "build:website": "turbo run build --filter=website",
@@ -32,7 +33,7 @@
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
-      "eslint --fix --max-warnings=0",
+      "eslint --fix --max-warnings=0 --quiet",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml}": [

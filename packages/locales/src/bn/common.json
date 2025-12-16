@@ -12,11 +12,51 @@
     "close": "বন্ধ করুন",
     "cancel": "বাতিল",
     "save": "সংরক্ষণ করুন",
-    "delete": "মুছে ফেলুন"
+    "delete": "মুছে ফেলুন",
+    "edit": "সম্পাদনা করুন",
+    "upload": "আপলোড করুন",
+    "download": "ডাউনলোড করুন",
+    "search": "অনুসন্ধান",
+    "viewAll": "সবগুলো দেখুন"
   },
   "messages": {
     "noData": "কোন তথ্য নেই",
     "tryAgain": "আবার চেষ্টা করুন",
     "savedSuccessfully": "সফলভাবে সংরক্ষিত হয়েছে"
+  },
+  "auth": {
+    "login": "লগইন",
+    "logout": "লগআউট",
+    "signup": "সাইন আপ",
+    "register": "রেজিস্টার",
+    "email": "ইমেইল",
+    "password": "পাসওয়ার্ড",
+    "confirmPassword": "পাসওয়ার্ড নিশ্চিত করুন",
+    "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
+    "resetPassword": "পাসওয়ার্ড রিসেট করুন"
+  },
+  "profile": {
+    "profile": "প্রোফাইল",
+    "myProfile": "আমার প্রোফাইল",
+    "settings": "সেটিংস",
+    "profileSettings": "প্রোফাইল সেটিংস",
+    "personalInformation": "ব্যক্তিগত তথ্য",
+    "changePassword": "পাসওয়ার্ড পরিবর্তন করুন",
+    "updatePassword": "পাসওয়ার্ড আপডেট করুন",
+    "profilePhoto": "প্রোফাইল ফটো",
+    "uploadNewPhoto": "নতুন ফটো আপলোড করুন",
+    "fullName": "পুরো নাম",
+    "emailAddress": "ইমেইল ঠিকানা",
+    "phoneNumber": "ফোন নম্বর",
+    "newPassword": "নতুন পাসওয়ার্ড",
+    "manageAccount": "অ্যাকাউন্ট পরিচালনা করুন"
+  },
+  "time": {
+    "today": "আজ",
+    "yesterday": "গতকাল",
+    "tomorrow": "আগামীকাল",
+    "thisWeek": "এই সপ্তাহ",
+    "thisMonth": "এই মাস",
+    "thisYear": "এই বছর"
   }
 }

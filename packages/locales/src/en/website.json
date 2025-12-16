@@ -2,24 +2,77 @@
   "homepage": {
     "welcome": "Welcome to our Learning Platform",
     "subscribe": "Subscribe",
-    "login": "Login",
-    "signup": "Sign Up",
     "seeDemo": "See Demo"
   },
   "navbar": {
     "home": "Home",
     "courses": "Courses",
+    "allCourses": "All Courses",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "webinar": "Webinar",
+    "demo": "Demo",
+    "aboutUs": "About Us",
+    "career": "Career"
   },
-  "buttons": {
-    "submit": "Submit",
-    "cancel": "Cancel",
-    "save": "Save"
+  "landing": {
+    "courses_heading": "Our Best Courses",
+    "courses_viewAll": "View All Courses",
+    "courses_category_all": "All",
+    "webinar_heading": "Interactive Webinar",
+    "sessions": "Sessions",
+    "daysLeft": "Days Left",
+    "studentsEnrolled": "Students Enrolled",
+    "totalSessions": "Total Sessions"
   },
-  "forms": {
-    "email": "Email",
-    "password": "Password",
-    "name": "Name"
+  "student": {
+    "dashboard_title": "Dashboard",
+    "courses_my": "My Courses",
+    "courses_all": "All Courses",
+    "live_upcoming": "Upcoming Live",
+    "live_now": "Live Now",
+    "sessions_viewAll": "View All Sessions",
+    "progress_track": "Track Your Learning Progress",
+    "stats_owned": "Owned",
+    "stats_completed": "Completed",
+    "stats_remaining": "Remaining",
+    "greeting_morning": "Good Morning",
+    "greeting_afternoon": "Good Afternoon",
+    "greeting_evening": "Good Evening"
+  },
+  "course": {
+    "batch": "Batch",
+    "category": "Category",
+    "enrolled": "Enrolled",
+    "enroll": "Enroll",
+    "enrollNow": "Enroll Now",
+    "startLearning": "Start Learning"
+  },
+  "search": {
+    "placeholder": "Search",
+    "searchCourses": "Search courses, classes..."
+  },
+  "profile": {
+    "photo_recommendation": "At least 1080 x 1080 px recommended. JPG or PNG is allowed.",
+    "email_cannotChange": "Email cannot be changed",
+    "phone_cannotChange": "Phone cannot be changed",
+    "account_actions": "Account Actions",
+    "account_deactivate": "Deactivate Account",
+    "account_delete": "Delete Account",
+    "password_secure": "Update your password to keep your account secure"
+  },
+  "about": {
+    "page_title": "About Us",
+    "page_subtitle": "Who we are and what we aim for",
+    "comingSoon_title": "Coming Soon",
+    "comingSoon_description": "We are building this page. You will find detailed information about us here soon.",
+    "backToHome": "Back to Home"
+  },
+  "career": {
+    "page_title": "Career",
+    "page_subtitle": "Work with us and fulfill your dreams",
+    "comingSoon_title": "Coming Soon",
+    "comingSoon_description": "We are bringing new opportunities. You will find career related information here soon.",
+    "backToHome": "Back to Home"
   }
 }
