@@ -102,7 +102,7 @@ export default function ManageTeachersPage() {
               <tr key={teacher.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 bg-vibrant-blue rounded-full flex items-center justify-center text-white font-semibold">
+                    <div className="shrink-0 h-10 w-10 bg-vibrant-blue rounded-full flex items-center justify-center text-white font-semibold">
                       {teacher.name
                         .split(' ')
                         .map((n) => n[0])

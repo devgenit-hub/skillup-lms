@@ -24,7 +24,7 @@ export default function TeacherLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-64 px-3 bg-emerald-900 text-emerald-50 hidden md:flex md:flex-col flex-shrink-0 h-screen sticky top-0">
+      <aside className="w-64 px-3 bg-emerald-900 text-emerald-50 hidden md:flex md:flex-col shrink-0 h-screen sticky top-0">
         <Link
           href="/teacher"
           className="block p-6 cursor-pointer hover:opacity-80 transition-opacity"

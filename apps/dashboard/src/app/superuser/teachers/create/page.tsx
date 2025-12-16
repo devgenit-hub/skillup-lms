@@ -74,7 +74,7 @@ export default function CreateTeacherPage() {
           </h2>
 
           <div className="flex items-center gap-6">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               {formData.profileImage ? (
                 <img
                   src={formData.profileImage}

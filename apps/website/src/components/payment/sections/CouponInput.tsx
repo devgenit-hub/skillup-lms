@@ -7,7 +7,7 @@ export default function CouponInput() {
         <input
           type="text"
           placeholder="কোড লিখুন"
-          className="flex-grow bg-none outline-none text-sm px-4 py-2 placeholder-gray-400"
+          className="grow bg-none outline-none text-sm px-4 py-2 placeholder-gray-400"
         />
         <button className="bg-vibrant-blue hover:bg-vibrant-blue/80 text-white text-sm font-semibold px-4 py-2 rounded-full transition">
           প্রয়োগ করুন

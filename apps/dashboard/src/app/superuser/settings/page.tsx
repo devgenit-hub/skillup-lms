@@ -93,9 +93,9 @@ export default function SettingsPage() {
                 }`}
               >
                 {message.type === 'success' ? (
-                  <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
+                  <CheckCircle className="text-green-600  shrink-0" size={20} />
                 ) : (
-                  <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                  <AlertCircle className="text-red-600 shrink-0" size={20} />
                 )}
                 <p
                   className={`text-sm font-medium ${
@@ -202,7 +202,7 @@ export default function SettingsPage() {
             <ul className="space-y-2 text-sm text-slate-600">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>Use a unique password that you don't use elsewhere</span>
+                <span>Use a unique password that you don{"'"}t use elsewhere</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>

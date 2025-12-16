@@ -294,7 +294,7 @@ export default function Page() {
       <div className="max-w-7xl mx-auto space-y-4 lg:space-y-6">
         <div className="relative">
           {/* Course Header */}
-          <div className="bg-gradient-to-tr from-blue-400/60 to-80% to-indigo-800 rounded-2xl lg:rounded-3xl p-4 lg:p-8 w-full">
+          <div className="bg-linear-to-tr from-blue-400/60 to-80% to-indigo-800 rounded-2xl lg:rounded-3xl p-4 lg:p-8 w-full">
             <h1 className="font-bold text-xl lg:text-3xl text-white mb-2">React Mastery Course</h1>
 
             <div className="bg-white p-4 rounded-xl w-fit shadow-vibrant-blue shadow-2xl space-y-2 hover:bg-slate-100 transition-colors">

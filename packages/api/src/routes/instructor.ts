@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Router as RouterType } from 'express';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 import {
@@ -8,7 +8,7 @@ import {
   getStudentPayments,
 } from '../controllers/instructor-student.controller.js';
 
-const router = Router();
+const router: RouterType = Router();
 
 router.use(authenticate);
 router.use(requireRole(['INSTRUCTOR']));
