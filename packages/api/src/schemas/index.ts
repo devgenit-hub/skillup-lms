@@ -12,6 +12,7 @@ export const paginationSchema = z.object({
 
 // User schemas
 export const createUserSchema = z.object({
+  supabaseId: z.string().min(1, 'Supabase ID is required'),
   email: z.string().email('Invalid email address'),
   name: z.string().min(1, 'Name is required').optional(),
   role: z.enum(['STUDENT', 'INSTRUCTOR', 'ADMIN']).default('STUDENT'),
