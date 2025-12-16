@@ -43,7 +43,43 @@ class ApiClient {
     return this.request('/api/auth/me', { method: 'GET' });
   }
 
-  async updateTeacher(id: string, data: { name?: string; email?: string }) {
+  async getCurrentTeacher() {
+    return this.request('/api/teachers/me', { method: 'GET' });
+  }
+
+  async updateCurrentTeacher(data: {
+    name?: string;
+    phone?: string;
+    address?: string;
+    qualification?: string;
+    experience?: string;
+    specialization?: string;
+    bio?: string;
+    profileImage?: string;
+    joiningDate?: string;
+  }) {
+    return this.request('/api/teachers/me', {
+      method: 'PATCH',
+      data,
+    });
+  }
+
+  async updateTeacher(
+    id: string,
+    data: {
+      name?: string;
+      email?: string;
+      password?: string;
+      phone?: string;
+      address?: string;
+      qualification?: string;
+      experience?: string;
+      specialization?: string;
+      bio?: string;
+      profileImage?: string;
+      joiningDate?: string;
+    }
+  ) {
     return this.request(`/api/teachers/${id}`, {
       method: 'PATCH',
       data,
@@ -60,7 +96,19 @@ class ApiClient {
     return this.request('/api/teachers', { method: 'GET' });
   }
 
-  async createTeacher(data: { name: string; email: string }) {
+  async createTeacher(data: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    address?: string;
+    qualification?: string;
+    experience?: string;
+    specialization?: string;
+    bio?: string;
+    profileImage?: string;
+    joiningDate?: string;
+  }) {
     return this.request('/api/teachers', {
       method: 'POST',
       data,

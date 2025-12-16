@@ -41,21 +41,30 @@ export async function middleware(request: NextRequest) {
   }
 
   if (session && pathname === '/login' && accessToken) {
-    const meResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-      headers: { Cookie: `access_token=${accessToken}` },
-    });
+    try {
+      const meResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+        method: 'GET',
+        headers: {
+          Cookie: `access_token=${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
 
-    if (meResponse.ok) {
-      const { data } = await meResponse.json();
-      const requestedRole = request.nextUrl.searchParams.get('id');
+      if (meResponse.ok) {
+        const { data } = await meResponse.json();
+        const requestedRole = request.nextUrl.searchParams.get('id');
 
-      if (
-        (data.role === UserRole.ADMIN && requestedRole === 'superuser') ||
-        (data.role === UserRole.INSTRUCTOR && requestedRole === 'teacher')
-      ) {
-        const redirectUrl = data.role === UserRole.ADMIN ? '/superuser' : '/teacher';
-        return NextResponse.redirect(new URL(redirectUrl, request.url));
+        if (
+          (data.role === UserRole.ADMIN && requestedRole === 'superuser') ||
+          (data.role === UserRole.INSTRUCTOR && requestedRole === 'teacher')
+        ) {
+          const redirectUrl = data.role === UserRole.ADMIN ? '/superuser' : '/teacher';
+          return NextResponse.redirect(new URL(redirectUrl, request.url));
+        }
       }
+    } catch (error) {
+      console.error('Middleware auth check error:', error);
     }
   }
 
@@ -66,27 +75,37 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    const meResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
-      headers: { Cookie: `access_token=${accessToken}` },
-    });
+    try {
+      const meResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+        method: 'GET',
+        headers: {
+          Cookie: `access_token=${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
 
-    if (!meResponse.ok) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-
-    const { data } = await meResponse.json();
-
-    if (pathname.startsWith('/superuser') && data.role !== UserRole.ADMIN) {
-      if (data.role === UserRole.INSTRUCTOR) {
-        return NextResponse.redirect(new URL('/teacher', request.url));
+      if (!meResponse.ok) {
+        return NextResponse.redirect(new URL('/login', request.url));
       }
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
 
-    if (pathname.startsWith('/teacher') && data.role !== UserRole.INSTRUCTOR) {
-      if (data.role === UserRole.ADMIN) {
-        return NextResponse.redirect(new URL('/superuser', request.url));
+      const { data } = await meResponse.json();
+
+      if (pathname.startsWith('/superuser') && data.role !== UserRole.ADMIN) {
+        if (data.role === UserRole.INSTRUCTOR) {
+          return NextResponse.redirect(new URL('/teacher', request.url));
+        }
+        return NextResponse.redirect(new URL('/login', request.url));
       }
+
+      if (pathname.startsWith('/teacher') && data.role !== UserRole.INSTRUCTOR) {
+        if (data.role === UserRole.ADMIN) {
+          return NextResponse.redirect(new URL('/superuser', request.url));
+        }
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+    } catch (error) {
+      console.error('Middleware auth check error:', error);
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

@@ -3,7 +3,7 @@
 // src/app/teacher/layout.js
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Home } from 'lucide-react';
+import { BookOpen, Home, Settings } from 'lucide-react';
 import { ReactNode } from 'react';
 import { useAuthStore } from '@/lib/zustand/auth-store';
 
@@ -32,7 +32,6 @@ export default function TeacherLayout({
           <h1 className="text-xl font-bold">Teacher Portal</h1>
         </Link>
         <nav className="mt-6 flex-1 overflow-y-auto">
-          {' '}
           <Link
             href="/teacher"
             className={`flex items-center space-x-3 px-4 py-3 mb-2 rounded-lg transition-colors ${
@@ -43,6 +42,17 @@ export default function TeacherLayout({
           >
             <Home size={20} />
             <span>My Dashboard</span>
+          </Link>
+          <Link
+            href="/teacher/settings"
+            className={`flex items-center space-x-3 px-4 py-3 mb-2 rounded-lg transition-colors ${
+              pathname === '/teacher/settings'
+                ? 'bg-emerald-800 text-white'
+                : 'text-emerald-200 hover:bg-emerald-800 hover:text-white'
+            }`}
+          >
+            <Settings size={20} />
+            <span>Settings</span>
           </Link>
           <div className="px-4 py-3 text-sm text-emerald-400 uppercase font-bold mt-6">
             My Courses

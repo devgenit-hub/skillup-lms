@@ -7,12 +7,18 @@ import {
   updateTeacher,
   resetTeacherPassword,
   deleteTeacher,
+  getCurrentTeacher,
+  updateCurrentTeacher,
 } from '../controllers/teacher.controller.js';
 import type { Router as ExpressRouter } from 'express';
 
 const router: ExpressRouter = Router();
 
 router.use(authenticate);
+
+router.get('/me', requireRole(['INSTRUCTOR']), getCurrentTeacher);
+router.patch('/me', requireRole(['INSTRUCTOR']), updateCurrentTeacher);
+
 router.use(requireRole(['ADMIN']));
 
 router.get('/', getTeachers);

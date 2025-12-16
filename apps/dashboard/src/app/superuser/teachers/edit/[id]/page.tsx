@@ -1,7 +1,7 @@
 'use client';
 
 import { PageHeader } from '@/components/ui/PageHeader';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Upload,
   User,
@@ -13,19 +13,42 @@ import {
   Smile,
   Frown,
   Loader2,
+  CheckCircle,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useLocale } from '@/providers/locale-provider';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 
-export default function CreateTeacherPage() {
+interface Teacher {
+  id: string;
+  supabaseId: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  qualification: string | null;
+  experience: number | null;
+  specialization: string | null;
+  bio: string | null;
+  profileImage: string | null;
+  joiningDate: string | null;
+  createdAt: string;
+  lastLoginAt: string | null;
+  _count: { courses: number };
+}
+
+export default function EditTeacherPage() {
   const router = useRouter();
+  const params = useParams();
+  const teacherId = params.id as string;
   const { t } = useLocale();
   const formText = t('forms');
   const buttonText = t('buttons');
 
   const [loading, setLoading] = useState(false);
+  const [fetchingTeacher, setFetchingTeacher] = useState(true);
+  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -42,6 +65,43 @@ export default function CreateTeacherPage() {
     joiningDate: '',
   });
 
+  useEffect(() => {
+    const fetchTeacher = async () => {
+      try {
+        setFetchingTeacher(true);
+        const response = await apiClient.getTeachers();
+        const teachers = response.data as Teacher[];
+        const teacher = teachers.find((t) => t.id === teacherId);
+
+        if (teacher) {
+          setFormData((prev) => ({
+            ...prev,
+            name: teacher.name || '',
+            email: teacher.email || '',
+            phone: teacher.phone || '',
+            address: teacher.address || '',
+            qualification: teacher.qualification || '',
+            experience: teacher.experience?.toString() || '',
+            specialization: teacher.specialization || '',
+            bio: teacher.bio || '',
+            profileImage: teacher.profileImage || '',
+            joiningDate: (teacher.joiningDate ? teacher.joiningDate.split('T')[0] : '') as string,
+          }));
+        } else {
+          toast.error('Teacher not found');
+          setTimeout(() => router.push('/superuser/teachers'), 2000);
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load teacher';
+        toast.error(errorMessage);
+      } finally {
+        setFetchingTeacher(false);
+      }
+    };
+
+    fetchTeacher();
+  }, [teacherId, router]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -52,7 +112,7 @@ export default function CreateTeacherPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password && formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match!');
       return;
     }
@@ -60,44 +120,77 @@ export default function CreateTeacherPage() {
     try {
       setLoading(true);
 
-      await apiClient.createTeacher({
+      const updateData = {
         name: formData.name.trim(),
         email: formData.email.trim(),
-        password: formData.password.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
         qualification: formData.qualification.trim(),
         experience: formData.experience,
         specialization: formData.specialization.trim(),
         bio: formData.bio.trim(),
-        profileImage: formData.profileImage,
         joiningDate: formData.joiningDate,
-      });
+        profileImage: formData.profileImage,
+        ...(formData.password && { password: formData.password }),
+      };
 
-      toast.success('Teacher created successfully!');
-      router.push('/superuser/teachers');
+      await apiClient.updateTeacher(teacherId, updateData);
+
+      setSuccess(true);
+      toast.success('Teacher updated successfully!');
+      setTimeout(() => {
+        router.push('/superuser/teachers');
+      }, 1500);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create teacher';
-
-      if (
-        errorMessage.includes('email address has already been registered') ||
-        errorMessage.includes('already exists') ||
-        errorMessage.includes('duplicate')
-      ) {
-        toast.error('A user with this email already exists. Please use a different email address.');
-      } else {
-        toast.error(errorMessage);
-      }
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update teacher';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  if (fetchingTeacher) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-vibrant-blue mx-auto mb-2" />
+          <p className="text-slate-600">Loading teacher details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div>
+        <PageHeader
+          title="Teacher Updated Successfully"
+          description="The teacher information has been updated."
+        />
+
+        <div className="max-w-2xl mx-auto mt-8">
+          <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="text-white" size={32} />
+            </div>
+
+            <h2 className="text-2xl font-bold text-emerald-900 mb-2">Update Successful!</h2>
+            <p className="text-emerald-700 mb-6">
+              Teacher <strong>{formData.name}</strong> has been updated successfully.
+            </p>
+
+            <p className="text-sm text-slate-600">Redirecting to teachers list...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <PageHeader
-        title={formText['create_teacher_title']}
-        description={formText['create_teacher_subtitle']}
+        title="Edit Teacher"
+        description="Update teacher information and account details."
       />
 
       <form
@@ -134,7 +227,7 @@ export default function CreateTeacherPage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     if (file.size > 2 * 1024 * 1024) {
-                      toast.error('File size exceeds 2MB. Please choose a smaller file.');
+                      alert('File size exceeds 2MB. Please choose a smaller file.');
                       return;
                     }
                     const imageUrl = URL.createObjectURL(file);
@@ -270,10 +363,17 @@ export default function CreateTeacherPage() {
             {formText['account_security']}
           </h2>
 
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> Leave password fields empty to keep the current password. Only
+              fill them if you want to change the password.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                {formText['password']} <span className="text-red-500">*</span>
+                {formText['password']}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -284,7 +384,6 @@ export default function CreateTeacherPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  required
                   minLength={8}
                   className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
                   placeholder={formText['password_placeholder']}
@@ -294,7 +393,7 @@ export default function CreateTeacherPage() {
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                {formText['confirm_password']} <span className="text-red-500">*</span>
+                {formText['confirm_password']}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -305,7 +404,6 @@ export default function CreateTeacherPage() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  required
                   minLength={8}
                   className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
                   placeholder={formText['confirm_password_placeholder']}
@@ -314,27 +412,30 @@ export default function CreateTeacherPage() {
             </div>
           </div>
 
-          <p className="mt-2 text-xs text-slate-500">{formText['password_requirement']}</p>
-          {formData.password.length > 0 &&
-            (formData.password.length > 8 ? (
-              <p className="w-fit my-1 text-sm text-green-600 bg-green-100 p-2 rounded-md flex items-center gap-1">
-                <Smile size={20} /> {formText['password_length_valid']}
-              </p>
-            ) : (
-              <p className="w-fit my-1 text-sm text-red-600 bg-red-100 p-2 rounded-md flex items-center gap-1">
-                <Frown size={20} /> {formText['password_length_invalid']}
-              </p>
-            ))}
-          {formData.confirmPassword.length > 0 &&
-            (formData.password === formData.confirmPassword ? (
-              <p className="w-fit my-1 text-sm text-green-600 bg-green-100 p-2 rounded-md flex items-center gap-1">
-                <Smile size={20} /> {formText['password_match']}
-              </p>
-            ) : (
-              <p className="w-fit my-1 text-sm text-red-600 bg-red-100 p-2 rounded-md flex items-center gap-1">
-                <Frown size={20} /> {formText['password_not_match']}
-              </p>
-            ))}
+          {formData.password.length > 0 && (
+            <>
+              <p className="mt-2 text-xs text-slate-500">{formText['password_requirement']}</p>
+              {formData.password.length > 8 ? (
+                <p className="w-fit my-1 text-sm text-green-600 bg-green-100 p-2 rounded-md flex items-center gap-1">
+                  <Smile size={20} /> {formText['password_length_valid']}
+                </p>
+              ) : (
+                <p className="w-fit my-1 text-sm text-red-600 bg-red-100 p-2 rounded-md flex items-center gap-1">
+                  <Frown size={20} /> {formText['password_length_invalid']}
+                </p>
+              )}
+              {formData.confirmPassword.length > 0 &&
+                (formData.password === formData.confirmPassword ? (
+                  <p className="w-fit my-1 text-sm text-green-600 bg-green-100 p-2 rounded-md flex items-center gap-1">
+                    <Smile size={20} /> {formText['password_match']}
+                  </p>
+                ) : (
+                  <p className="w-fit my-1 text-sm text-red-600 bg-red-100 p-2 rounded-md flex items-center gap-1">
+                    <Frown size={20} /> {formText['password_not_match']}
+                  </p>
+                ))}
+            </>
+          )}
         </section>
 
         {/* Professional Information Section */}
@@ -423,10 +524,10 @@ export default function CreateTeacherPage() {
             {loading ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                Creating...
+                Updating...
               </>
             ) : (
-              formText['create_teacher_account']
+              'Update Teacher'
             )}
           </button>
         </div>
