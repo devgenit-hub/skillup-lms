@@ -33,6 +33,9 @@ model User {
 
  @@index([supabaseId])
  @@index([email])
+ @@index([suspended])
+ @@index([createdAt])
+ @@index([role])
  @@map("users")
 }
 
@@ -76,15 +79,16 @@ model Course {
  description  String?
  published    Boolean  @default(false)
  instructorId String
+ metadata     Json?
  createdAt    DateTime @default(now())
  updatedAt    DateTime @updatedAt
 
- // Relations
  instructor  User         @relation("instructor", fields: [instructorId], references: [id], onDelete: Cascade)
  enrollments Enrollment[]
  lessons     Lesson[]
 
  @@index([instructorId])
+ @@index([published])
  @@map("courses")
 }
 
@@ -157,4 +161,57 @@ enum PaymentStatus {
  COMPLETED
  FAILED
  REFUNDED
+}
+
+model Webinar {
+ id                String   @id @default(cuid())
+ title             String
+ category          String
+ image             String?
+ scheduleDateTime  DateTime
+ duration          Int
+ feeType           String   @default("free")
+ price             Float?
+ platform          String
+ status            String   @default("draft")
+ sessionHighlights String?  @db.Text
+ aboutWebinar      String?  @db.Text
+ speakers          Json?
+ sessionAgenda     Json?
+ resources         Json?
+ liveLink          String?
+ createdAt         DateTime @default(now())
+ updatedAt         DateTime @updatedAt
+
+ registrations WebinarRegistration[]
+
+ @@index([status])
+ @@index([scheduleDateTime])
+ @@map("webinars")
+}
+
+model WebinarRegistration {
+ id           String   @id @default(cuid())
+ webinarId    String
+ userId       String
+ registeredAt DateTime @default(now())
+
+ webinar Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+
+ @@unique([webinarId, userId])
+ @@index([webinarId])
+ @@index([userId])
+ @@map("webinar_registrations")
+}
+
+model CourseTeacher {
+ id        String   @id @default(cuid())
+ courseId  String
+ teacherId String
+ createdAt DateTime @default(now())
+
+ @@unique([courseId, teacherId])
+ @@index([courseId])
+ @@index([teacherId])
+ @@map("course_teachers")
 }
