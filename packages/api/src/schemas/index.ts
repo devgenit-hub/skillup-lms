@@ -43,6 +43,12 @@ export const courseQuerySchema = paginationSchema.extend({
   instructorId: z.string().optional(),
 });
 
+export const assignTeachersSchema = z.object({
+  teacherIds: z
+    .array(z.string().min(1, 'Teacher ID required'))
+    .min(1, 'At least one teacher required'),
+});
+
 // Enrollment schemas
 export const createEnrollmentSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
