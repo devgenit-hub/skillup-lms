@@ -1,34 +1,92 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Edit, Camera, Lock, User, Mail, Phone, Save, X } from 'lucide-react';
-
-const userData = {
-  imageUrl: '/test_images/avatar1.png',
-  name: 'Mr. Meaow',
-  email: 'meaow@taking.com',
-  phone: '0123......',
-};
+import { toast } from 'sonner';
+import { apiClient } from '@/lib/api-client';
+import { createClient } from '@/lib/supabase/client';
+import { useAuthStore, AuthUser } from '@/lib/zustand/auth-store';
+import { useLocale } from '@/providers/locale-provider';
 
 export default function ProfilePage() {
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const supabase = createClient();
+  const { t } = useLocale();
+  const pageText = t('profile');
   const [isEditingPersonalInfo, setIsEditingPersonalInfo] = useState(false);
-  const [editedName, setEditedName] = useState(userData.name);
-  const [editedEmail, setEditedEmail] = useState(userData.email);
-  const [editedPhone, setEditedPhone] = useState(userData.phone);
+  const [editedName, setEditedName] = useState(user?.name || user?.email?.split('@')[0] || '');
+  const [editedPhone, setEditedPhone] = useState(user?.phone || '');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const handleSavePersonalInfo = () => {
-    // Update the actual values
-    // You would typically call an API here to save the data
-    setIsEditingPersonalInfo(false);
+  useEffect(() => {
+    if (user) {
+      setEditedName(user.name || user.email?.split('@')[0] || '');
+      setEditedPhone(user.phone || '');
+    }
+  }, [user]);
+
+  const handleSavePersonalInfo = async () => {
+    try {
+      const response = await apiClient.updateProfile({ name: editedName, phone: editedPhone });
+      if (response.data) {
+        setUser(response.data as AuthUser);
+      }
+      toast.success(pageText['toast_updateSuccess']);
+      setIsEditingPersonalInfo(false);
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || pageText['toast_updateError']);
+    }
   };
 
   const handleCancelEdit = () => {
-    // Reset to original values
-    setEditedName(userData.name);
-    setEditedEmail(userData.email);
-    setEditedPhone(userData.phone);
+    setEditedName(user?.name || user?.email?.split('@')[0] || '');
+    setEditedPhone(user?.phone || '');
     setIsEditingPersonalInfo(false);
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast.error(pageText['toast_fillAllFields']);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error(pageText['toast_passwordMismatch']);
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error(pageText['toast_passwordMinLength']);
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+        data: {
+          password_changed_at: new Date().toISOString(),
+        },
+      });
+      if (error) throw error;
+
+      toast.success(pageText['toast_passwordSuccess'], {
+        duration: 6000,
+      });
+
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || pageText['toast_passwordError'], {
+        duration: 5000,
+      });
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -53,8 +111,8 @@ export default function ProfilePage() {
             <div className="absolute inset-0 bg-linear-to-br from-vibrant-blue to-indigo-600 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
             <div className="relative h-32 w-32 rounded-full overflow-hidden ring-4 ring-white dark:ring-border shadow-xl">
               <Image
-                src={userData.imageUrl}
-                alt={userData.name}
+                src={user?.avatarUrl || '/test_images/avatar1.png'}
+                alt={user?.name || 'User'}
                 fill
                 className="object-cover"
                 sizes="128px"
@@ -73,7 +131,7 @@ export default function ProfilePage() {
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    console.log('Selected file:', file);
+                    // TODO: Handle file upload
                   }
                 }}
               />
@@ -153,8 +211,8 @@ export default function ProfilePage() {
               Full Name
             </label>
             {!isEditingPersonalInfo ? (
-              <div className="px-3 lg:px-4 py-2 lg:py-3 rounded-xl bg-muted/50 border border-border font-medium text-foreground text-sm lg:text-base">
-                {userData.name}
+              <div className="px-3 lg:px-4 py-2 lg:py-3 rounded-xl bg-muted/50 border border-border font-medium text-foreground text-sm lg:text-base overflow-hidden text-ellipsis whitespace-nowrap">
+                {user?.name || user?.email?.split('@')[0] || 'Not set'}
               </div>
             ) : (
               <input
@@ -173,15 +231,14 @@ export default function ProfilePage() {
               Email Address
             </label>
             {!isEditingPersonalInfo ? (
-              <div className="px-3 lg:px-4 py-2 lg:py-3 rounded-xl bg-muted/50 border border-border font-medium text-foreground text-sm lg:text-base">
-                {userData.email}
+              <div className="px-3 lg:px-4 py-2 lg:py-3 rounded-xl bg-muted/50 border border-border font-medium text-foreground text-sm lg:text-base overflow-hidden text-ellipsis whitespace-nowrap">
+                {user?.email}
               </div>
             ) : (
               <input
                 type="email"
                 disabled
-                value={editedEmail}
-                onChange={(e) => setEditedEmail(e.target.value)}
+                value={user?.email || ''}
                 className="w-full px-3 lg:px-4 py-2 lg:py-3 rounded-xl border border-border bg-muted/50 font-medium text-muted-foreground cursor-not-allowed text-sm lg:text-base"
                 title="Email cannot be changed"
               />
@@ -199,20 +256,16 @@ export default function ProfilePage() {
             </label>
             {!isEditingPersonalInfo ? (
               <div className="px-3 lg:px-4 py-2 lg:py-3 rounded-xl bg-muted/50 border border-border font-medium text-foreground text-sm lg:text-base">
-                {userData.phone}
+                {user?.phone || 'Not set'}
               </div>
             ) : (
               <input
                 type="tel"
-                disabled
                 value={editedPhone}
                 onChange={(e) => setEditedPhone(e.target.value)}
-                className="w-full px-3 lg:px-4 py-2 lg:py-3 rounded-xl border border-border bg-muted/50 font-medium text-muted-foreground cursor-not-allowed text-sm lg:text-base"
-                title="Phone cannot be changed"
+                className="w-full px-3 lg:px-4 py-2 lg:py-3 rounded-xl border-2 border-vibrant-blue focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition-all font-medium text-sm lg:text-base bg-background text-foreground"
+                placeholder="Enter phone number"
               />
-            )}
-            {isEditingPersonalInfo && (
-              <p className="text-xs text-muted-foreground mt-1">Phone cannot be changed</p>
             )}
           </div>
         </div>
@@ -220,49 +273,98 @@ export default function ProfilePage() {
 
       {/* Change Password Section */}
       <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-6 lg:p-8">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600">
+        <div className="flex items-center gap-3 mb-4">
+          <div
+            className={`p-2 rounded-xl bg-linear-to-br from-vibrant-blue to-indigo-600 ${
+              user?.provider === 'GOOGLE' ? 'opacity-50' : ''
+            }`}
+          >
             <Lock className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h4 className="font-bold text-base lg:text-lg text-foreground">Change Password</h4>
+          <div className="flex-1">
+            <h4
+              className={`font-bold text-base lg:text-lg ${
+                user?.provider === 'GOOGLE' ? 'text-muted-foreground' : 'text-foreground'
+              }`}
+            >
+              Change Password
+            </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Update your password to keep your account secure
+              {user?.provider === 'GOOGLE'
+                ? 'Password is managed by Google'
+                : 'Update your password to keep your account secure'}
             </p>
           </div>
         </div>
 
+        {user?.provider === 'GOOGLE' && (
+          <div className="mb-4 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <p className="text-sm text-blue-400">
+              Your account is linked with Google. To change your password, please visit your Google
+              Account settings.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
+            <label
+              className={`flex items-center gap-2 text-sm font-medium mb-2 ${
+                user?.provider === 'GOOGLE' ? 'text-muted-foreground/50' : 'text-muted-foreground'
+              }`}
+            >
               <Lock className="w-4 h-4" />
               New Password
             </label>
             <input
               placeholder="Enter new password"
               type="password"
-              className="w-full px-4 py-3 rounded-xl border-2 border-border focus:border-vibrant-blue focus:ring-2 focus:ring-indigo-200 outline-none transition-all bg-background text-foreground"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              disabled={user?.provider === 'GOOGLE'}
+              className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${
+                user?.provider === 'GOOGLE'
+                  ? 'border-border bg-muted/30 text-muted-foreground/50 cursor-not-allowed'
+                  : 'border-border focus:border-vibrant-blue focus:ring-2 focus:ring-indigo-200 bg-background text-foreground'
+              }`}
             />
           </div>
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-2">
+            <label
+              className={`flex items-center gap-2 text-sm font-medium mb-2 ${
+                user?.provider === 'GOOGLE' ? 'text-muted-foreground/50' : 'text-muted-foreground'
+              }`}
+            >
               <Lock className="w-4 h-4" />
               Confirm Password
             </label>
             <input
               placeholder="Confirm new password"
               type="password"
-              className="w-full px-4 py-3 rounded-xl border-2 border-border focus:border-vibrant-blue focus:ring-2 focus:ring-indigo-200 outline-none transition-all bg-background text-foreground"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={user?.provider === 'GOOGLE'}
+              className={`w-full px-4 py-3 rounded-xl border-2 outline-none transition-all ${
+                user?.provider === 'GOOGLE'
+                  ? 'border-border bg-muted/30 text-muted-foreground/50 cursor-not-allowed'
+                  : 'border-border focus:border-vibrant-blue focus:ring-2 focus:ring-indigo-200 bg-background text-foreground'
+              }`}
             />
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end">
-          <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-vibrant-blue to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200/50 transition-all duration-300 font-medium">
-            <Save className="w-4 h-4" />
-            Update Password
-          </button>
-        </div>
+        {user?.provider === 'EMAIL' && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleChangePassword}
+              disabled={isChangingPassword}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-vibrant-blue to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200/50 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Save className="w-4 h-4" />
+              {isChangingPassword ? 'Updating...' : 'Update Password'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Account Actions Section */}

@@ -2,15 +2,30 @@
 
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useState } from 'react';
-import { Upload, User, Mail, Lock, Phone, MapPin, Calendar, Smile, Frown } from 'lucide-react';
+import {
+  Upload,
+  User,
+  Mail,
+  Lock,
+  Phone,
+  MapPin,
+  Calendar,
+  Smile,
+  Frown,
+  Loader2,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale } from '@/providers/locale-provider';
+import { apiClient } from '@/lib/api-client';
+import { toast } from 'sonner';
 
 export default function CreateTeacherPage() {
   const router = useRouter();
   const { t } = useLocale();
   const formText = t('forms');
   const buttonText = t('buttons');
+
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -34,27 +49,48 @@ export default function CreateTeacherPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate password match
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      toast.error('Passwords do not match!');
       return;
     }
 
-    // Create teacher data object
-    const teacherData = {
-      ...formData,
-      id: `t${Date.now()}`, // Generate temporary ID
-      assignedCourses: 0,
-    };
+    try {
+      setLoading(true);
 
-    console.log('Teacher Data:', teacherData);
-    alert('Teacher account created successfully! Check console for data.');
+      await apiClient.createTeacher({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password.trim(),
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
+        qualification: formData.qualification.trim(),
+        experience: formData.experience,
+        specialization: formData.specialization.trim(),
+        bio: formData.bio.trim(),
+        profileImage: formData.profileImage,
+        joiningDate: formData.joiningDate,
+      });
 
-    // Redirect to teachers list
-    router.push('/superuser/teachers');
+      toast.success('Teacher created successfully!');
+      router.push('/superuser/teachers');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create teacher';
+
+      if (
+        errorMessage.includes('email address has already been registered') ||
+        errorMessage.includes('already exists') ||
+        errorMessage.includes('duplicate')
+      ) {
+        toast.error('A user with this email already exists. Please use a different email address.');
+      } else {
+        toast.error(errorMessage);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,7 +111,7 @@ export default function CreateTeacherPage() {
           </h2>
 
           <div className="flex items-center gap-6">
-            <div className="flex-shrink-0">
+            <div className="shrink-0">
               {formData.profileImage ? (
                 <img
                   src={formData.profileImage}
@@ -97,9 +133,8 @@ export default function CreateTeacherPage() {
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    // if file size is larger than 2MB, alert and return
                     if (file.size > 2 * 1024 * 1024) {
-                      alert('File size exceeds 2MB. Please choose a smaller file.');
+                      toast.error('File size exceeds 2MB. Please choose a smaller file.');
                       return;
                     }
                     const imageUrl = URL.createObjectURL(file);
@@ -375,15 +410,24 @@ export default function CreateTeacherPage() {
           <button
             type="button"
             onClick={() => router.push('/superuser/teachers')}
-            className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+            disabled={loading}
+            className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium disabled:opacity-50"
           >
             {buttonText['cancel']}
           </button>
           <button
             type="submit"
-            className="px-6 py-2 bg-dark-blue text-white rounded-lg hover:bg-vibrant-blue transition-colors font-medium"
+            disabled={loading}
+            className="px-6 py-2 bg-dark-blue text-white rounded-lg hover:bg-vibrant-blue transition-colors font-medium disabled:opacity-50 flex items-center gap-2 min-w-40"
           >
-            {formText['create_teacher_account']}
+            {loading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Creating...
+              </>
+            ) : (
+              formText['create_teacher_account']
+            )}
           </button>
         </div>
       </form>

@@ -601,7 +601,7 @@ export default function CourseManagementPage() {
                                 className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-emerald-200 transition-colors group"
                               >
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                                  <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                  <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                                     <MonitorPlay size={16} />
                                   </div>
                                   <div className="min-w-0 flex-1">
@@ -615,7 +615,7 @@ export default function CourseManagementPage() {
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                   <button
                                     onClick={() => deleteClass(module.id, cls.id)}
                                     className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50"

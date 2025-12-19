@@ -45,7 +45,7 @@ export default function WebinarDetailsModal({
 
   const handleLiveLinkSubmit = () => {
     // Handle live link update logic here
-    console.log({ liveLink });
+
     // In a real app, you would call an API to update the webinar
     alert(`Live link updated to: ${liveLink}`);
   };
@@ -59,7 +59,7 @@ export default function WebinarDetailsModal({
 
   const handleCouponSubmit = () => {
     // Handle coupon creation logic here
-    console.log({ couponTag, expiryDate, discount });
+
     // Reset form
     setCouponTag('');
     setExpiryDate(undefined);
@@ -76,14 +76,13 @@ export default function WebinarDetailsModal({
   };
 
   const handleEditSubmit = () => {
-    console.log('Updated webinar data:', editFormData);
     alert('Webinar updated successfully!');
     onClose();
   };
 
   const handleToggleStatus = () => {
     const newStatus = webinar.status === 'upcoming' ? 'draft' : 'upcoming';
-    console.log(`Webinar status changed to: ${newStatus}`);
+
     alert(`Webinar ${newStatus === 'draft' ? 'deactivated' : 'activated'}!`);
   };
 

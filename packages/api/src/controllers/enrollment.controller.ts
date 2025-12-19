@@ -11,7 +11,6 @@ import {
 } from '../schemas/index.js';
 
 export class EnrollmentController {
-  // Get all enrollments with pagination
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const query = paginationSchema.parse(req.query);
 
@@ -39,7 +38,6 @@ export class EnrollmentController {
     });
   });
 
-  // Get single enrollment by ID
   static getById = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
 
@@ -67,11 +65,9 @@ export class EnrollmentController {
     ApiResponse.success(res, enrollment);
   });
 
-  // Create new enrollment
   static create = asyncHandler(async (req: Request, res: Response) => {
     const data = createEnrollmentSchema.parse(req.body);
 
-    // Check if user exists
     const user = await prisma.user.findUnique({
       where: { id: data.userId },
     });
@@ -80,7 +76,6 @@ export class EnrollmentController {
       throw new NotFoundError('User');
     }
 
-    // Check if course exists
     const course = await prisma.course.findUnique({
       where: { id: data.courseId },
     });
@@ -93,7 +88,6 @@ export class EnrollmentController {
       throw new ConflictError('Cannot enroll in unpublished course');
     }
 
-    // Check if already enrolled
     const existingEnrollment = await prisma.enrollment.findUnique({
       where: {
         userId_courseId: {
@@ -122,12 +116,10 @@ export class EnrollmentController {
     ApiResponse.created(res, enrollment, 'Enrollment created successfully');
   });
 
-  // Update enrollment (progress, status)
   static update = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const data = updateEnrollmentSchema.parse(req.body);
 
-    // Check if enrollment exists
     const existingEnrollment = await prisma.enrollment.findUnique({
       where: { id },
     });
@@ -155,11 +147,9 @@ export class EnrollmentController {
     ApiResponse.success(res, enrollment, 'Enrollment updated successfully');
   });
 
-  // Delete enrollment
   static delete = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
 
-    // Check if enrollment exists
     const existingEnrollment = await prisma.enrollment.findUnique({
       where: { id },
     });

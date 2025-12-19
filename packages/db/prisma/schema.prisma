@@ -6,29 +6,67 @@ generator client {
 
 datasource db {
  provider = "postgresql"
- url      = env("DATABASE_URL")
 }
 
 // User model for authentication
 model User {
- id        String   @id @default(cuid())
- email     String   @unique
- name      String?
- role      UserRole @default(STUDENT)
- createdAt DateTime @default(now())
- updatedAt DateTime @updatedAt
+ id               String       @id @default(cuid())
+ supabaseId       String       @unique
+ email            String       @unique
+ name             String?
+ avatarUrl        String?
+ phone            String?
+ emailVerified    Boolean      @default(false)
+ provider         AuthProvider @default(EMAIL)
+ role             UserRole     @default(STUDENT)
+ suspended        Boolean      @default(false)
+ suspendedAt      DateTime?
+ suspendedBy      String?
+ suspensionReason String?
+ lastLoginAt      DateTime?
+ createdAt        DateTime     @default(now())
+ updatedAt        DateTime     @updatedAt
 
- // Relations
  enrollments Enrollment[]
  courses     Course[]     @relation("instructor")
+ payments    Payment[]
 
+ @@index([supabaseId])
+ @@index([email])
  @@map("users")
+}
+
+// Teacher model - completely separate table, no relation to User
+model Teacher {
+ id             String    @id @default(cuid())
+ supabaseId     String    @unique
+ name           String
+ email          String    @unique
+ phone          String?
+ address        String?
+ qualification  String?
+ experience     Int?
+ specialization String?
+ bio            String?
+ profileImage   String?
+ joiningDate    DateTime?
+ createdAt      DateTime  @default(now())
+ updatedAt      DateTime  @updatedAt
+
+ @@index([supabaseId])
+ @@index([email])
+ @@map("teachers")
 }
 
 enum UserRole {
  STUDENT
  INSTRUCTOR
  ADMIN
+}
+
+enum AuthProvider {
+ EMAIL
+ GOOGLE
 }
 
 // Course model
@@ -93,4 +131,30 @@ enum EnrollmentStatus {
  ACTIVE
  COMPLETED
  DROPPED
+}
+
+model Payment {
+ id            String        @id @default(cuid())
+ userId        String
+ courseId      String
+ amount        Float
+ status        PaymentStatus @default(PENDING)
+ transactionId String?       @unique
+ metadata      Json?
+ createdAt     DateTime      @default(now())
+ updatedAt     DateTime      @updatedAt
+
+ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+ @@index([userId])
+ @@index([courseId])
+ @@index([transactionId])
+ @@map("payments")
+}
+
+enum PaymentStatus {
+ PENDING
+ COMPLETED
+ FAILED
+ REFUNDED
 }

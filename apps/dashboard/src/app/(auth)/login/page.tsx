@@ -5,25 +5,64 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldAlert, UserCog, ArrowRight } from 'lucide-react';
 import { useLocale } from '@/providers/locale-provider';
+import { createClient } from '@/lib/supabase/client';
+import { useAuthStore } from '@/lib/zustand/auth-store';
+import { UserRole } from '@repo/shared';
 
 export default function LoginPage() {
   const [role, setRole] = useState('superuser');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const loginType = searchParams.get('id');
   const { t } = useLocale();
   const pageText = t('auth');
   const homepageText = t('homepage');
+  const { refreshUser } = useAuthStore();
 
   useEffect(() => {
     if (loginType === 'teacher') setRole('teacher');
     else setRole('superuser');
   }, [loginType]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // Don't auto-redirect if user already logged in - let them choose to login as different role or continue
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (role === 'superuser') router.push('/superuser');
-    else router.push('/teacher');
+    setError('');
+    setLoading(true);
+
+    try {
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) throw signInError;
+
+      await refreshUser();
+      const currentUser = useAuthStore.getState().user;
+
+      if (
+        !currentUser ||
+        (currentUser.role !== UserRole.ADMIN && currentUser.role !== UserRole.INSTRUCTOR)
+      ) {
+        setError('Access denied. Admin or instructor role required.');
+        await useAuthStore.getState().logout();
+        return;
+      }
+
+      router.replace(currentUser.role === UserRole.ADMIN ? '/superuser' : '/teacher');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isSuper = role === 'superuser';
@@ -66,12 +105,16 @@ export default function LoginPage() {
 
       {/* Login Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <div className="rounded-md bg-red-50 p-4 text-sm text-red-800">{error}</div>}
+
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">
             {pageText['email_label']}
           </label>
           <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:outline-none transition-all ${
               isSuper ? 'focus:ring-vibrant-blue' : 'focus:ring-emerald-600'
             }`}
@@ -96,6 +139,8 @@ export default function LoginPage() {
           </div>
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className={`w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:outline-none transition-all ${
               isSuper ? 'focus:ring-vibrant-blue' : 'focus:ring-emerald-600'
             }`}
@@ -106,9 +151,11 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className={`w-full py-2.5 text-white font-medium rounded-lg transition-colors flex items-center justify-center ${buttonClass}`}
+          disabled={loading}
+          className={`w-full py-2.5 text-white font-medium rounded-lg transition-colors flex items-center justify-center ${buttonClass} disabled:opacity-50`}
         >
-          {pageText['signin_button']} <ArrowRight size={18} className="ml-2" />
+          {loading ? 'Signing in...' : pageText['signin_button']}{' '}
+          <ArrowRight size={18} className="ml-2" />
         </button>
       </form>
 

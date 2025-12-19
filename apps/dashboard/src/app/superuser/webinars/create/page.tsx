@@ -104,7 +104,7 @@ export default function CreateWebinarPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const webinarData = {
+    const _webinarData = {
       ...formData,
       duration: parseInt(formData.duration),
       price: formData.feeType === 'paid' ? parseFloat(formData.price) : undefined,
@@ -113,7 +113,6 @@ export default function CreateWebinarPage() {
       resources,
     };
 
-    console.log('Webinar Data:', webinarData);
     alert('Webinar created successfully! Check console for data.');
   };
 

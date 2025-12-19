@@ -20,7 +20,7 @@ export default function CourseCardHeader({
         alt={title}
         className="z-10 rounded-[18px] object-cover aspect-video w-full"
         width={286}
-        height={286}
+        height={161}
       />
       <div className="hidden dark:block absolute w-full h-fit blur-xl top-0 left-0 rounded-3xl -z-10">
         <Image
@@ -28,7 +28,7 @@ export default function CourseCardHeader({
           alt={title}
           className="-z-10 rounded-2xl aspect-video object-center w-full"
           width={286}
-          height={286}
+          height={161}
         />
       </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import StudentNav from '@/components/student/StudentNav';
 import SearchBar from '@/components/student/SearchBar';
 import SideBar from '@/components/student/SideBar';
@@ -10,21 +11,37 @@ import MobileMenuButton from '@/components/student/MobileMenuButton';
 import MobileSidebar from '@/components/student/MobileSidebar';
 import MobileRightPanel from '@/components/student/MobileRightPanel';
 import { CalendarDays } from 'lucide-react';
+import { useAuthStore } from '@/lib/zustand/auth-store';
 
 interface DashboardContentProps {
   children: React.ReactNode;
-  userData: {
-    imageUrl: string;
-    name: string;
-    email: string;
-    phone: string;
-  };
 }
 
-export default function DashboardContent({ children, userData }: DashboardContentProps) {
+export default function DashboardContent({ children }: DashboardContentProps) {
   const date = new Date();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const isVerified = useAuthStore((state) => state.isVerified);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isVerified && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, isVerified, router]);
+
+  if (!isVerified) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vibrant-blue"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20">
@@ -41,12 +58,7 @@ export default function DashboardContent({ children, userData }: DashboardConten
               />
 
               <div className="flex-1">
-                <StudentNav
-                  imageUrl={userData.imageUrl}
-                  name={userData.name}
-                  email={userData.email}
-                  phone={userData.phone}
-                />
+                <StudentNav />
               </div>
 
               {/* Mobile Menu Button - Right Panel */}

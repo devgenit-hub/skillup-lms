@@ -84,7 +84,7 @@ function AssignTeacherTab({
                 className="bg-white border border-slate-200 rounded-lg p-4 hover:border-dark-blue hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-4">
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center">
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden bg-slate-100 shrink-0 flex items-center justify-center">
                     {teacher.image ? (
                       <Image src={teacher.image} alt={teacher.name} fill className="object-cover" />
                     ) : (
@@ -116,7 +116,7 @@ function AssignTeacherTab({
                 className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-4">
-                  <div className="relative w-16 h-16 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 flex items-center justify-center">
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden bg-slate-100 shrink-0 flex items-center justify-center">
                     {teacher.image ? (
                       <Image src={teacher.image} alt={teacher.name} fill className="object-cover" />
                     ) : (
@@ -358,7 +358,7 @@ function CurriculumTab({
     <div className="space-y-6">
       {/* Module Modal */}
       {isModuleModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-200">
@@ -629,7 +629,7 @@ function CurriculumTab({
                           className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-emerald-200 transition-colors group"
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
                               <MonitorPlay size={16} />
                             </div>
                             <div className="min-w-0 flex-1">
@@ -641,7 +641,7 @@ function CurriculumTab({
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                             <button
                               onClick={() => onDeleteClass(module.id, cls.id)}
                               className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50"
@@ -810,7 +810,7 @@ export default function CourseDetailsModal({
 
   const handleCouponSubmit = () => {
     // Handle coupon creation logic here
-    console.log({ couponTag, expiryDate, discount });
+
     // Reset form
     setCouponTag('');
     setExpiryDate(undefined);
@@ -820,12 +820,11 @@ export default function CourseDetailsModal({
 
   const handleFbGroupSubmit = () => {
     // Handle Facebook group link submission logic here
-    console.log({ fbGroupLink });
+
     alert('Facebook Group Link saved successfully!');
   };
 
-  const handleSaveCourse = (updatedCourse: CourseProps) => {
-    console.log('Updated course:', updatedCourse);
+  const handleSaveCourse = (_updatedCourse: CourseProps) => {
     // Handle save logic here (API call)
     alert('Course updated successfully!');
     onClose();

@@ -2,16 +2,11 @@ import '../(frontend)/globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { LocaleProvider } from '@/providers/locale-provider';
 import { AppContextProvider } from '@/context/app-context';
+import { AuthProvider } from '@/context/auth-context';
 import { cookies } from 'next/headers';
 import type { Locale } from '@repo/locales';
 import DashboardContent from '@/components/student/DashboardContent';
-
-const userData = {
-  imageUrl: '/test_images/avatar1.png',
-  name: 'Mr. Meaow',
-  email: 'meaow@taking.com',
-  phone: '0123......',
-};
+import { Toaster } from 'sonner';
 
 export default async function DashboardLayout({
   children,
@@ -25,13 +20,16 @@ export default async function DashboardLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className="subpixel-antialiased">
-        <AppContextProvider>
-          <LocaleProvider initialLocale={locale}>
-            <ThemeProvider>
-              <DashboardContent userData={userData}>{children}</DashboardContent>
-            </ThemeProvider>
-          </LocaleProvider>
-        </AppContextProvider>
+        <AuthProvider>
+          <AppContextProvider>
+            <LocaleProvider initialLocale={locale}>
+              <ThemeProvider>
+                <DashboardContent>{children}</DashboardContent>
+                <Toaster position="top-right" richColors />
+              </ThemeProvider>
+            </LocaleProvider>
+          </AppContextProvider>
+        </AuthProvider>
       </body>
     </html>
   );

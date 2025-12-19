@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '../providers/theme-provider';
 import { LocaleProvider } from '../providers/locale-provider';
+import AuthProvider from '../providers/auth-provider';
 import { cookies } from 'next/headers';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -82,9 +84,12 @@ export default async function RootLayout({
       <body className="antialiased min-h-screen bg-background text-foreground">
         <LocaleProvider initialLocale={locale}>
           <ThemeProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <div className="flex-1">{children}</div>
-            </div>
+            <AuthProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <div className="flex-1">{children}</div>
+              </div>
+              <Toaster position="top-right" richColors />
+            </AuthProvider>
           </ThemeProvider>
         </LocaleProvider>
       </body>

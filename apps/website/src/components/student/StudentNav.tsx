@@ -4,16 +4,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import { ThemeToggle } from '../utils/theme-toggle';
+import { useAuthStore } from '@/lib/zustand/auth-store';
+import { redirect } from 'next/navigation';
 
-export default function StudentNav({
-  imageUrl,
-  name,
-}: {
-  imageUrl: string;
-  name: string;
-  email: string;
-  phone: string;
-}) {
+export default function StudentNav() {
+  const user = useAuthStore((state) => state.user);
+
+  if (!user) {
+    redirect('/auth/login');
+    return null;
+  }
+
+  const imageUrl = user.avatarUrl || '/test_images/avatar1.png';
+  const name = user.name || user.email.split('@')[0] || 'User';
   return (
     <div className="h-full bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border py-4 px-5 lg:px-8 flex justify-between items-center transition-all duration-300 hover:shadow-xl">
       <a

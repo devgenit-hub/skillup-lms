@@ -11,6 +11,7 @@ async function main() {
     where: { email: 'john.instructor@skillup.com' },
     update: {},
     create: {
+      supabaseId: 'seed-instructor-supabase-id',
       email: 'john.instructor@skillup.com',
       name: 'John Instructor',
       role: 'INSTRUCTOR',
@@ -21,6 +22,7 @@ async function main() {
     where: { email: 'jane.student@skillup.com' },
     update: {},
     create: {
+      supabaseId: 'seed-student-supabase-id',
       email: 'jane.student@skillup.com',
       name: 'Jane Student',
       role: 'STUDENT',

@@ -4,7 +4,6 @@ import MainContent from '@/components/webinar-details/sections/MainContent';
 import SideBar from '@/components/webinar-details/sections/SideBar';
 import { AboutWebinar } from '@/components/webinar-details/types/AboutCourse';
 import { HeroProps } from '@/components/webinar-details/types/HeroProps';
-import { useParams } from 'next/navigation';
 import React from 'react';
 
 const aboutWebinarData: AboutWebinar = {
@@ -49,8 +48,6 @@ const webinarData: HeroProps = {
 };
 
 export default function CoursePage() {
-  const { webinar_id: _webinar_id } = useParams();
-
   return (
     <>
       <Hero {...webinarData} />
