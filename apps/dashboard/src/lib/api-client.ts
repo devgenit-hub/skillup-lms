@@ -145,6 +145,184 @@ class ApiClient {
     });
   }
 
+  // Superuser Student Management
+  async getSuperuserStudents(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: 'all' | 'active' | 'suspended';
+    courseId?: string;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.status) query.append('status', params.status);
+    if (params?.courseId) query.append('courseId', params.courseId);
+
+    return this.request(`/api/students?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getStudentById(id: string) {
+    return this.request(`/api/students/${id}`, { method: 'GET' });
+  }
+
+  async createStudent(data: { name: string; email: string; password: string; phone?: string }) {
+    return this.request('/api/students', {
+      method: 'POST',
+      data,
+    });
+  }
+
+  async updateStudent(
+    id: string,
+    data: {
+      name?: string;
+      email?: string;
+      phone?: string;
+    }
+  ) {
+    return this.request(`/api/students/${id}`, {
+      method: 'PUT',
+      data,
+    });
+  }
+
+  async suspendStudentAdmin(id: string, reason: string) {
+    return this.request(`/api/students/${id}/suspend`, {
+      method: 'PATCH',
+      data: { reason },
+    });
+  }
+
+  async unsuspendStudentAdmin(id: string) {
+    return this.request(`/api/students/${id}/unsuspend`, {
+      method: 'PATCH',
+    });
+  }
+
+  async deleteStudent(id: string, confirmId: string) {
+    return this.request(`/api/students/${id}`, {
+      method: 'DELETE',
+      data: { confirmId },
+    });
+  }
+
+  // Webinar Management
+  async getWebinars(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: 'all' | 'draft' | 'upcoming' | 'live' | 'completed';
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.status) query.append('status', params.status);
+
+    return this.request(`/api/webinars?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getWebinarById(id: string) {
+    return this.request(`/api/webinars/${id}`, { method: 'GET' });
+  }
+
+  async createWebinar(data: {
+    title: string;
+    category: string;
+    scheduleDateTime: string;
+    duration: number;
+    feeType: 'free' | 'paid';
+    price?: number;
+    platform: string;
+    status: 'draft' | 'upcoming' | 'live' | 'completed';
+    sessionHighlights: string;
+    aboutWebinar: string;
+    image?: string;
+    speakers?: unknown;
+    sessionAgenda?: unknown;
+    resources?: unknown;
+    liveLink?: string;
+  }) {
+    return this.request('/api/webinars', {
+      method: 'POST',
+      data,
+    });
+  }
+
+  async updateWebinar(
+    id: string,
+    data: {
+      title?: string;
+      category?: string;
+      scheduleDateTime?: string;
+      duration?: number;
+      feeType?: 'free' | 'paid';
+      price?: number;
+      platform?: string;
+      status?: 'draft' | 'upcoming' | 'live' | 'completed';
+      sessionHighlights?: string;
+      aboutWebinar?: string;
+      image?: string;
+      speakers?: unknown;
+      sessionAgenda?: unknown;
+      resources?: unknown;
+      liveLink?: string;
+    }
+  ) {
+    return this.request(`/api/webinars/${id}`, {
+      method: 'PUT',
+      data,
+    });
+  }
+
+  async deleteWebinar(id: string) {
+    return this.request(`/api/webinars/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async registerWebinar(id: string) {
+    return this.request(`/api/webinars/${id}/register`, {
+      method: 'POST',
+    });
+  }
+
+  async unregisterWebinar(id: string) {
+    return this.request(`/api/webinars/${id}/register`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Analytics
+  async getDashboardStats() {
+    return this.request('/api/analytics/dashboard', { method: 'GET' });
+  }
+
+  async getRevenueAnalytics(params?: { period?: 'monthly' | 'yearly'; year?: number }) {
+    const query = new URLSearchParams();
+    if (params?.period) query.append('period', params.period);
+    if (params?.year) query.append('year', params.year.toString());
+
+    return this.request(`/api/analytics/revenue?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getStudentAnalytics(params?: { period?: 'monthly' | 'yearly'; year?: number }) {
+    const query = new URLSearchParams();
+    if (params?.period) query.append('period', params.period);
+    if (params?.year) query.append('year', params.year.toString());
+
+    return this.request(`/api/analytics/students?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getCourseAnalytics(params?: { limit?: number }) {
+    const query = new URLSearchParams();
+    if (params?.limit) query.append('limit', params.limit.toString());
+
+    return this.request(`/api/analytics/courses?${query.toString()}`, { method: 'GET' });
+  }
+
   async logout() {
     return this.request('/api/auth/logout', {
       method: 'POST',
