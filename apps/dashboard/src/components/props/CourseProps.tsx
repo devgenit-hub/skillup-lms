@@ -1,14 +1,38 @@
 import { AboutCourse } from '../course-details/types/AboutCourse';
 
+export interface CourseTeacher {
+  id: string;
+  name: string;
+  email: string;
+  profileImage: string | null;
+  bio?: string | null;
+  specialization?: string | null;
+}
+
 export interface CourseInstructor {
   name: string;
   image: string;
   designation: string;
 }
 
+export interface CurriculumClass {
+  id: string;
+  title: string;
+  videoUrl?: string | null;
+}
+
+export interface CurriculumMaterial {
+  id: string;
+  title: string;
+  fileUrl?: string | null;
+}
+
 export interface Curriculum {
+  id?: string;
   title: string;
   details: string;
+  classes?: CurriculumClass[];
+  materials?: CurriculumMaterial[];
 }
 
 export interface CourseProps {
@@ -21,8 +45,8 @@ export interface CourseProps {
   feeType: 'free' | 'paid';
   price?: number;
   type: string;
-  instructorId: string | null;
-  assignedTeachers: string[]; // Array of teacher IDs
+  teachers: CourseTeacher[]; // Teachers from CourseTeacher junction table
+  assignedTeachers: string[]; // Array of teacher IDs for form handling
   category: 'webdev' | 'frontend' | 'backend' | 'mobiledev' | 'devOps' | 'ui-ux' | 'others';
   numClasses: number;
   courseInstructors: CourseInstructor[];
@@ -30,5 +54,6 @@ export interface CourseProps {
   aboutCourse: AboutCourse;
   curriculum: Curriculum[];
   classRoutinePdf?: string;
+  facebookGroupLink?: string;
   numOfStudents?: number | null;
 }

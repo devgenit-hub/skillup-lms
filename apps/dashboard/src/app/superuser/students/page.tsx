@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { PlusCircle, Loader2, Users, UserCheck, UserX, UserPlus, Search } from 'lucide-react';
 import { useLocale } from '@/providers/locale-provider';
 import { toast } from 'sonner';
@@ -326,10 +327,13 @@ export default function StudentsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {student.avatarUrl ? (
-                        <img
+                        <Image
                           src={student.avatarUrl}
                           alt={student.name || 'Student'}
+                          width={40}
+                          height={40}
                           className="w-10 h-10 rounded-full object-cover border border-slate-200"
+                          unoptimized
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
                             const fallback = e.currentTarget.nextElementSibling as HTMLElement;

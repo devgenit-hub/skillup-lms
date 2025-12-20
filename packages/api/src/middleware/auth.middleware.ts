@@ -45,7 +45,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       where: { supabaseId: decoded.sub },
       include: {
         _count: {
-          select: { enrollments: true, courses: true },
+          select: { enrollments: true },
         },
       },
     });
@@ -61,8 +61,8 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
     req.user = user;
     next();
-  } catch (error: any) {
-    if (error.name === 'TokenExpiredError') {
+  } catch (error: unknown) {
+    if (error instanceof Error && 'name' in error && error.name === 'TokenExpiredError') {
       res.status(401).json({
         error: 'Token expired',
         code: 'TOKEN_EXPIRED',
@@ -71,7 +71,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    if (error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && 'name' in error && error.name === 'JsonWebTokenError') {
       res.status(401).json({ error: 'Invalid token' });
       return;
     }

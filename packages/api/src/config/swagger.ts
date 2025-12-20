@@ -108,9 +108,10 @@ const options: swaggerJsdoc.Options = {
               type: 'boolean',
               example: true,
             },
-            instructorId: {
+            introVideoLink: {
               type: 'string',
-              format: 'uuid',
+              format: 'uri',
+              example: 'https://youtube.com/watch?v=...',
             },
             createdAt: {
               type: 'string',

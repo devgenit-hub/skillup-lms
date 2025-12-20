@@ -25,7 +25,7 @@ export class UserController {
           role: true,
           createdAt: true,
           _count: {
-            select: { enrollments: true, courses: true },
+            select: { enrollments: true },
           },
         },
         orderBy: { createdAt: 'desc' },

@@ -19,24 +19,28 @@ class ApiClient {
         'Content-Type': 'application/json',
       },
     });
+
+    this.client.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (axios.isAxiosError(error)) {
+          const message = error.response?.data?.message || error.message || 'An error occurred';
+          return Promise.reject(new Error(message));
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
   private async request<T>(
     endpoint: string,
     config: AxiosRequestConfig = {}
   ): Promise<ApiResponse<T>> {
-    try {
-      const response = await this.client.request<ApiResponse<T>>({
-        url: endpoint,
-        ...config,
-      });
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || error.message);
-      }
-      throw error;
-    }
+    const response = await this.client.request<ApiResponse<T>>({
+      url: endpoint,
+      ...config,
+    });
+    return response.data;
   }
 
   async getMe() {
@@ -327,6 +331,170 @@ class ApiClient {
     if (params?.limit) query.append('limit', params.limit.toString());
 
     return this.request(`/api/analytics/courses?${query.toString()}`, { method: 'GET' });
+  }
+
+  // Course Management
+  async getCourses(params?: {
+    page?: number;
+    limit?: number;
+    published?: boolean;
+    instructorId?: string;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.published !== undefined) query.append('published', params.published.toString());
+    if (params?.instructorId) query.append('instructorId', params.instructorId);
+
+    return this.request(`/api/courses?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getCourseById(id: string) {
+    return this.request(`/api/courses/${id}`, { method: 'GET' });
+  }
+
+  async createCourse(data: {
+    title: string;
+    description?: string;
+    published?: boolean;
+    introVideoLink?: string;
+    feeType?: 'FREE' | 'PAID';
+    price?: number | null;
+    metadata?: Record<string, unknown>;
+  }) {
+    return this.request('/api/courses', {
+      method: 'POST',
+      data,
+    });
+  }
+
+  async updateCourse(
+    id: string,
+    data: {
+      title?: string;
+      description?: string;
+      published?: boolean;
+      introVideoLink?: string;
+      feeType?: 'FREE' | 'PAID';
+      price?: number | null;
+      metadata?: Record<string, unknown>;
+    }
+  ) {
+    return this.request(`/api/courses/${id}`, {
+      method: 'PUT',
+      data,
+    });
+  }
+
+  async deleteCourse(id: string) {
+    return this.request(`/api/courses/${id}`, { method: 'DELETE' });
+  }
+
+  async getCourseStudents(id: string, params?: { page?: number; limit?: number }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+
+    return this.request(`/api/courses/${id}/students?${query.toString()}`, { method: 'GET' });
+  }
+
+  async assignCourseTeachers(id: string, teacherIds: string[]) {
+    return this.request(`/api/courses/${id}/assign-teachers`, {
+      method: 'POST',
+      data: { teacherIds },
+    });
+  }
+
+  async createCourseCoupon(
+    id: string,
+    couponData: {
+      code: string;
+      title?: string;
+      discount: number;
+      expiresAt: string;
+      maxUsage?: number;
+    }
+  ) {
+    return this.request(`/api/courses/${id}/coupons`, {
+      method: 'POST',
+      data: couponData,
+    });
+  }
+
+  async getCourseCoupons(id: string) {
+    return this.request(`/api/courses/${id}/coupons`, {
+      method: 'GET',
+    });
+  }
+
+  async toggleCourseCoupon(courseId: string, couponId: string) {
+    return this.request(`/api/courses/${courseId}/coupons/${couponId}`, {
+      method: 'PATCH',
+    });
+  }
+
+  async updateCourseCoupon(
+    courseId: string,
+    couponId: string,
+    couponData: { code: string; title?: string; discount: number; expiresAt: string }
+  ) {
+    return this.request(`/api/courses/${courseId}/coupons/${couponId}`, {
+      method: 'PUT',
+      data: couponData,
+    });
+  }
+
+  async deleteCourseCoupon(courseId: string, couponId: string) {
+    return this.request(`/api/courses/${courseId}/coupons/${couponId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getCourseCurriculum(id: string): Promise<
+    ApiResponse<{
+      modules: {
+        id: string;
+        title: string;
+        details?: string | null;
+        order: number;
+        classes: { id: string; title: string; videoUrl?: string | null; order: number }[];
+        materials: { id: string; title: string; fileUrl?: string | null; order: number }[];
+      }[];
+    }>
+  > {
+    return this.request(`/api/courses/${id}/curriculum`, {
+      method: 'GET',
+    });
+  }
+
+  async updateCourseCurriculum(
+    id: string,
+    modules: {
+      id?: string;
+      title: string;
+      details?: string | null;
+      order?: number;
+      classes?: {
+        id?: string;
+        title: string;
+        videoUrl?: string;
+        duration?: number | null;
+        order?: number;
+      }[];
+      materials?: {
+        id?: string;
+        title: string;
+        fileUrl?: string;
+        fileType?: string | null;
+        fileSize?: number | null;
+        order?: number;
+      }[];
+    }[]
+  ) {
+    return this.request(`/api/courses/${id}/curriculum`, {
+      method: 'PUT',
+      data: { modules },
+    });
   }
 
   async logout() {

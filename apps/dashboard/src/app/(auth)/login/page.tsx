@@ -128,14 +128,14 @@ export default function LoginPage() {
             <label className="block text-sm font-medium text-slate-700">
               {pageText['password_label']}
             </label>
-            <a
+            {/* <a
               href="#"
               className={`text-xs font-medium hover:underline ${
                 isSuper ? 'text-vibrant-blue' : 'text-emerald-600'
               }`}
             >
               {pageText['forgot_password']}
-            </a>
+            </a> */}
           </div>
           <input
             type="password"

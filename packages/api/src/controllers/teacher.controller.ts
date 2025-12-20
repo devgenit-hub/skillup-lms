@@ -38,14 +38,17 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
         where: { supabaseId: teacher.supabaseId },
         select: {
           lastLoginAt: true,
-          _count: { select: { courses: true } },
         },
+      });
+
+      const courseCount = await prisma.courseTeacher.count({
+        where: { teacherId: teacher.id },
       });
 
       return {
         ...teacher,
         lastLoginAt: user?.lastLoginAt || null,
-        _count: { courses: user?._count.courses || 0 },
+        _count: { courses: courseCount },
       };
     })
   );

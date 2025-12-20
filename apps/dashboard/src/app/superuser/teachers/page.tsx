@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { apiClient } from '@/lib/api-client';
 import {
@@ -48,7 +48,7 @@ export default function ManageTeachersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  const fetchTeachers = async () => {
+  const fetchTeachers = useCallback(async () => {
     try {
       setSearching(true);
       setError(null);
@@ -73,11 +73,11 @@ export default function ManageTeachersPage() {
       setLoading(false);
       setSearching(false);
     }
-  };
+  }, [debouncedSearch]);
 
   useEffect(() => {
     fetchTeachers();
-  }, [debouncedSearch]);
+  }, [debouncedSearch, fetchTeachers]);
 
   // Debounce search query
   useEffect(() => {
@@ -86,9 +86,6 @@ export default function ManageTeachersPage() {
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
-
-  const _totalTeachers = teacherList.length;
-  const _activeCourses = teacherList.reduce((sum, t) => sum + t._count.courses, 0);
 
   async function handleDelete(id: string) {
     const t = teacherList.find((x) => x.id === id);

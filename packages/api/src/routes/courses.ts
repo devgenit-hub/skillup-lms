@@ -21,6 +21,38 @@ coursesRouter.post(
   requireAdmin,
   CourseController.assignTeachers
 );
+coursesRouter.post('/:id/coupons', authenticate, requireInstructor, CourseController.createCoupon);
+coursesRouter.get('/:id/coupons', authenticate, requireInstructor, CourseController.getCoupons);
+coursesRouter.patch(
+  '/:id/coupons/:couponId',
+  authenticate,
+  requireInstructor,
+  CourseController.toggleCoupon
+);
+coursesRouter.put(
+  '/:id/coupons/:couponId',
+  authenticate,
+  requireInstructor,
+  CourseController.updateCoupon
+);
+coursesRouter.delete(
+  '/:id/coupons/:couponId',
+  authenticate,
+  requireInstructor,
+  CourseController.deleteCoupon
+);
+coursesRouter.get(
+  '/:id/curriculum',
+  authenticate,
+  requireInstructor,
+  CourseController.getCurriculum
+);
+coursesRouter.put(
+  '/:id/curriculum',
+  authenticate,
+  requireInstructor,
+  CourseController.updateCurriculum
+);
 
 coursesRouter.put('/:id', authenticate, requireInstructor, CourseController.update);
 coursesRouter.delete('/:id', authenticate, requireInstructor, CourseController.delete);

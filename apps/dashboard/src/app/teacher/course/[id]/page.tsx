@@ -119,19 +119,19 @@ export default function CourseManagementPage() {
   };
 
   const openEditModuleModal = (moduleId: string) => {
-    const module = modules.find((m) => m.id === moduleId);
-    if (!module) return;
+    const moduleToEdit = modules.find((m) => m.id === moduleId);
+    if (!moduleToEdit) return;
 
     setEditingModuleId(moduleId);
-    setModalModuleName(module.title);
+    setModalModuleName(moduleToEdit.title);
     setModalVideoLessons(
-      module.classes.length > 0
-        ? module.classes.map((c) => ({ title: c.title, url: c.videoUrl || '' }))
+      moduleToEdit.classes.length > 0
+        ? moduleToEdit.classes.map((c: ClassItem) => ({ title: c.title, url: c.videoUrl || '' }))
         : [{ title: '', url: '' }]
     );
     setModalMaterials(
-      module.materials.length > 0
-        ? module.materials.map((m) => ({
+      moduleToEdit.materials.length > 0
+        ? moduleToEdit.materials.map((m: MaterialItem) => ({
             title: m.title,
             file: m.file || null,
           }))
@@ -248,18 +248,14 @@ export default function CourseManagementPage() {
   };
 
   const deleteModule = (moduleId: string) => {
-    const module = modules.find((m) => m.id === moduleId);
-    if (!module) return;
-    if (confirm(`${courseText['confirm_delete']} "${module.title}"?`)) {
+    const moduleToDelete = modules.find((m) => m.id === moduleId);
+    if (!moduleToDelete) return;
+    if (confirm(`${courseText['confirm_delete']} "${moduleToDelete.title}"?`)) {
       setModules(modules.filter((m) => m.id !== moduleId));
     }
   };
 
   const addClass = (moduleId: string) => {
-    openEditModuleModal(moduleId);
-  };
-
-  const _editClass = (moduleId: string, _classId: string) => {
     openEditModuleModal(moduleId);
   };
 
@@ -483,9 +479,7 @@ export default function CourseManagementPage() {
               Courses
             </Link>
             <span>/</span>
-            <span className="text-slate-900 font-medium truncate max-w-[200px]">
-              {courseData.title}
-            </span>
+            <span className="text-slate-900 font-medium truncate max-w-50">{courseData.title}</span>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -761,7 +755,9 @@ export default function CourseManagementPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-slate-900">
-                        {courseData.instructorId ? 'Assigned Instructor' : 'Unassigned'}
+                        {courseData.assignedTeachers?.length > 0
+                          ? 'Assigned Instructor'
+                          : 'Unassigned'}
                       </p>
                       <p className="text-xs text-slate-500">Course Lead</p>
                     </div>

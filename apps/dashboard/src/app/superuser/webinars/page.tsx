@@ -258,7 +258,7 @@ export default function WebinarsPage() {
               {filteredWebinars.length === 0 && webinars.length > 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
-                    No webinars found matching "{searchQuery}"
+                    No webinars found matching &ldquo;{searchQuery}&rdquo;
                   </td>
                 </tr>
               )}

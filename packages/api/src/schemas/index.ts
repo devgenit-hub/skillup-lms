@@ -24,29 +24,51 @@ export const updateUserSchema = z.object({
   role: z.enum(['STUDENT', 'INSTRUCTOR', 'ADMIN']).optional(),
 });
 
+// Course fee type enum
+export const feeTypeEnum = z.enum(['FREE', 'PAID']);
+
 // Course schemas
 export const createCourseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
-  instructorId: z.string().min(1, 'Instructor ID is required'),
   published: z.boolean().default(false),
+  introVideoLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  feeType: feeTypeEnum.default('FREE'),
+  price: z.number().positive('Price must be positive').optional().nullable(),
+  metadata: z.any().optional(),
 });
 
 export const updateCourseSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
   description: z.string().optional(),
   published: z.boolean().optional(),
+  introVideoLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  feeType: feeTypeEnum.optional(),
+  price: z.number().positive('Price must be positive').optional().nullable(),
+  metadata: z.any().optional(),
 });
 
 export const courseQuerySchema = paginationSchema.extend({
   published: z.coerce.boolean().optional(),
-  instructorId: z.string().optional(),
+  teacherId: z.string().optional(),
 });
 
 export const assignTeachersSchema = z.object({
   teacherIds: z
     .array(z.string().min(1, 'Teacher ID required'))
     .min(1, 'At least one teacher required'),
+});
+
+// Coupon schemas
+export const createCouponSchema = z.object({
+  code: z.string().min(3, 'Coupon code must be at least 3 characters'),
+  title: z.string().max(100, 'Title cannot exceed 100 characters').optional(),
+  discount: z
+    .number()
+    .min(1, 'Discount must be at least 1%')
+    .max(100, 'Discount cannot exceed 100%'),
+  expiresAt: z.string().datetime('Invalid expiration date'),
+  maxUsage: z.number().positive('Max usage must be positive').optional(),
 });
 
 // Enrollment schemas
@@ -74,4 +96,44 @@ export const updateLessonSchema = z.object({
   content: z.string().optional(),
   order: z.number().int().min(1).optional(),
   published: z.boolean().optional(),
+});
+
+// Curriculum Class schema
+export const curriculumClassSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, 'Class title is required'),
+  videoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  duration: z.number().int().positive().optional().nullable(),
+  order: z.number().int().min(0).default(0),
+});
+
+// Curriculum Material schema
+export const curriculumMaterialSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, 'Material title is required'),
+  fileUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  fileType: z.string().optional().nullable(),
+  fileSize: z.number().int().positive().optional().nullable(),
+  order: z.number().int().min(0).default(0),
+});
+
+// Curriculum Module schema
+export const curriculumModuleSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, 'Module title is required'),
+  details: z.string().optional().nullable(),
+  order: z.number().int().min(0).default(0),
+  classes: z.array(curriculumClassSchema).optional().default([]),
+  materials: z.array(curriculumMaterialSchema).optional().default([]),
+});
+
+// Create curriculum module
+export const createCurriculumModuleSchema = curriculumModuleSchema.omit({ id: true });
+
+// Update curriculum module
+export const updateCurriculumModuleSchema = curriculumModuleSchema.partial();
+
+// Bulk update curriculum (save all modules at once)
+export const updateCourseCurriculumSchema = z.object({
+  modules: z.array(curriculumModuleSchema),
 });

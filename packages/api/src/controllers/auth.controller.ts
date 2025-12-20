@@ -65,7 +65,6 @@ export class AuthController {
         _count: {
           select: {
             enrollments: true,
-            courses: true,
           },
         },
       },
@@ -85,7 +84,7 @@ export class AuthController {
 
     const data = updateProfileSchema.parse(req.body);
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updatedAt: new Date(),
     };
 

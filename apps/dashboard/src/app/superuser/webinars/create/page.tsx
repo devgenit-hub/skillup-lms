@@ -8,6 +8,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import {
   Select,
   SelectContent,
@@ -103,15 +104,6 @@ export default function CreateWebinarPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const _webinarData = {
-      ...formData,
-      duration: parseInt(formData.duration),
-      price: formData.feeType === 'paid' ? parseFloat(formData.price) : undefined,
-      speakers: speakers.filter((speaker) => speaker.name && speaker.designation && speaker.image),
-      sessionAgenda: sessionAgenda.filter((item) => item.time && item.title && item.description),
-      resources,
-    };
 
     alert('Webinar created successfully! Check console for data.');
   };
@@ -439,18 +431,12 @@ export default function CreateWebinarPage() {
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Highlights (Markdown) *
             </label>
-            <textarea
-              name="sessionHighlights"
+            <RichTextEditor
               value={formData.sessionHighlights}
-              onChange={handleInputChange}
-              required
-              rows={6}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent resize-vertical"
-              placeholder="Use markdown list format:&#10;- Key takeaway 1&#10;- Key takeaway 2&#10;- Key takeaway 3"
+              onChange={(value) => setFormData((prev) => ({ ...prev, sessionHighlights: value }))}
+              placeholder="Add key highlights and takeaways..."
+              minHeight="150px"
             />
-            <p className="mt-1 text-xs text-slate-500">
-              Use markdown list format for structured highlights
-            </p>
           </div>
         </section>
 
@@ -464,18 +450,12 @@ export default function CreateWebinarPage() {
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Webinar Details (Markdown) *
             </label>
-            <textarea
-              name="aboutWebinar"
+            <RichTextEditor
               value={formData.aboutWebinar}
-              onChange={handleInputChange}
-              required
-              rows={8}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent resize-vertical"
-              placeholder="Provide detailed description about the webinar using markdown formatting...&#10;&#10;## What You'll Learn&#10;- Topic 1&#10;- Topic 2&#10;&#10;## Who Should Attend&#10;Description here..."
+              onChange={(value) => setFormData((prev) => ({ ...prev, aboutWebinar: value }))}
+              placeholder="Provide detailed description about the webinar..."
+              minHeight="200px"
             />
-            <p className="mt-1 text-xs text-slate-500">
-              Supports Markdown formatting (e.g., **bold**, *italic*, headers, lists)
-            </p>
           </div>
         </section>
 

@@ -251,10 +251,15 @@ export class AnalyticsController {
           _count: {
             select: { enrollments: true },
           },
-          instructor: {
-            select: {
-              id: true,
-              name: true,
+          courseTeachers: {
+            take: 1,
+            include: {
+              teacher: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -289,10 +294,12 @@ export class AnalyticsController {
       const completionRate =
         completion.total > 0 ? (completion.completed / completion.total) * 100 : 0;
 
+      const teacherName = course.courseTeachers[0]?.teacher?.name || 'No teacher assigned';
+
       return {
         id: course.id,
         title: course.title,
-        instructor: course.instructor.name,
+        instructor: teacherName,
         enrollments: course._count.enrollments,
         completionRate: Math.round(completionRate * 100) / 100,
       };

@@ -5,15 +5,38 @@ import { UserRole } from '@repo/db';
 import { AppError } from '../utils/errors.js';
 
 export const getInstructorStudents = asyncHandler(async (req: Request, res: Response) => {
-  const instructorId = req.user!.id;
+  const teacherSupabaseId = req.user!.id; // This is supabaseId from authenticated user
   const { courseId } = req.query;
+
+  // Find teacher by supabaseId
+  const teacher = await prisma.teacher.findUnique({
+    where: { supabaseId: teacherSupabaseId },
+  });
+
+  if (!teacher) {
+    throw new AppError(404, 'Teacher not found');
+  }
+
+  // Build where clause for courses taught by this teacher
+  const courseWhere = courseId
+    ? {
+        id: courseId as string,
+        courseTeachers: {
+          some: { teacherId: teacher.id },
+        },
+      }
+    : {
+        courseTeachers: {
+          some: { teacherId: teacher.id },
+        },
+      };
 
   const students = await prisma.user.findMany({
     where: {
       role: UserRole.STUDENT,
       enrollments: {
         some: {
-          course: courseId ? { id: courseId as string, instructorId } : { instructorId },
+          course: courseWhere,
         },
       },
     },
@@ -26,7 +49,7 @@ export const getInstructorStudents = asyncHandler(async (req: Request, res: Resp
       suspensionReason: true,
       enrollments: {
         where: {
-          course: courseId ? { id: courseId as string, instructorId } : { instructorId },
+          course: courseWhere,
         },
         include: {
           course: {
@@ -47,13 +70,30 @@ export const getInstructorStudents = asyncHandler(async (req: Request, res: Resp
 export const suspendStudent = asyncHandler(async (req: Request, res: Response) => {
   const { userId } = req.params;
   const { reason } = req.body;
-  const instructorId = req.user!.id;
+  const teacherSupabaseId = req.user!.id;
+
+  // Find teacher by supabaseId
+  const teacher = await prisma.teacher.findUnique({
+    where: { supabaseId: teacherSupabaseId },
+  });
+
+  if (!teacher) {
+    throw new AppError(404, 'Teacher not found');
+  }
 
   const student = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       enrollments: {
-        include: { course: true },
+        include: {
+          course: {
+            include: {
+              courseTeachers: {
+                where: { teacherId: teacher.id },
+              },
+            },
+          },
+        },
       },
     },
   });
@@ -62,7 +102,8 @@ export const suspendStudent = asyncHandler(async (req: Request, res: Response) =
     throw new AppError(404, 'Student not found');
   }
 
-  const hasAccess = student.enrollments.some((e) => e.course.instructorId === instructorId);
+  // Check if teacher teaches any course this student is enrolled in
+  const hasAccess = student.enrollments.some((e) => e.course.courseTeachers.length > 0);
   if (!hasAccess) {
     throw new AppError(403, 'Not authorized to suspend this student');
   }
@@ -72,7 +113,7 @@ export const suspendStudent = asyncHandler(async (req: Request, res: Response) =
     data: {
       suspended: true,
       suspendedAt: new Date(),
-      suspendedBy: instructorId,
+      suspendedBy: teacher.id,
       suspensionReason: reason,
     },
   });
@@ -86,13 +127,30 @@ export const suspendStudent = asyncHandler(async (req: Request, res: Response) =
 
 export const unsuspendStudent = asyncHandler(async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const instructorId = req.user!.id;
+  const teacherSupabaseId = req.user!.id;
+
+  // Find teacher by supabaseId
+  const teacher = await prisma.teacher.findUnique({
+    where: { supabaseId: teacherSupabaseId },
+  });
+
+  if (!teacher) {
+    throw new AppError(404, 'Teacher not found');
+  }
 
   const student = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       enrollments: {
-        include: { course: true },
+        include: {
+          course: {
+            include: {
+              courseTeachers: {
+                where: { teacherId: teacher.id },
+              },
+            },
+          },
+        },
       },
     },
   });
@@ -101,7 +159,8 @@ export const unsuspendStudent = asyncHandler(async (req: Request, res: Response)
     throw new AppError(404, 'Student not found');
   }
 
-  const hasAccess = student.enrollments.some((e) => e.course.instructorId === instructorId);
+  // Check if teacher teaches any course this student is enrolled in
+  const hasAccess = student.enrollments.some((e) => e.course.courseTeachers.length > 0);
   if (!hasAccess) {
     throw new AppError(403, 'Not authorized to unsuspend this student');
   }
@@ -125,13 +184,30 @@ export const unsuspendStudent = asyncHandler(async (req: Request, res: Response)
 
 export const getStudentPayments = asyncHandler(async (req: Request, res: Response) => {
   const { userId } = req.params;
-  const instructorId = req.user!.id;
+  const teacherSupabaseId = req.user!.id;
+
+  // Find teacher by supabaseId
+  const teacher = await prisma.teacher.findUnique({
+    where: { supabaseId: teacherSupabaseId },
+  });
+
+  if (!teacher) {
+    throw new AppError(404, 'Teacher not found');
+  }
 
   const student = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       enrollments: {
-        include: { course: true },
+        include: {
+          course: {
+            include: {
+              courseTeachers: {
+                where: { teacherId: teacher.id },
+              },
+            },
+          },
+        },
       },
     },
   });
@@ -140,7 +216,8 @@ export const getStudentPayments = asyncHandler(async (req: Request, res: Respons
     throw new AppError(404, 'Student not found');
   }
 
-  const hasAccess = student.enrollments.some((e) => e.course.instructorId === instructorId);
+  // Check if teacher teaches any course this student is enrolled in
+  const hasAccess = student.enrollments.some((e) => e.course.courseTeachers.length > 0);
   if (!hasAccess) {
     throw new AppError(403, 'Not authorized to view this student payments');
   }
