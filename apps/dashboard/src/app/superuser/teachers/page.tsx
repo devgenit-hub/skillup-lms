@@ -3,7 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { apiClient } from '@/lib/api-client';
-import { PlusCircle, Mail, BookOpen, Trash2, Users, Loader2, RefreshCw, Edit } from 'lucide-react';
+import {
+  PlusCircle,
+  Mail,
+  BookOpen,
+  Trash2,
+  Users,
+  Loader2,
+  RefreshCw,
+  Edit,
+  Search,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useLocale } from '@/providers/locale-provider';
 import { toast } from 'sonner';
@@ -33,24 +43,52 @@ export default function ManageTeachersPage() {
 
   const [teacherList, setTeacherList] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const fetchTeachers = async () => {
     try {
-      setLoading(true);
+      setSearching(true);
       setError(null);
+      // For now, getTeachers doesn't support search params, so we fetch all and filter
+      // TODO: Update backend API to support search
       const response = await apiClient.getTeachers();
-      setTeacherList(response.data as Teacher[]);
+      const teachers = response.data as Teacher[];
+
+      // Client-side filter until backend supports search
+      const filtered = debouncedSearch
+        ? teachers.filter(
+            (teacher) =>
+              teacher.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+              teacher.email.toLowerCase().includes(debouncedSearch.toLowerCase())
+          )
+        : teachers;
+
+      setTeacherList(filtered);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load teachers');
     } finally {
       setLoading(false);
+      setSearching(false);
     }
   };
 
   useEffect(() => {
     fetchTeachers();
-  }, []);
+  }, [debouncedSearch]);
+
+  // Debounce search query
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const _totalTeachers = teacherList.length;
+  const _activeCourses = teacherList.reduce((sum, t) => sum + t._count.courses, 0);
 
   async function handleDelete(id: string) {
     const t = teacherList.find((x) => x.id === id);
@@ -70,7 +108,7 @@ export default function ManageTeachersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-vibrant-blue mx-auto mb-2" />
           <p className="text-slate-600">Loading teachers...</p>
@@ -81,7 +119,7 @@ export default function ManageTeachersPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
@@ -147,6 +185,27 @@ export default function ManageTeachersPage() {
               <BookOpen size={24} className="text-amber-600" />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative">
+          {searching ? (
+            <Loader2
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
+              size={20}
+            />
+          ) : (
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          )}
+          <input
+            type="text"
+            placeholder={pageText['search_teachers']}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent transition-all"
+          />
         </div>
       </div>
 
@@ -222,8 +281,29 @@ export default function ManageTeachersPage() {
                 </td>
               </tr>
             ))}
+            {teacherList.length === 0 && !loading && debouncedSearch && (
+              <tr>
+                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                  No teachers found matching &ldquo;{searchQuery}&rdquo;
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
+
+        {teacherList.length === 0 && !loading && !debouncedSearch && (
+          <div className="py-12 text-center">
+            <Users className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+            <p className="text-slate-600 mb-4">No teachers found</p>
+            <Link
+              href="/superuser/teachers/create"
+              className="inline-flex items-center gap-2 px-6 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors font-medium"
+            >
+              <PlusCircle size={18} />
+              Create Your First Teacher
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

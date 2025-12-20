@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AnalyticsController } from '../controllers/analytics.controller.js';
-import { authenticate } from '../middleware/authenticate.js';
-import { requireAdmin } from '../middleware/requireRole.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { requireAdmin } from '../middleware/role.middleware.js';
 
 const router = Router();
 

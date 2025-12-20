@@ -167,7 +167,13 @@ class ApiClient {
     return this.request(`/api/students/${id}`, { method: 'GET' });
   }
 
-  async createStudent(data: { name: string; email: string; password: string; phone?: string }) {
+  async createStudent(data: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    avatarUrl?: string;
+  }) {
     return this.request('/api/students', {
       method: 'POST',
       data,

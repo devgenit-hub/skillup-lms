@@ -10,7 +10,23 @@ const nextConfig: NextConfig = {
         hostname: 't4.ftcdn.net',
         port: '',
       },
+      {
+        pathname: '/**',
+        hostname: '*.googleusercontent.com',
+        protocol: 'https',
+      },
+      {
+        pathname: '/**',
+        hostname: '**',
+        protocol: 'https',
+      },
+      {
+        pathname: '/**',
+        hostname: '**',
+        protocol: 'http',
+      },
     ],
+    unoptimized: true,
   },
 };
 
