@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { Router, type Router as RouterType } from 'express';
 import { AnalyticsController } from '../controllers/analytics.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { requireAdmin } from '../middleware/role.middleware.js';
 
-const router = Router();
+const router: RouterType = Router();
 
 router.use(authenticate, requireAdmin);
 

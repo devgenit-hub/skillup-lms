@@ -2,7 +2,7 @@ import { type Request, type Response } from 'express';
 import { prisma } from '@repo/db';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import { NotFoundError, ConflictError } from '../utils/errors.js';
+import { NotFoundError, ConflictError, AppError } from '../utils/errors.js';
 import {
   createCourseSchema,
   updateCourseSchema,
@@ -188,7 +188,21 @@ export class CourseController {
 
   static assignTeachers = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
-    const { teacherIds } = assignTeachersSchema.parse(req.body);
+
+    // Validate request body with better error message
+    const validation = assignTeachersSchema.safeParse(req.body);
+    if (!validation.success) {
+      // Check if it's the teacherIds array validation (empty or missing)
+      const hasTeacherIdsError = validation.error.errors.some(
+        (err) => err.path.includes('teacherIds') || err.path.length === 0
+      );
+      const errorMessage = hasTeacherIdsError
+        ? 'At least one teacher must remain assigned to the course'
+        : validation.error.errors[0]?.message || 'Invalid teacher assignment data';
+      throw new AppError(400, errorMessage);
+    }
+
+    const { teacherIds } = validation.data;
 
     const course = await prisma.course.findUnique({
       where: { id },
@@ -401,6 +415,8 @@ export class CourseController {
       // Create new modules with classes and materials
       for (let i = 0; i < modules.length; i++) {
         const module = modules[i];
+        if (!module) continue;
+
         const createdModule = await tx.curriculumModule.create({
           data: {
             courseId: id,

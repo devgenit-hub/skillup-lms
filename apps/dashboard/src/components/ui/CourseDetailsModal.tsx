@@ -171,8 +171,7 @@ export default function CourseDetailsModal({
       await apiClient.assignCourseTeachers(course.id, newAssignedIds);
       setAssignedTeacherIds(newAssignedIds);
       toast.success('Teacher assigned successfully!');
-    } catch (error) {
-      console.error('Failed to assign teacher:', error);
+    } catch {
       toast.error('Failed to assign teacher. Please try again.');
     } finally {
       setIsAssigningTeacher(false);
@@ -188,12 +187,7 @@ export default function CourseDetailsModal({
       setAssignedTeacherIds(newAssignedIds);
       toast.success('Teacher unassigned successfully!');
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error && error.message.toLowerCase().includes('at least one teacher')
-          ? 'At least one teacher must remain assigned to this course.'
-          : error instanceof Error
-            ? error.message
-            : 'Failed to unassign teacher';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to unassign teacher';
       toast.error(errorMessage);
     } finally {
       setIsAssigningTeacher(false);
@@ -269,8 +263,7 @@ export default function CourseDetailsModal({
           `Coupon ${updatedCoupon.isActive ? 'activated' : 'deactivated'} successfully!`
         );
       }
-    } catch (error) {
-      console.error('Failed to toggle coupon:', error);
+    } catch {
       toast.error('Failed to toggle coupon status.');
     } finally {
       setIsTogglingCoupon(null);
@@ -306,8 +299,7 @@ export default function CourseDetailsModal({
       await apiClient.deleteCourseCoupon(course.id, couponId);
       setCoupons((prev) => prev.filter((c) => c.id !== couponId));
       toast.success('Coupon deleted successfully!');
-    } catch (error) {
-      console.error('Failed to delete coupon:', error);
+    } catch {
       toast.error('Failed to delete coupon.');
     } finally {
       setIsDeletingCoupon(null);

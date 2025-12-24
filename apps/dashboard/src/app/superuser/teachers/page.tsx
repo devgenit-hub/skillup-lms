@@ -17,6 +17,15 @@ import {
 import Link from 'next/link';
 import { useLocale } from '@/providers/locale-provider';
 import { toast } from 'sonner';
+import { PaginationControls } from '@/components/utils';
+import { useCourseStore } from '@/lib/zustand/course-store';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Teacher {
   id: string;
@@ -36,56 +45,87 @@ interface Teacher {
   _count: { courses: number };
 }
 
+interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export default function ManageTeachersPage() {
   const { t } = useLocale();
   const pageText = t('superuser');
   const tableText = t('table');
 
   const [teacherList, setTeacherList] = useState<Teacher[]>([]);
+  const { courses } = useCourseStore();
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('all');
+  const [stats, setStats] = useState({ activeTeachers: 0, totalAssignments: 0 });
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
 
   const fetchTeachers = useCallback(async () => {
     try {
       setSearching(true);
       setError(null);
-      // For now, getTeachers doesn't support search params, so we fetch all and filter
-      // TODO: Update backend API to support search
-      const response = await apiClient.getTeachers();
+
+      const response = await apiClient.getTeachers({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: debouncedSearch || undefined,
+        courseId: selectedCourseId && selectedCourseId !== 'all' ? selectedCourseId : undefined,
+      });
+
       const teachers = response.data as Teacher[];
+      setTeacherList(Array.isArray(teachers) ? teachers : []);
 
-      // Client-side filter until backend supports search
-      const filtered = debouncedSearch
-        ? teachers.filter(
-            (teacher) =>
-              teacher.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-              teacher.email.toLowerCase().includes(debouncedSearch.toLowerCase())
-          )
-        : teachers;
+      // Update pagination if backend returns it
+      const responseData = response as unknown as {
+        pagination?: typeof pagination;
+        stats?: typeof stats;
+      };
+      if (responseData.pagination) {
+        setPagination(responseData.pagination);
+      }
 
-      setTeacherList(filtered);
+      // Use stats from backend response
+      if (responseData.stats) {
+        setStats(responseData.stats);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load teachers');
     } finally {
       setLoading(false);
       setSearching(false);
     }
-  }, [debouncedSearch]);
+  }, [pagination.page, pagination.limit, debouncedSearch, selectedCourseId]);
 
   useEffect(() => {
     fetchTeachers();
-  }, [debouncedSearch, fetchTeachers]);
+  }, [fetchTeachers]);
 
-  // Debounce search query
+  // Debounce search query and reset pagination
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedSearch(searchQuery);
+      setPagination((prev) => ({ ...prev, page: 1 }));
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
+
+  // Reset to page 1 when course filter changes
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [selectedCourseId]);
 
   async function handleDelete(id: string) {
     const t = teacherList.find((x) => x.id === id);
@@ -130,9 +170,6 @@ export default function ManageTeachersPage() {
     );
   }
 
-  const activeTeachers = teacherList.filter((t) => t._count.courses > 0).length;
-  const totalAssignments = teacherList.reduce((acc, t) => acc + t._count.courses, 0);
-
   return (
     <div>
       <PageHeader
@@ -152,7 +189,7 @@ export default function ManageTeachersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500 font-medium">{pageText['total_teachers']}</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{teacherList.length}</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{pagination.total}</p>
             </div>
             <div className="bg-vibrant-blue/10 p-3 rounded-lg">
               <Users size={24} className="text-vibrant-blue" />
@@ -164,7 +201,7 @@ export default function ManageTeachersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500 font-medium">{pageText['active_teachers']}</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{activeTeachers}</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{stats.activeTeachers}</p>
             </div>
             <div className="bg-emerald-500/10 p-3 rounded-lg">
               <BookOpen size={24} className="text-emerald-600" />
@@ -176,7 +213,7 @@ export default function ManageTeachersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500 font-medium">{pageText['total_assignments']}</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{totalAssignments}</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{stats.totalAssignments}</p>
             </div>
             <div className="bg-amber-500/10 p-3 rounded-lg">
               <BookOpen size={24} className="text-amber-600" />
@@ -185,9 +222,9 @@ export default function ManageTeachersPage() {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-6">
-        <div className="relative">
+      {/* Search and Filter Bar */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
           {searching ? (
             <Loader2
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
@@ -201,8 +238,23 @@ export default function ManageTeachersPage() {
             placeholder={pageText['search_teachers']}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent transition-all"
+            className="w-full h-12 pl-10 pr-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent transition-all"
           />
+        </div>
+        <div className="w-full sm:w-96">
+          <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+            <SelectTrigger fullWidth>
+              <SelectValue placeholder="All Courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Courses</SelectItem>
+              {courses.map((course) => (
+                <SelectItem key={course.id} value={course.id}>
+                  {course.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -278,27 +330,44 @@ export default function ManageTeachersPage() {
                 </td>
               </tr>
             ))}
-            {teacherList.length === 0 && !loading && debouncedSearch && (
-              <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                  No teachers found matching &ldquo;{searchQuery}&rdquo;
-                </td>
-              </tr>
-            )}
+            {teacherList.length === 0 &&
+              !loading &&
+              (debouncedSearch || (selectedCourseId && selectedCourseId !== 'all')) && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                    {selectedCourseId && selectedCourseId !== 'all'
+                      ? `No teachers found for the selected course${debouncedSearch ? ` matching "${searchQuery}"` : ''}`
+                      : `No teachers found matching "${searchQuery}"`}
+                  </td>
+                </tr>
+              )}
           </tbody>
         </table>
 
-        {teacherList.length === 0 && !loading && !debouncedSearch && (
-          <div className="py-12 text-center">
-            <Users className="w-12 h-12 mx-auto mb-4 text-slate-400" />
-            <p className="text-slate-600 mb-4">No teachers found</p>
-            <Link
-              href="/superuser/teachers/create"
-              className="inline-flex items-center gap-2 px-6 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors font-medium"
-            >
-              <PlusCircle size={18} />
-              Create Your First Teacher
-            </Link>
+        {teacherList.length === 0 &&
+          !loading &&
+          !debouncedSearch &&
+          (!selectedCourseId || selectedCourseId === 'all') && (
+            <div className="py-12 text-center">
+              <Users className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+              <p className="text-slate-600 mb-4">No teachers found</p>
+              <Link
+                href="/superuser/teachers/create"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors font-medium"
+              >
+                <PlusCircle size={18} />
+                Create Your First Teacher
+              </Link>
+            </div>
+          )}
+
+        {pagination.totalPages > 1 && (
+          <div className="border-t p-4">
+            <PaginationControls
+              currentPage={pagination.page}
+              totalPages={pagination.totalPages}
+              onPageChange={(page) => setPagination((prev) => ({ ...prev, page }))}
+            />
           </div>
         )}
       </div>

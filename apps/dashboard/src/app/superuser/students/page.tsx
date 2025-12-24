@@ -10,6 +10,14 @@ import { useLocale } from '@/providers/locale-provider';
 import { toast } from 'sonner';
 import { PaginationControls, StatusBadge, SuspendModal } from '@/components/utils';
 import { Button } from '@/components/ui/button';
+import { useCourseStore } from '@/lib/zustand/course-store';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Student {
   id: string;
@@ -45,6 +53,7 @@ export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const { courses } = useCourseStore();
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -54,6 +63,7 @@ export default function StudentsPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('all');
   const [pagination, setPagination] = useState<PaginationData>({
     page: 1,
     limit: 10,
@@ -73,6 +83,7 @@ export default function StudentsPage() {
         page: pagination.page,
         limit: pagination.limit,
         search: debouncedSearch || undefined,
+        courseId: selectedCourseId && selectedCourseId !== 'all' ? selectedCourseId : undefined,
       });
 
       if (response.data && Array.isArray(response.data)) {
@@ -88,7 +99,7 @@ export default function StudentsPage() {
       setLoading(false);
       setSearching(false);
     }
-  }, [pagination.page, pagination.limit, debouncedSearch]);
+  }, [pagination.page, pagination.limit, debouncedSearch, selectedCourseId]);
 
   const fetchStats = async () => {
     try {
@@ -109,8 +120,8 @@ export default function StudentsPage() {
           newThisMonth: data.students.monthlyNew,
         });
       }
-    } catch (err) {
-      console.error('Failed to load stats:', err);
+    } catch {
+      // Stats loading failed silently
     }
   };
 
@@ -122,24 +133,19 @@ export default function StudentsPage() {
     fetchStats();
   }, []);
 
-  // Debounce search query for backend API call
+  // Debounce search query and reset pagination
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedSearch(searchQuery);
-      // Reset to page 1 when search changes
-      if (searchQuery !== debouncedSearch) {
-        setPagination((prev) => ({ ...prev, page: 1 }));
-      }
+      setPagination((prev) => ({ ...prev, page: 1 }));
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, debouncedSearch]);
+  }, [searchQuery]);
 
+  // Reset to page 1 when course filter changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchStudents();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchQuery, fetchStudents]);
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [selectedCourseId]);
 
   const handleSuspend = async (student: Student) => {
     setSelectedStudent(student);
@@ -276,9 +282,9 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-6">
-        <div className="relative">
+      {/* Search and Filter Bar */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
           {searching ? (
             <Loader2
               className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
@@ -292,8 +298,23 @@ export default function StudentsPage() {
             placeholder={pageText.search_placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent transition-all"
+            className="w-full h-12 pl-10 pr-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent transition-all"
           />
+        </div>
+        <div className="w-full sm:w-96">
+          <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+            <SelectTrigger fullWidth>
+              <SelectValue placeholder="All Courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Courses</SelectItem>
+              {courses.map((course) => (
+                <SelectItem key={course.id} value={course.id}>
+                  {course.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -403,22 +424,29 @@ export default function StudentsPage() {
                   </td>
                 </tr>
               ))}
-              {students.length === 0 && !loading && (debouncedSearch || searchQuery) && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                    No students found matching &ldquo;{searchQuery}&rdquo;
-                  </td>
-                </tr>
-              )}
+              {students.length === 0 &&
+                !loading &&
+                (debouncedSearch || (selectedCourseId && selectedCourseId !== 'all')) && (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                      {selectedCourseId && selectedCourseId !== 'all'
+                        ? `No students found for the selected course${debouncedSearch ? ` matching "${searchQuery}"` : ''}`
+                        : `No students found matching "${searchQuery}"`}
+                    </td>
+                  </tr>
+                )}
             </tbody>
           </table>
 
-          {students.length === 0 && !loading && !debouncedSearch && !searchQuery && (
-            <div className="py-12 text-center text-slate-500">
-              <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>No students found</p>
-            </div>
-          )}
+          {students.length === 0 &&
+            !loading &&
+            !debouncedSearch &&
+            (!selectedCourseId || selectedCourseId === 'all') && (
+              <div className="py-12 text-center text-slate-500">
+                <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No students found</p>
+              </div>
+            )}
         </div>
 
         {pagination.totalPages > 1 && (

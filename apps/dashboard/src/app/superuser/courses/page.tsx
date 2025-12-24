@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { apiClient } from '@/lib/api-client';
+import { useCourseStore } from '@/lib/zustand/course-store';
 import { PlusCircle, Search, Loader2, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import CourseDetailsModal from '@/components/ui/CourseDetailsModal';
@@ -110,8 +111,8 @@ export default function ManageCoursesPage() {
       if (response.data) {
         setTeachers(Array.isArray(response.data) ? response.data : []);
       }
-    } catch (err) {
-      console.error('Failed to load teachers:', err);
+    } catch {
+      // Teachers loading failed silently
     }
   }, []);
 
@@ -193,10 +194,24 @@ export default function ManageCoursesPage() {
     e.stopPropagation();
     try {
       setActionLoading(course.id);
+      const newPublishedState = !course.published;
       await apiClient.updateCourse(course.id, {
-        published: !course.published,
+        published: newPublishedState,
       });
-      toast.success(`Course ${!course.published ? 'published' : 'unpublished'} successfully`);
+
+      const { removeCourse, addCourse } = useCourseStore.getState();
+
+      if (newPublishedState) {
+        addCourse({
+          id: course.id,
+          title: course.title,
+          published: true,
+        });
+      } else {
+        removeCourse(course.id);
+      }
+
+      toast.success(`Course ${newPublishedState ? 'published' : 'unpublished'} successfully`);
       fetchCourses();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to update course');

@@ -1,11 +1,12 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { apiClient } from '@/lib/api-client';
+import { useCourseStore, Course } from '@/lib/zustand/course-store';
 
 export interface AppContextValue {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
-  isReady: boolean;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -18,29 +19,41 @@ export function useApp() {
   return ctx;
 }
 
+interface CourseApiResponse {
+  id: string;
+  title: string;
+  published: boolean;
+}
+
 export function AppContextProvider({ children }: { children: ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { setCourses } = useCourseStore();
 
   useEffect(() => {
-    const initApp = async () => {
+    const fetchCourses = async () => {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        setIsReady(true);
+        const response = await apiClient.getCourses({ limit: 1000, published: true });
+        const coursesData = response.data as CourseApiResponse[];
+        const courses: Course[] = Array.isArray(coursesData)
+          ? coursesData.map((c) => ({
+              id: c.id,
+              title: c.title,
+              published: c.published,
+            }))
+          : [];
+
+        setCourses(courses);
       } catch (error) {
         console.error('App initialization error:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    initApp();
-  }, []);
+    fetchCourses();
+  }, [setCourses]);
 
   const value = {
     isLoading,
     setIsLoading,
-    isReady,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

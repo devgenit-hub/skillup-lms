@@ -1,4 +1,4 @@
-import { type Request, type Response } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 import { AppError } from '../utils/errors.js';
 import { ZodError } from 'zod';
 import { Prisma } from '@repo/db';
@@ -11,7 +11,12 @@ interface ErrorResponse {
   stack?: string;
 }
 
-export const errorHandler = (err: Error, _req: Request, res: Response): void => {
+export const errorHandler = (
+  err: Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): void => {
   let error: ErrorResponse = {
     status: 'error',
     statusCode: 500,

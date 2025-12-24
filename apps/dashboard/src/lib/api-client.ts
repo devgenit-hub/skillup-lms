@@ -96,8 +96,19 @@ class ApiClient {
     });
   }
 
-  async getTeachers() {
-    return this.request('/api/teachers', { method: 'GET' });
+  async getTeachers(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    courseId?: string;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.courseId) query.append('courseId', params.courseId);
+
+    return this.request(`/api/teachers?${query.toString()}`, { method: 'GET' });
   }
 
   async createTeacher(data: {
@@ -338,13 +349,13 @@ class ApiClient {
     page?: number;
     limit?: number;
     published?: boolean;
-    instructorId?: string;
+    teacherId?: string;
   }) {
     const query = new URLSearchParams();
     if (params?.page) query.append('page', params.page.toString());
     if (params?.limit) query.append('limit', params.limit.toString());
     if (params?.published !== undefined) query.append('published', params.published.toString());
-    if (params?.instructorId) query.append('instructorId', params.instructorId);
+    if (params?.teacherId) query.append('teacherId', params.teacherId);
 
     return this.request(`/api/courses?${query.toString()}`, { method: 'GET' });
   }
