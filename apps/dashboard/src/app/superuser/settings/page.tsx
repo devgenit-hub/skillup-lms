@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useLocale } from '@/providers/locale-provider';
+import { apiClient } from '@/lib/api-client';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const { t } = useLocale();
@@ -52,10 +54,9 @@ export default function SettingsPage() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Here you would make an actual API call to change the password
-      // For now, we'll simulate a successful password change
+    try {
+      await apiClient.changePassword(currentPassword, newPassword);
+
       setMessage({
         type: 'success',
         text: 'Password changed successfully!',
@@ -63,8 +64,18 @@ export default function SettingsPage() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+
+      toast.success('Password changed successfully!');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to change password';
+      setMessage({
+        type: 'error',
+        text: errorMessage,
+      });
+      toast.error(errorMessage);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

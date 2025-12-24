@@ -513,6 +513,59 @@ class ApiClient {
       method: 'POST',
     });
   }
+
+  async changePassword(currentPassword: string, newPassword: string) {
+    return this.request('/api/users/change-password', {
+      method: 'POST',
+      data: { currentPassword, newPassword },
+    });
+  }
+
+  // Webinar Coupon methods
+  async createWebinarCoupon(
+    id: string,
+    couponData: {
+      code: string;
+      title?: string;
+      discount: number;
+      expiresAt: string;
+      maxUsage?: number;
+    }
+  ) {
+    return this.request(`/api/webinars/${id}/coupons`, {
+      method: 'POST',
+      data: couponData,
+    });
+  }
+
+  async getWebinarCoupons(id: string) {
+    return this.request(`/api/webinars/${id}/coupons`, {
+      method: 'GET',
+    });
+  }
+
+  async toggleWebinarCoupon(webinarId: string, couponId: string) {
+    return this.request(`/api/webinars/${webinarId}/coupons/${couponId}`, {
+      method: 'PATCH',
+    });
+  }
+
+  async updateWebinarCoupon(
+    webinarId: string,
+    couponId: string,
+    couponData: { code: string; title?: string; discount: number; expiresAt: string }
+  ) {
+    return this.request(`/api/webinars/${webinarId}/coupons/${couponId}`, {
+      method: 'PUT',
+      data: couponData,
+    });
+  }
+
+  async deleteWebinarCoupon(webinarId: string, couponId: string) {
+    return this.request(`/api/webinars/${webinarId}/coupons/${couponId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

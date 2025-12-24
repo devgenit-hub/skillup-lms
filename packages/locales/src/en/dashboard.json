@@ -44,7 +44,7 @@
     "quick_actions": "Quick Actions",
     "create_course": "+ Create Course",
     "create_teacher": "+ Create Teacher Account",
-    "create_webinar": "+ Create Webinar",
+    "create_webinar": "Create Webinar",
     "course_management": "Course Management",
     "course_management_desc": "Create courses and assign teachers.",
     "create_new_course": "Create New Course",

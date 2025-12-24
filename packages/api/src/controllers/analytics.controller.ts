@@ -24,6 +24,9 @@ export class AnalyticsController {
       lastMonthEnrollments,
       monthlyStudents,
       lastMonthStudents,
+      totalWebinars,
+      upcomingWebinars,
+      totalWebinarRegistrations,
     ] = await Promise.all([
       prisma.user.count({ where: { role: 'STUDENT' } }),
       prisma.user.count({ where: { role: 'STUDENT', suspended: false } }),
@@ -78,6 +81,13 @@ export class AnalyticsController {
           },
         },
       }),
+      prisma.webinar.count(),
+      prisma.webinar.count({
+        where: {
+          status: 'upcoming',
+        },
+      }),
+      prisma.webinarRegistration.count(),
     ]);
 
     const currentMonthRevenue = monthlyRevenue._sum.amount || 0;
@@ -116,7 +126,12 @@ export class AnalyticsController {
       revenue: {
         total: totalRevenue._sum.amount || 0,
         monthly: currentMonthRevenue,
-        growth: revenueGrowth,
+        monthlyGrowth: revenueGrowth,
+      },
+      webinars: {
+        total: totalWebinars,
+        upcoming: upcomingWebinars,
+        registrations: totalWebinarRegistrations,
       },
     };
 

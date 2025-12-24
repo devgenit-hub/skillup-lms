@@ -9,6 +9,29 @@ webinarsRouter.get('/', WebinarController.getAll);
 webinarsRouter.get('/:id', WebinarController.getById);
 webinarsRouter.post('/', authenticate, requireAdmin, WebinarController.create);
 webinarsRouter.put('/:id', authenticate, requireAdmin, WebinarController.update);
+webinarsRouter.patch('/:id', authenticate, requireAdmin, WebinarController.update);
 webinarsRouter.delete('/:id', authenticate, requireAdmin, WebinarController.delete);
 webinarsRouter.post('/:id/register', authenticate, WebinarController.register);
 webinarsRouter.delete('/:id/register', authenticate, WebinarController.unregister);
+
+// Coupon routes
+webinarsRouter.post('/:id/coupons', authenticate, requireAdmin, WebinarController.createCoupon);
+webinarsRouter.get('/:id/coupons', authenticate, requireAdmin, WebinarController.getCoupons);
+webinarsRouter.patch(
+  '/:id/coupons/:couponId',
+  authenticate,
+  requireAdmin,
+  WebinarController.toggleCoupon
+);
+webinarsRouter.put(
+  '/:id/coupons/:couponId',
+  authenticate,
+  requireAdmin,
+  WebinarController.updateCoupon
+);
+webinarsRouter.delete(
+  '/:id/coupons/:couponId',
+  authenticate,
+  requireAdmin,
+  WebinarController.deleteCoupon
+);

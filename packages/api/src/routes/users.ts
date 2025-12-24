@@ -10,3 +10,4 @@ usersRouter.get('/:id', authenticate, requireAdmin, UserController.getById);
 usersRouter.post('/', authenticate, requireAdmin, UserController.create);
 usersRouter.put('/:id', authenticate, requireAdmin, UserController.update);
 usersRouter.delete('/:id', authenticate, requireAdmin, UserController.delete);
+usersRouter.post('/change-password', authenticate, UserController.changePassword);

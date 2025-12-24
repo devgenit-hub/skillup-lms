@@ -51,17 +51,7 @@ export function RichTextEditor({
   );
 
   // Define formats allowed in the editor
-  const formats = [
-    'header',
-    'bold',
-    'italic',
-    'underline',
-    'strike',
-    'list',
-    'bullet',
-    'indent',
-    'link',
-  ];
+  const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'indent', 'link'];
 
   return (
     <div

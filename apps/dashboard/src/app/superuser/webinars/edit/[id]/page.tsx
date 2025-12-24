@@ -1,9 +1,9 @@
 'use client';
 
 import { PageHeader } from '@/components/ui/PageHeader';
-import { useState } from 'react';
-import { PlusCircle, Trash2, Edit2, ChevronUp, Upload } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { PlusCircle, Trash2, Edit2, ChevronUp, Upload, Loader2 } from 'lucide-react';
+import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { STORAGE_BUCKETS, uploadFile } from '@/lib/supabase/storage';
@@ -16,11 +16,15 @@ import type {
 } from '@/components/props/WebinarProps';
 import { useLocale } from '@/providers/locale-provider';
 
-export default function CreateWebinarPage() {
+export default function EditWebinarPage() {
   const router = useRouter();
+  const params = useParams();
+  const webinarId = params.id as string;
   const { t } = useLocale();
   const formText = t('forms');
   const buttonText = t('buttons');
+
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -34,6 +38,7 @@ export default function CreateWebinarPage() {
     sessionHighlights: '',
     aboutWebinar: '',
     liveLink: '',
+    status: 'draft' as 'draft' | 'upcoming' | 'live' | 'completed',
   });
 
   const [speakers, setSpeakers] = useState<WebinarSpeaker[]>([
@@ -49,6 +54,84 @@ export default function CreateWebinarPage() {
 
   const [resources, setResources] = useState<WebinarResource[]>([]);
 
+  // Fetch webinar data on mount
+  useEffect(() => {
+    const fetchWebinar = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiClient.getWebinarById(webinarId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const webinar = response.data as any;
+
+        if (!webinar) {
+          toast.error('Webinar not found');
+          router.push('/superuser/webinars');
+          return;
+        }
+
+        // Format datetime for input
+        const scheduleDate = new Date(webinar.scheduleDateTime);
+        const formattedDateTime = scheduleDate.toISOString().slice(0, 16);
+
+        setFormData({
+          title: webinar.title || '',
+          category: webinar.category || '',
+          image: webinar.image || '',
+          scheduleDateTime: formattedDateTime,
+          duration: webinar.duration?.toString() || '',
+          feeType: webinar.feeType || 'free',
+          price: webinar.price?.toString() || '',
+          platform: webinar.platform || '',
+          sessionHighlights: webinar.sessionHighlights || '',
+          aboutWebinar: webinar.aboutWebinar || '',
+          liveLink: webinar.liveLink || '',
+          status: (webinar.status as 'draft' | 'upcoming' | 'live' | 'completed') || 'draft',
+        });
+
+        // Set speakers
+        if (webinar.speakers && Array.isArray(webinar.speakers) && webinar.speakers.length > 0) {
+          setSpeakers(webinar.speakers as WebinarSpeaker[]);
+          // Collapse all speakers with data
+          const filledIndices = new Set<number>();
+          (webinar.speakers as WebinarSpeaker[]).forEach((s, i) => {
+            if (s.name && s.designation) filledIndices.add(i);
+          });
+          setCollapsedSpeakers(filledIndices);
+        }
+
+        // Set session agenda
+        if (
+          webinar.sessionAgenda &&
+          Array.isArray(webinar.sessionAgenda) &&
+          webinar.sessionAgenda.length > 0
+        ) {
+          setSessionAgenda(webinar.sessionAgenda as SessionAgenda[]);
+          // Collapse all agenda items with data
+          const filledIndices = new Set<number>();
+          (webinar.sessionAgenda as SessionAgenda[]).forEach((a, i) => {
+            if (a.title && a.time) filledIndices.add(i);
+          });
+          setCollapsedAgenda(filledIndices);
+        }
+
+        // Set resources
+        if (webinar.resources && Array.isArray(webinar.resources)) {
+          setResources(webinar.resources as WebinarResource[]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch webinar:', error);
+        toast.error('Failed to load webinar');
+        router.push('/superuser/webinars');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (webinarId) {
+      fetchWebinar();
+    }
+  }, [webinarId, router]);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -58,7 +141,6 @@ export default function CreateWebinarPage() {
 
   // Speaker Management
   const addSpeaker = () => {
-    // Collapse the last speaker if it's filled
     const lastIndex = speakers.length - 1;
     const lastSpeaker = speakers[lastIndex];
     if (lastIndex >= 0 && lastSpeaker && isSpeakerFilled(lastSpeaker)) {
@@ -97,7 +179,6 @@ export default function CreateWebinarPage() {
 
   // Session Agenda Management
   const addSessionAgenda = () => {
-    // Collapse the last agenda item if it's filled
     const lastIndex = sessionAgenda.length - 1;
     const lastAgenda = sessionAgenda[lastIndex];
     if (lastIndex >= 0 && lastAgenda && isAgendaFilled(lastAgenda)) {
@@ -186,7 +267,7 @@ export default function CreateWebinarPage() {
         feeType: formData.feeType,
         price: formData.feeType === 'paid' ? parseFloat(formData.price) : undefined,
         platform: formData.platform,
-        status: 'draft' as const,
+        status: formData.status,
         sessionHighlights: formData.sessionHighlights,
         aboutWebinar: formData.aboutWebinar,
         liveLink: formData.liveLink || undefined,
@@ -195,23 +276,31 @@ export default function CreateWebinarPage() {
         resources: resources.length > 0 ? resources : undefined,
       };
 
-      await apiClient.createWebinar(webinarData);
-      toast.success('Webinar created successfully!');
+      await apiClient.updateWebinar(webinarId, webinarData);
+      toast.success('Webinar updated successfully!');
       router.push('/superuser/webinars');
     } catch (error) {
-      console.error('Failed to create webinar:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create webinar');
+      console.error('Failed to update webinar:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update webinar');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 animate-spin text-vibrant-blue" />
+          <p className="text-slate-600">Loading webinar...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <PageHeader
-        title={formText['create_webinar_title']}
-        description={formText['create_webinar_subtitle']}
-      />
+      <PageHeader title="Edit Webinar" description="Update webinar details" />
 
       <form
         onSubmit={handleSubmit}
@@ -243,7 +332,6 @@ export default function CreateWebinarPage() {
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 {formText['category']} <span className="text-red-500">*</span>
               </label>
-
               <input
                 type="text"
                 name="category"
@@ -253,27 +341,10 @@ export default function CreateWebinarPage() {
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
                 placeholder="e.g., Web Development, Ui/UX"
               />
-              <select
-                hidden
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
-              >
-                <option value="webdev">Web Development</option>
-                <option value="frontend">Frontend</option>
-                <option value="backend">Backend</option>
-                <option value="mobiledev">Mobile Development</option>
-                <option value="devOps">DevOps</option>
-                <option value="ui-ux">UI/UX</option>
-                <option value="others">Others</option>
-              </select>
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Platform *</label>
-
               <input
                 type="text"
                 name="platform"
@@ -283,19 +354,6 @@ export default function CreateWebinarPage() {
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
                 placeholder="e.g., Zoom, Facebook Live, YouTube Live"
               />
-
-              <select
-                hidden
-                name="platform"
-                value={formData.platform}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
-              >
-                <option value="zoom">Zoom</option>
-                <option value="facebook">Facebook Live</option>
-                <option value="youtube">YouTube Live</option>
-              </select>
             </div>
 
             <div className="md:col-span-2">
@@ -327,7 +385,6 @@ export default function CreateWebinarPage() {
                 value={formData.scheduleDateTime}
                 onChange={handleInputChange}
                 required
-                min={new Date().toISOString().slice(0, 16)}
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
               />
             </div>
@@ -400,6 +457,22 @@ export default function CreateWebinarPage() {
             <p className="text-xs text-slate-500 mt-1">
               Add the live session link where students can join the webinar
             </p>
+          </div>
+
+          {/* Status Selection */}
+          <div className="mt-6">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Status</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
+            >
+              <option value="draft">Draft</option>
+              <option value="upcoming">Published (Upcoming)</option>
+              <option value="live">Live</option>
+              <option value="completed">Completed</option>
+            </select>
           </div>
         </section>
 
@@ -557,7 +630,7 @@ export default function CreateWebinarPage() {
           </div>
         </section>
 
-        {/* Session Agenda Section (Optional) */}
+        {/* Session Agenda Section */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
             <div>
@@ -717,7 +790,7 @@ export default function CreateWebinarPage() {
                   const file = e.target.files?.[0];
                   if (file) {
                     addResource(file);
-                    e.target.value = ''; // Reset input
+                    e.target.value = '';
                   }
                 }}
                 className="hidden"
@@ -795,9 +868,16 @@ export default function CreateWebinarPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-dark-blue text-white rounded-lg hover:bg-vibrant-blue transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-dark-blue text-white rounded-lg hover:bg-vibrant-blue transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {isSubmitting ? 'Creating...' : formText['create_webinar']}
+            {isSubmitting ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Updating...
+              </>
+            ) : (
+              'Update Webinar'
+            )}
           </button>
         </div>
       </form>
