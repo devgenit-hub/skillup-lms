@@ -102,7 +102,6 @@ export class StudentController {
     ApiResponse.success(res, student);
   });
 
-  // Teacher-specific method to get students from assigned courses only
   static getByTeacher = asyncHandler(async (req: Request, res: Response) => {
     const query = studentQuerySchema.parse(req.query);
     const supabaseId = req.user?.supabaseId;
@@ -111,38 +110,20 @@ export class StudentController {
       throw new NotFoundError('User not authenticated');
     }
 
-    // Get teacher ID
-    const teacher = await prisma.teacher.findUnique({
-      where: { supabaseId },
-      select: { id: true },
-    });
-
-    if (!teacher) {
-      throw new NotFoundError('Teacher profile not found');
-    }
-
-    // Get courses assigned to this teacher
-    const teacherCourses = await prisma.courseTeacher.findMany({
-      where: { teacherId: teacher.id },
-      select: { courseId: true },
-    });
-
-    const courseIds = teacherCourses.map((ct) => ct.courseId);
-
-    if (courseIds.length === 0) {
-      ApiResponse.paginated(res, [], {
-        page: query.page,
-        limit: query.limit,
-        total: 0,
-      });
-      return;
-    }
-
     const where: Record<string, unknown> = {
       role: UserRole.STUDENT,
       enrollments: {
         some: {
-          courseId: { in: courseIds },
+          course: {
+            courseTeachers: {
+              some: {
+                teacher: {
+                  supabaseId,
+                },
+              },
+            },
+            ...(query.courseId && { id: query.courseId }),
+          },
         },
       },
     };
@@ -156,18 +137,6 @@ export class StudentController {
 
     if (query.status && query.status !== 'all') {
       where.suspended = query.status === 'suspended';
-    }
-
-    // If specific courseId is provided, validate it's assigned to teacher
-    if (query.courseId) {
-      if (!courseIds.includes(query.courseId)) {
-        throw new NotFoundError('Course not assigned to teacher');
-      }
-      where.enrollments = {
-        some: {
-          courseId: query.courseId,
-        },
-      };
     }
 
     const [students, total] = await Promise.all([
@@ -345,7 +314,6 @@ export class StudentController {
 
     ApiResponse.success(res, updated, 'Student unsuspended successfully');
   });
-  // Teacher-specific suspend method (only for students in assigned courses)
   static suspendByTeacher = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const { reason } = suspendStudentSchema.parse(req.body);
@@ -356,26 +324,20 @@ export class StudentController {
       throw new NotFoundError('User not authenticated');
     }
 
-    // Get teacher ID
-    const teacher = await prisma.teacher.findUnique({
-      where: { supabaseId },
-      select: { id: true },
-    });
-
-    if (!teacher) {
-      throw new NotFoundError('Teacher profile not found');
-    }
-
-    // Verify student exists and is enrolled in teacher's courses
     const student = await prisma.user.findFirst({
       where: {
         id,
         role: UserRole.STUDENT,
+        suspended: false,
         enrollments: {
           some: {
             course: {
               courseTeachers: {
-                some: { teacherId: teacher.id },
+                some: {
+                  teacher: {
+                    supabaseId,
+                  },
+                },
               },
             },
           },
@@ -384,11 +346,9 @@ export class StudentController {
     });
 
     if (!student) {
-      throw new NotFoundError('Student not found or not enrolled in your courses');
-    }
-
-    if (student.suspended) {
-      throw new ConflictError('Student is already suspended');
+      throw new NotFoundError(
+        'Student not found, already suspended, or not enrolled in your courses'
+      );
     }
 
     const updatedStudent = await prisma.user.update({
@@ -404,7 +364,6 @@ export class StudentController {
     ApiResponse.success(res, updatedStudent, 'Student suspended successfully');
   });
 
-  // Teacher-specific unsuspend method (only for students in assigned courses)
   static unsuspendByTeacher = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const supabaseId = req.user?.supabaseId;
@@ -413,26 +372,20 @@ export class StudentController {
       throw new NotFoundError('User not authenticated');
     }
 
-    // Get teacher ID
-    const teacher = await prisma.teacher.findUnique({
-      where: { supabaseId },
-      select: { id: true },
-    });
-
-    if (!teacher) {
-      throw new NotFoundError('Teacher profile not found');
-    }
-
-    // Verify student exists and is enrolled in teacher's courses
     const student = await prisma.user.findFirst({
       where: {
         id,
         role: UserRole.STUDENT,
+        suspended: true,
         enrollments: {
           some: {
             course: {
               courseTeachers: {
-                some: { teacherId: teacher.id },
+                some: {
+                  teacher: {
+                    supabaseId,
+                  },
+                },
               },
             },
           },
@@ -441,11 +394,7 @@ export class StudentController {
     });
 
     if (!student) {
-      throw new NotFoundError('Student not found or not enrolled in your courses');
-    }
-
-    if (!student.suspended) {
-      throw new ConflictError('Student is not suspended');
+      throw new NotFoundError('Student not found, not suspended, or not enrolled in your courses');
     }
 
     const updatedStudent = await prisma.user.update({

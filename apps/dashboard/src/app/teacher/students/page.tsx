@@ -7,9 +7,8 @@ import Image from 'next/image';
 import { Loader2, Users, UserCheck, UserX, Search } from 'lucide-react';
 
 import { toast } from 'sonner';
-import { PaginationControls, StatusBadge, SuspendModal } from '@/components/utils';
-import { Button } from '@/components/ui/button';
-import { useTeacherStore } from '@/lib/zustand/teacher-store';
+import { PaginationControls, StatusBadge } from '@/components/utils';
+import { useTeacher } from '@/context/teacher-context';
 import {
   Select,
   SelectContent,
@@ -44,7 +43,7 @@ export default function TeacherStudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
-  const { courses } = useTeacherStore();
+  const { courses } = useTeacher();
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -61,12 +60,9 @@ export default function TeacherStudentsPage() {
     totalPages: 0,
   });
 
-  const [suspendModalOpen, setSuspendModalOpen] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-
   const fetchStudents = useCallback(async () => {
     try {
+      setLoading(true);
       setSearching(true);
 
       const response = await apiClient.getStudents({
@@ -134,49 +130,6 @@ export default function TeacherStudentsPage() {
   useEffect(() => {
     setPagination((prev) => ({ ...prev, page: 1 }));
   }, [selectedCourseId]);
-
-  const handleSuspend = async (student: Student) => {
-    setSelectedStudent(student);
-    setSuspendModalOpen(true);
-  };
-
-  const handleConfirmSuspend = async (reason: string) => {
-    if (!selectedStudent) return;
-
-    try {
-      await apiClient.suspendStudent(selectedStudent.id, reason);
-      toast.success(`${selectedStudent.name || selectedStudent.email} suspended successfully`);
-      fetchStudents();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to suspend student');
-      throw err;
-    }
-  };
-
-  const handleUnsuspend = async (student: Student) => {
-    try {
-      setActionLoading(student.id);
-      await apiClient.unsuspendStudent(student.id);
-      toast.success(`${student.name || student.email} unsuspended successfully`);
-      fetchStudents();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to unsuspend student');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  // Filter students based on search query (client-side for teacher)
-  const filteredStudents = students.filter((student) => {
-    if (!debouncedSearch) return true;
-
-    const searchLower = debouncedSearch.toLowerCase();
-    return (
-      student.name?.toLowerCase().includes(searchLower) ||
-      student.email.toLowerCase().includes(searchLower) ||
-      student.phone?.toLowerCase().includes(searchLower)
-    );
-  });
 
   if (loading && students.length === 0) {
     return (
@@ -274,6 +227,7 @@ export default function TeacherStudentsPage() {
               <SelectItem value="all">All Students</SelectItem>
               <SelectItem value="active">Active Students</SelectItem>
               <SelectItem value="suspended">Suspended Students</SelectItem>
+              <div className="border-t my-1" />
               {courses.map((course) => (
                 <SelectItem key={course.id} value={course.id}>
                   {course.title}
@@ -299,7 +253,6 @@ export default function TeacherStudentsPage() {
                   Enrolled Courses
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-slate-600">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-600">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -345,51 +298,23 @@ export default function TeacherStudentsPage() {
                   <td className="px-4 py-3">
                     <StatusBadge status={student.suspended ? 'suspended' : 'active'} />
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      {student.suspended ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleUnsuspend(student)}
-                          disabled={actionLoading === student.id}
-                          className="cursor-pointer"
-                        >
-                          {actionLoading === student.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            'Unsuspend'
-                          )}
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleSuspend(student)}
-                          className="cursor-pointer"
-                        >
-                          Suspend
-                        </Button>
-                      )}
-                    </div>
-                  </td>
                 </tr>
               ))}
-              {filteredStudents.length === 0 &&
+              {students.length === 0 &&
                 !loading &&
                 (debouncedSearch || (selectedCourseId && selectedCourseId !== 'all')) && (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                    <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                       {selectedCourseId && selectedCourseId !== 'all'
-                        ? `No students found for the selected course${debouncedSearch ? ` matching "${searchQuery}"` : ''}`
-                        : `No students found matching "${searchQuery}"`}
+                        ? `No students found for the selected course${debouncedSearch ? ` matching "${debouncedSearch}"` : ''}`
+                        : `No students found matching "${debouncedSearch}"`}
                     </td>
                   </tr>
                 )}
             </tbody>
           </table>
 
-          {filteredStudents.length === 0 &&
+          {students.length === 0 &&
             !loading &&
             !debouncedSearch &&
             (!selectedCourseId || selectedCourseId === 'all') && (
@@ -410,21 +335,6 @@ export default function TeacherStudentsPage() {
           </div>
         )}
       </div>
-
-      {/* Suspend Modal */}
-      {selectedStudent && (
-        <SuspendModal
-          open={suspendModalOpen}
-          onClose={() => {
-            setSuspendModalOpen(false);
-            setSelectedStudent(null);
-          }}
-          onConfirm={handleConfirmSuspend}
-          studentName={selectedStudent.name || selectedStudent.email}
-          title="Suspend Student"
-          description="Please provide a reason for suspending this student. They will not be able to access course content until unsuspended."
-        />
-      )}
     </div>
   );
 }
