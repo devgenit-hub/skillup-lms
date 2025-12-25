@@ -13,11 +13,11 @@ export default function LandingHero() {
     <div className="relative pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 mx-auto">
       <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-2xl md:rounded-3xl bg-linear-to-br from-purple-600 via-blue-600 to-cyan-600">
         <Image
-          src="/UI/LandingPage/waves-bg.png"
+          src="/UI/LandingPage/herobanner.gif"
           alt="Background"
           fill
           priority
-          className="object-cover rounded-xl"
+          className="object-cover rounded-xl aspect-video"
         />
 
         {/* Stats Card */}
