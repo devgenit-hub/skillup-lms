@@ -13,24 +13,55 @@ const generatePassword = (): string => {
 };
 
 export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
-  const teachers = await prisma.teacher.findMany({
-    select: {
-      id: true,
-      supabaseId: true,
-      name: true,
-      email: true,
-      phone: true,
-      address: true,
-      qualification: true,
-      experience: true,
-      specialization: true,
-      bio: true,
-      profileImage: true,
-      joiningDate: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const search = req.query.search as string;
+  const courseId = req.query.courseId as string;
+
+  const where: Record<string, unknown> = {};
+
+  // Search filter
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: 'insensitive' as const } },
+      { email: { contains: search, mode: 'insensitive' as const } },
+      { specialization: { contains: search, mode: 'insensitive' as const } },
+    ];
+  }
+
+  // Course filter
+  if (courseId) {
+    where.courseTeachers = {
+      some: {
+        courseId,
+      },
+    };
+  }
+
+  const [teachers, total] = await Promise.all([
+    prisma.teacher.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        supabaseId: true,
+        name: true,
+        email: true,
+        phone: true,
+        address: true,
+        qualification: true,
+        experience: true,
+        specialization: true,
+        bio: true,
+        profileImage: true,
+        joiningDate: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.teacher.count({ where }),
+  ]);
 
   const teachersWithStats = await Promise.all(
     teachers.map(async (teacher) => {
@@ -38,21 +69,46 @@ export const getTeachers = asyncHandler(async (req: Request, res: Response) => {
         where: { supabaseId: teacher.supabaseId },
         select: {
           lastLoginAt: true,
-          _count: { select: { courses: true } },
         },
+      });
+
+      const courseCount = await prisma.courseTeacher.count({
+        where: { teacherId: teacher.id },
       });
 
       return {
         ...teacher,
         lastLoginAt: user?.lastLoginAt || null,
-        _count: { courses: user?._count.courses || 0 },
+        _count: { courses: courseCount },
       };
     })
   );
 
+  // Calculate global stats (unfiltered)
+  const [totalActiveTeachers, totalCourseAssignments] = await Promise.all([
+    prisma.teacher.count({
+      where: {
+        courseTeachers: {
+          some: {},
+        },
+      },
+    }),
+    prisma.courseTeacher.count(),
+  ]);
+
   res.json({
     success: true,
     data: teachersWithStats,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+    stats: {
+      activeTeachers: totalActiveTeachers,
+      totalAssignments: totalCourseAssignments,
+    },
   });
 });
 

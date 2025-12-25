@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express';
-import { prisma } from '@repo/db';
+import { prisma, UserRole } from '@repo/db';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { syncUserSchema, updateProfileSchema } from '../schemas/auth.schema.js';
@@ -23,7 +23,7 @@ export class AuthController {
         avatarUrl: data.avatarUrl,
         emailVerified: data.emailVerified ?? false,
         provider: data.provider ?? 'EMAIL',
-        role: 'STUDENT',
+        role: UserRole.STUDENT,
         lastLoginAt: new Date(),
       },
       select: {
@@ -65,7 +65,6 @@ export class AuthController {
         _count: {
           select: {
             enrollments: true,
-            courses: true,
           },
         },
       },
@@ -85,7 +84,7 @@ export class AuthController {
 
     const data = updateProfileSchema.parse(req.body);
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updatedAt: new Date(),
     };
 

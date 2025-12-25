@@ -1,40 +1,74 @@
 import { type Request, type Response } from 'express';
-import { prisma } from '@repo/db';
+import { prisma, UserRole } from '@repo/db';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import { NotFoundError, ConflictError } from '../utils/errors.js';
+import { NotFoundError, ConflictError, AppError, BadRequestError } from '../utils/errors.js';
 import {
   createCourseSchema,
   updateCourseSchema,
   courseQuerySchema,
   idParamSchema,
+  assignTeachersSchema,
+  createCouponSchema,
+  updateCourseCurriculumSchema,
 } from '../schemas/index.js';
 
 export class CourseController {
-  // Get all courses with pagination and filters
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const query = courseQuerySchema.parse(req.query);
 
     const where = {
       ...(query.published !== undefined && { published: query.published }),
-      ...(query.instructorId && { instructorId: query.instructorId }),
+      ...(query.teacherId && {
+        courseTeachers: {
+          some: { teacherId: query.teacherId },
+        },
+      }),
     };
 
+    const isTeacherContext = !!query.teacherId;
+
     const [courses, total] = await Promise.all([
-      prisma.course.findMany({
-        where,
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
-        include: {
-          instructor: {
-            select: { id: true, name: true, email: true },
-          },
-          _count: {
-            select: { enrollments: true, lessons: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-      }),
+      isTeacherContext
+        ? prisma.course.findMany({
+            where,
+            skip: (query.page - 1) * query.limit,
+            take: query.limit,
+            select: {
+              id: true,
+              title: true,
+              published: true,
+              feeType: true,
+              price: true,
+              metadata: true,
+              _count: {
+                select: { curriculumModules: true },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          })
+        : prisma.course.findMany({
+            where,
+            skip: (query.page - 1) * query.limit,
+            take: query.limit,
+            include: {
+              courseTeachers: {
+                include: {
+                  teacher: {
+                    select: { id: true, name: true, email: true, profileImage: true },
+                  },
+                },
+              },
+              _count: {
+                select: {
+                  enrollments: true,
+                  lessons: true,
+                  curriculumModules: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          }),
       prisma.course.count({ where }),
     ]);
 
@@ -52,12 +86,30 @@ export class CourseController {
     const course = await prisma.course.findUnique({
       where: { id },
       include: {
-        instructor: {
-          select: { id: true, name: true, email: true },
+        courseTeachers: {
+          include: {
+            teacher: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                profileImage: true,
+                bio: true,
+                specialization: true,
+              },
+            },
+          },
         },
         lessons: {
           orderBy: { order: 'asc' },
           where: { published: true },
+        },
+        curriculumModules: {
+          include: {
+            classes: { orderBy: { order: 'asc' } },
+            materials: { orderBy: { order: 'asc' } },
+          },
+          orderBy: { order: 'asc' },
         },
         _count: {
           select: { enrollments: true },
@@ -76,24 +128,15 @@ export class CourseController {
   static create = asyncHandler(async (req: Request, res: Response) => {
     const data = createCourseSchema.parse(req.body);
 
-    // Verify instructor exists
-    const instructor = await prisma.user.findUnique({
-      where: { id: data.instructorId },
-    });
-
-    if (!instructor) {
-      throw new NotFoundError('Instructor');
-    }
-
-    if (instructor.role !== 'INSTRUCTOR' && instructor.role !== 'ADMIN') {
-      throw new ConflictError('User must be an instructor to create courses');
-    }
-
     const course = await prisma.course.create({
       data,
       include: {
-        instructor: {
-          select: { id: true, name: true, email: true },
+        courseTeachers: {
+          include: {
+            teacher: {
+              select: { id: true, name: true, email: true, profileImage: true },
+            },
+          },
         },
       },
     });
@@ -105,6 +148,7 @@ export class CourseController {
   static update = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const data = updateCourseSchema.parse(req.body);
+    const userRole = req.user?.role;
 
     // Check if course exists
     const existingCourse = await prisma.course.findUnique({
@@ -115,12 +159,43 @@ export class CourseController {
       throw new NotFoundError('Course');
     }
 
+    // Teachers can only update 'published' field, admins can update everything
+    let updateData: Partial<typeof data>;
+    if (userRole === UserRole.ADMIN) {
+      // Admin can update all fields
+      updateData = { ...data };
+      if (data.metadata && existingCourse.metadata) {
+        const existingMetadata =
+          typeof existingCourse.metadata === 'object' ? existingCourse.metadata : {};
+        updateData = {
+          ...data,
+          metadata: {
+            ...existingMetadata,
+            ...data.metadata,
+          },
+        };
+      }
+    } else {
+      // Teachers can only update published status
+      if (Object.keys(data).length === 1 && 'published' in data) {
+        updateData = { published: data.published };
+      } else {
+        throw new BadRequestError(
+          'Teachers can only update the published status. Contact an administrator for other changes.'
+        );
+      }
+    }
+
     const course = await prisma.course.update({
       where: { id },
-      data,
+      data: updateData,
       include: {
-        instructor: {
-          select: { id: true, name: true, email: true },
+        courseTeachers: {
+          include: {
+            teacher: {
+              select: { id: true, name: true, email: true, profileImage: true },
+            },
+          },
         },
       },
     });
@@ -146,5 +221,364 @@ export class CourseController {
     });
 
     ApiResponse.noContent(res);
+  });
+
+  static assignTeachers = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+
+    // Validate request body with better error message
+    const validation = assignTeachersSchema.safeParse(req.body);
+    if (!validation.success) {
+      // Check if it's the teacherIds array validation (empty or missing)
+      const hasTeacherIdsError = validation.error.errors.some(
+        (err) => err.path.includes('teacherIds') || err.path.length === 0
+      );
+      const errorMessage = hasTeacherIdsError
+        ? 'At least one teacher must remain assigned to the course'
+        : validation.error.errors[0]?.message || 'Invalid teacher assignment data';
+      throw new AppError(400, errorMessage);
+    }
+
+    const { teacherIds } = validation.data;
+
+    const course = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!course) {
+      throw new NotFoundError('Course');
+    }
+
+    await prisma.courseTeacher.deleteMany({
+      where: { courseId: id },
+    });
+
+    const courseTeachers = teacherIds.map((teacherId) => ({
+      courseId: id,
+      teacherId,
+    }));
+
+    await prisma.courseTeacher.createMany({
+      data: courseTeachers,
+    });
+
+    const updatedCourse = await prisma.course.findUnique({
+      where: { id },
+      include: {
+        courseTeachers: {
+          include: {
+            teacher: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    ApiResponse.success(res, updatedCourse, 'Teachers assigned successfully');
+  });
+
+  // Create coupon for course
+  static createCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+    const data = createCouponSchema.parse(req.body);
+
+    // Check if course exists
+    const course = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!course) {
+      throw new NotFoundError('Course');
+    }
+
+    // Check if coupon code already exists
+    const existingCoupon = await prisma.coupon.findUnique({
+      where: { code: data.code },
+    });
+
+    if (existingCoupon) {
+      throw new ConflictError('Coupon code already exists');
+    }
+
+    const coupon = await prisma.coupon.create({
+      data: {
+        courseId: id,
+        code: data.code,
+        title: data.title,
+        discount: data.discount,
+        expiresAt: new Date(data.expiresAt),
+        maxUsage: data.maxUsage,
+      },
+    });
+
+    // Return with isActive for frontend compatibility
+    ApiResponse.success(
+      res,
+      { ...coupon, isActive: coupon.active, maxUses: coupon.maxUsage },
+      'Coupon created successfully'
+    );
+  });
+
+  // Get coupons for course
+  static getCoupons = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+
+    const coupons = await prisma.coupon.findMany({
+      where: { courseId: id },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Transform active to isActive for frontend compatibility
+    const transformedCoupons = coupons.map((coupon) => ({
+      ...coupon,
+      isActive: coupon.active,
+      maxUses: coupon.maxUsage,
+    }));
+
+    ApiResponse.success(res, transformedCoupons);
+  });
+
+  // Toggle coupon active status
+  static toggleCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const { id, couponId } = req.params;
+
+    const coupon = await prisma.coupon.findFirst({
+      where: { id: couponId, courseId: id },
+    });
+
+    if (!coupon) {
+      throw new NotFoundError('Coupon');
+    }
+
+    const updatedCoupon = await prisma.coupon.update({
+      where: { id: couponId },
+      data: { active: !coupon.active },
+    });
+
+    // Return with isActive for frontend compatibility
+    ApiResponse.success(
+      res,
+      { ...updatedCoupon, isActive: updatedCoupon.active },
+      `Coupon ${updatedCoupon.active ? 'activated' : 'deactivated'} successfully`
+    );
+  });
+
+  // Update coupon details
+  static updateCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const { id, couponId } = req.params;
+    const { code, title, discount, expiresAt } = req.body;
+
+    const coupon = await prisma.coupon.findFirst({
+      where: { id: couponId, courseId: id },
+    });
+
+    if (!coupon) {
+      throw new NotFoundError('Coupon');
+    }
+
+    // Check if code is being changed and if the new code already exists
+    if (code && code !== coupon.code) {
+      const existingCoupon = await prisma.coupon.findUnique({
+        where: { code },
+      });
+      if (existingCoupon) {
+        throw new ConflictError('Coupon code already exists');
+      }
+    }
+
+    const updatedCoupon = await prisma.coupon.update({
+      where: { id: couponId },
+      data: {
+        ...(code && { code }),
+        ...(title !== undefined && { title }),
+        ...(discount !== undefined && { discount }),
+        ...(expiresAt && { expiresAt: new Date(expiresAt) }),
+      },
+    });
+
+    // Return with isActive for frontend compatibility
+    ApiResponse.success(
+      res,
+      { ...updatedCoupon, isActive: updatedCoupon.active, maxUses: updatedCoupon.maxUsage },
+      'Coupon updated successfully'
+    );
+  });
+
+  // Delete coupon
+  static deleteCoupon = asyncHandler(async (req: Request, res: Response) => {
+    const { id, couponId } = req.params;
+
+    const coupon = await prisma.coupon.findFirst({
+      where: { id: couponId, courseId: id },
+    });
+
+    if (!coupon) {
+      throw new NotFoundError('Coupon');
+    }
+
+    await prisma.coupon.delete({
+      where: { id: couponId },
+    });
+
+    ApiResponse.success(res, null, 'Coupon deleted successfully');
+  });
+
+  // Update course curriculum using proper database tables
+  static updateCurriculum = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+    const { modules } = updateCourseCurriculumSchema.parse(req.body);
+
+    // Check if course exists
+    const existingCourse = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!existingCourse) {
+      throw new NotFoundError('Course');
+    }
+
+    // Use a transaction to update curriculum
+    await prisma.$transaction(async (tx) => {
+      // Delete existing curriculum modules and their related data (cascade)
+      await tx.curriculumModule.deleteMany({
+        where: { courseId: id },
+      });
+
+      // Create new modules with classes and materials
+      for (let i = 0; i < modules.length; i++) {
+        const module = modules[i];
+        if (!module) continue;
+
+        const createdModule = await tx.curriculumModule.create({
+          data: {
+            courseId: id,
+            title: module.title,
+            details: module.details || null,
+            order: i,
+          },
+        });
+
+        // Create classes for this module
+        if (module.classes && module.classes.length > 0) {
+          await tx.curriculumClass.createMany({
+            data: module.classes.map((cls, idx) => ({
+              moduleId: createdModule.id,
+              title: cls.title,
+              videoUrl: cls.videoUrl || null,
+              duration: cls.duration || null,
+              order: idx,
+            })),
+          });
+        }
+
+        // Create materials for this module
+        if (module.materials && module.materials.length > 0) {
+          await tx.curriculumMaterial.createMany({
+            data: module.materials.map((mat, idx) => ({
+              moduleId: createdModule.id,
+              title: mat.title,
+              fileUrl: mat.fileUrl || null,
+              fileType: mat.fileType || null,
+              fileSize: mat.fileSize || null,
+              order: idx,
+            })),
+          });
+        }
+      }
+    });
+
+    // Fetch the updated curriculum
+    const curriculumModules = await prisma.curriculumModule.findMany({
+      where: { courseId: id },
+      include: {
+        classes: { orderBy: { order: 'asc' } },
+        materials: { orderBy: { order: 'asc' } },
+      },
+      orderBy: { order: 'asc' },
+    });
+
+    ApiResponse.success(res, { modules: curriculumModules }, 'Curriculum updated successfully');
+  });
+
+  // Get course curriculum
+  static getCurriculum = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+
+    // Check if course exists
+    const course = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!course) {
+      throw new NotFoundError('Course');
+    }
+
+    const curriculumModules = await prisma.curriculumModule.findMany({
+      where: { courseId: id },
+      include: {
+        classes: { orderBy: { order: 'asc' } },
+        materials: { orderBy: { order: 'asc' } },
+      },
+      orderBy: { order: 'asc' },
+    });
+
+    ApiResponse.success(res, { modules: curriculumModules });
+  });
+
+  static getEnrolledStudents = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+
+    const course = await prisma.course.findUnique({
+      where: { id },
+    });
+
+    if (!course) {
+      throw new NotFoundError('Course');
+    }
+
+    const [enrollments, total] = await Promise.all([
+      prisma.enrollment.findMany({
+        where: { courseId: id },
+        skip: (pageNum - 1) * limitNum,
+        take: limitNum,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              avatarUrl: true,
+              suspended: true,
+            },
+          },
+        },
+        orderBy: { enrolledAt: 'desc' },
+      }),
+      prisma.enrollment.count({ where: { courseId: id } }),
+    ]);
+
+    const students = enrollments.map((enrollment) => ({
+      enrollmentId: enrollment.id,
+      status: enrollment.status,
+      progress: enrollment.progress,
+      enrolledAt: enrollment.enrolledAt,
+      completedAt: enrollment.completedAt,
+      student: enrollment.user,
+    }));
+
+    ApiResponse.paginated(res, students, {
+      page: pageNum,
+      limit: limitNum,
+      total,
+    });
   });
 }

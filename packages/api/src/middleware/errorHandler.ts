@@ -15,6 +15,7 @@ export const errorHandler = (
   err: Error,
   _req: Request,
   res: Response,
+
   _next: NextFunction
 ): void => {
   let error: ErrorResponse = {
@@ -30,33 +31,22 @@ export const errorHandler = (
       statusCode: err.statusCode,
       message: err.message,
     };
-  }
-  // Zod validation errors
-  else if (err instanceof ZodError) {
+  } else if (err instanceof ZodError) {
+    const firstError = err.errors[0];
     error = {
       status: 'error',
       statusCode: 400,
-      message: 'Validation failed',
-      details: err.errors.map((e) => ({
-        field: e.path.join('.'),
-        message: e.message,
-      })),
+      message: firstError?.message || 'Validation failed',
     };
-  }
-  // Prisma errors
-  else if (err instanceof Prisma.PrismaClientKnownRequestError) {
+  } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
     error = handlePrismaError(err);
-  }
-  // Prisma validation errors
-  else if (err instanceof Prisma.PrismaClientValidationError) {
+  } else if (err instanceof Prisma.PrismaClientValidationError) {
     error = {
       status: 'error',
       statusCode: 400,
       message: 'Invalid data provided',
     };
-  }
-  // Unknown errors
-  else {
+  } else {
     error = {
       status: 'error',
       statusCode: 500,

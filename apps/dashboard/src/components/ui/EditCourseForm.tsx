@@ -1,17 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusCircle, Trash2, Upload } from 'lucide-react';
-import type { CourseInstructor, Curriculum, CourseProps } from '@/components/props/CourseProps';
-import { teachers } from '@/lib/dummy-data';
+import { Loader2, Upload, X } from 'lucide-react';
+import type { CourseProps } from '@/components/props/CourseProps';
+import { toast } from 'sonner';
+import { ImageUpload } from './ImageUpload';
+import { RichTextEditor } from './RichTextEditor';
+import { STORAGE_BUCKETS, uploadFile } from '@/lib/supabase/storage';
 
 interface EditCourseFormProps {
   course: CourseProps;
   onSave: (updatedCourse: CourseProps) => void;
   onCancel: () => void;
+  isSaving?: boolean;
 }
 
-export default function EditCourseForm({ course, onSave, onCancel }: EditCourseFormProps) {
+export default function EditCourseForm({
+  course,
+  onSave,
+  onCancel,
+  isSaving = false,
+}: EditCourseFormProps) {
   const [formData, setFormData] = useState({
     title: course.title || '',
     batchNo: course.batchNo || '',
@@ -28,13 +37,9 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
     classRoutinePdf: course.classRoutinePdf || '',
   });
 
-  const [courseInstructors, setCourseInstructors] = useState<CourseInstructor[]>(
-    course.courseInstructors || [{ name: '', image: '', designation: '' }]
-  );
-
-  const [curriculum, setCurriculum] = useState<Curriculum[]>(
-    course.curriculum || [{ title: '', details: '' }]
-  );
+  const [isPdfDragging, setIsPdfDragging] = useState(false);
+  const [classRoutinePdfName, setClassRoutinePdfName] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -43,45 +48,44 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleTeacherToggle = (teacherId: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      assignedTeachers: prev.assignedTeachers.includes(teacherId)
-        ? prev.assignedTeachers.filter((id) => id !== teacherId)
-        : [...prev.assignedTeachers, teacherId],
-    }));
+  const handlePdfDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsPdfDragging(true);
   };
 
-  const addCourseInstructor = () => {
-    setCourseInstructors([...courseInstructors, { name: '', image: '', designation: '' }]);
+  const handlePdfDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsPdfDragging(false);
   };
 
-  const removeCourseInstructor = (index: number) => {
-    setCourseInstructors(courseInstructors.filter((_, i) => i !== index));
-  };
+  const handlePdfDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsPdfDragging(false);
 
-  const updateCourseInstructor = (index: number, field: keyof CourseInstructor, value: string) => {
-    const updated = [...courseInstructors];
-    if (updated[index]) {
-      updated[index][field] = value;
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Please upload a PDF file');
+      return;
     }
-    setCourseInstructors(updated);
-  };
 
-  const addCurriculum = () => {
-    setCurriculum([...curriculum, { title: '', details: '' }]);
-  };
-
-  const removeCurriculum = (index: number) => {
-    setCurriculum(curriculum.filter((_, i) => i !== index));
-  };
-
-  const updateCurriculum = (index: number, field: keyof Curriculum, value: string) => {
-    const updated = [...curriculum];
-    if (updated[index]) {
-      updated[index][field] = value;
+    try {
+      setIsUploading(true);
+      toast.loading('Uploading PDF...', { id: 'pdf-upload' });
+      const fileUrl = await uploadFile(file, STORAGE_BUCKETS.CLASS_ROUTINES, 'routines');
+      setFormData((prev) => ({
+        ...prev,
+        classRoutinePdf: fileUrl,
+      }));
+      setClassRoutinePdfName(file.name);
+      toast.success('PDF uploaded successfully', { id: 'pdf-upload' });
+    } catch (error) {
+      console.error('PDF upload error:', error);
+      toast.error('Failed to upload PDF', { id: 'pdf-upload' });
+    } finally {
+      setIsUploading(false);
     }
-    setCurriculum(updated);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -92,10 +96,7 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
       ...formData,
       price: formData.feeType === 'paid' ? parseFloat(formData.price) : undefined,
       numClasses: parseInt(formData.numClasses),
-      courseInstructors: courseInstructors.filter(
-        (instructor) => instructor.name && instructor.image && instructor.designation
-      ),
-      curriculum: curriculum.filter((item) => item.title && item.details),
+      courseInstructors: course.courseInstructors || [],
       aboutCourse: {
         about: formData.aboutCourseAbout,
         details: formData.aboutCourseDetails,
@@ -142,48 +143,14 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
             />
           </div>
 
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Hero Image *</label>
-            <div className="relative">
-              <input
-                type="file"
-                id="heroImageEdit"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const imageUrl = URL.createObjectURL(file);
-                    setFormData((prev) => ({ ...prev, heroImage: imageUrl }));
-                  }
-                }}
-                className="hidden"
-              />
-              <label
-                htmlFor="heroImageEdit"
-                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors"
-              >
-                {formData.heroImage ? (
-                  <div className="relative w-full h-full">
-                    <img
-                      src={formData.heroImage}
-                      alt="Hero preview"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all rounded-lg flex items-center justify-center">
-                      <span className="text-white opacity-0 hover:opacity-100 font-medium">
-                        Click to change image
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="w-10 h-10 mb-3 text-slate-400" />
-                    <p className="mb-2 text-sm text-slate-600 font-medium">Click to upload</p>
-                  </div>
-                )}
-              </label>
-            </div>
-          </div>
+          <ImageUpload
+            value={formData.heroImage}
+            onChange={(url) => setFormData((prev) => ({ ...prev, heroImage: url }))}
+            bucket={STORAGE_BUCKETS.COURSES}
+            label="Hero Image *"
+            variant="hero"
+            onUploadStateChange={setIsUploading}
+          />
         </div>
       </section>
 
@@ -240,7 +207,7 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
           {formData.feeType === 'paid' && (
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Course Price (USD) *
+                Course Price (৳ BDT) *
               </label>
               <input
                 type="number"
@@ -249,7 +216,7 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
                 onChange={handleInputChange}
                 required
                 min="0"
-                step="0.01"
+                step="1"
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
               />
             </div>
@@ -284,155 +251,6 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
         </div>
       </section>
 
-      {/* Assign Teachers Section */}
-      <section hidden>
-        <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-          Assign Teachers
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {teachers.map((teacher) => (
-            <div
-              key={teacher.id}
-              onClick={() => handleTeacherToggle(teacher.id)}
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                formData.assignedTeachers.includes(teacher.id)
-                  ? 'border-vibrant-blue bg-light-blue/10'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-slate-900">{teacher.name}</p>
-                  <p className="text-sm text-slate-600">{teacher.email}</p>
-                </div>
-                <div
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    formData.assignedTeachers.includes(teacher.id)
-                      ? 'bg-vibrant-blue border-vibrant-blue'
-                      : 'border-slate-300'
-                  }`}
-                >
-                  {formData.assignedTeachers.includes(teacher.id) && (
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="3"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Course Instructors Section */}
-      <section>
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
-          <h3 className="text-lg font-bold text-slate-900">Course Instructors</h3>
-          <button
-            type="button"
-            onClick={addCourseInstructor}
-            className="flex items-center gap-2 px-4 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors"
-          >
-            <PlusCircle size={18} />
-            Add Instructor
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {courseInstructors.map((instructor, index) => (
-            <div key={index} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
-              <div className="flex items-start justify-between mb-3">
-                <h4 className="font-semibold text-slate-700">Instructor {index + 1}</h4>
-                {courseInstructors.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeCourseInstructor(index)}
-                    className="text-red-500 hover:text-red-700 transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Name</label>
-                  <input
-                    type="text"
-                    value={instructor.name}
-                    onChange={(e) => updateCourseInstructor(index, 'name', e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Image</label>
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id={`instructorImageEdit-${index}`}
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const imageUrl = URL.createObjectURL(file);
-                          updateCourseInstructor(index, 'image', imageUrl);
-                        }
-                      }}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor={`instructorImageEdit-${index}`}
-                      className="flex items-center justify-center w-full px-3 py-2 border border-slate-300 rounded-lg cursor-pointer bg-white hover:bg-slate-50 transition-colors"
-                    >
-                      {instructor.image ? (
-                        <div className="flex items-center gap-2 w-full">
-                          <img
-                            src={instructor.image}
-                            alt="Preview"
-                            className="w-8 h-8 rounded object-cover"
-                          />
-                          <span className="text-sm text-slate-600 truncate flex-1">
-                            Image selected
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-sm text-slate-500">
-                          <Upload size={16} />
-                          <span>Choose image</span>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">
-                    Designation
-                  </label>
-                  <input
-                    type="text"
-                    value={instructor.designation}
-                    placeholder="Backend Developer"
-                    onChange={(e) => updateCourseInstructor(index, 'designation', e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* About Course Section */}
       <section>
         <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
@@ -444,13 +262,11 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               About (Markdown) *
             </label>
-            <textarea
-              name="aboutCourseAbout"
+            <RichTextEditor
               value={formData.aboutCourseAbout}
-              onChange={handleInputChange}
-              required
-              rows={6}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent resize-vertical"
+              onChange={(value) => setFormData((prev) => ({ ...prev, aboutCourseAbout: value }))}
+              placeholder="Describe what this course is about..."
+              minHeight="150px"
             />
           </div>
 
@@ -458,71 +274,13 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Details (Markdown) *
             </label>
-            <textarea
-              name="aboutCourseDetails"
+            <RichTextEditor
               value={formData.aboutCourseDetails}
-              onChange={handleInputChange}
-              required
-              rows={6}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent resize-vertical"
+              onChange={(value) => setFormData((prev) => ({ ...prev, aboutCourseDetails: value }))}
+              placeholder="Add detailed course information..."
+              minHeight="150px"
             />
           </div>
-        </div>
-      </section>
-
-      {/* Curriculum Section */}
-      <section>
-        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
-          <h3 className="text-lg font-bold text-slate-900">Course Curriculum</h3>
-          <button
-            type="button"
-            onClick={addCurriculum}
-            className="flex items-center gap-2 px-4 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors"
-          >
-            <PlusCircle size={18} />
-            Add Curriculum Item
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {curriculum.map((item, index) => (
-            <div key={index} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
-              <div className="flex items-start justify-between mb-3">
-                <h4 className="font-semibold text-slate-700">Module {index + 1}</h4>
-                {curriculum.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeCurriculum(index)}
-                    className="text-red-500 hover:text-red-700 transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Title</label>
-                  <input
-                    type="text"
-                    value={item.title}
-                    onChange={(e) => updateCurriculum(index, 'title', e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Details</label>
-                  <textarea
-                    value={item.details}
-                    onChange={(e) => updateCurriculum(index, 'details', e.target.value)}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white resize-vertical"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -544,35 +302,91 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  if (file.type !== 'application/pdf') {
+                    toast.error('Please upload a PDF file');
+                    return;
+                  }
                   const fileUrl = URL.createObjectURL(file);
                   setFormData((prev) => ({
                     ...prev,
                     classRoutinePdf: fileUrl,
                   }));
+                  setClassRoutinePdfName(file.name);
+                  toast.success('PDF uploaded successfully');
                 }
               }}
               className="hidden"
             />
-            <label
-              htmlFor="classRoutinePdfEdit"
-              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors"
+            <div
+              onDrop={handlePdfDrop}
+              onDragOver={handlePdfDragOver}
+              onDragLeave={handlePdfDragLeave}
+              onClick={() => document.getElementById('classRoutinePdfEdit')?.click()}
+              className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
+                isPdfDragging
+                  ? 'border-vibrant-blue bg-blue-50 scale-[1.02]'
+                  : 'border-slate-300 bg-slate-50 hover:bg-slate-100'
+              }`}
             >
               {formData.classRoutinePdf ? (
-                <div className="flex flex-col items-center justify-center">
+                <div className="relative group flex flex-col items-center justify-center">
+                  {/* Floating delete button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFormData((prev) => ({
+                        ...prev,
+                        classRoutinePdf: '',
+                      }));
+                      setClassRoutinePdfName('');
+                      toast.success('PDF removed successfully');
+                    }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg z-10"
+                    title="Remove PDF"
+                  >
+                    <X size={12} />
+                  </button>
+
                   <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-2">
                     <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
                     </svg>
                   </div>
-                  <p className="text-sm text-slate-600 font-medium">PDF selected</p>
+                  <p className="text-sm text-slate-600 font-medium">
+                    {classRoutinePdfName || 'PDF selected'}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">Click or drag to change file</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center">
-                  <Upload className="w-10 h-10 mb-2 text-slate-400" />
-                  <p className="text-sm text-slate-600 font-medium">Click to upload PDF</p>
+                  {isPdfDragging ? (
+                    <>
+                      <div className="p-3 rounded-full bg-vibrant-blue mb-2">
+                        <Upload className="w-8 h-8 text-white" />
+                      </div>
+                      <p className="text-sm text-vibrant-blue font-semibold">Drop PDF here</p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-10 h-10 mb-2 text-slate-400" />
+                      <p className="text-sm text-slate-600 font-medium">
+                        <span className="text-vibrant-blue">Click to upload</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">PDF files only</p>
+                    </>
+                  )}
                 </div>
               )}
-            </label>
+            </div>
+            {classRoutinePdfName && (
+              <p className="text-sm text-slate-600 mt-2 flex items-center gap-2">
+                <span className="font-medium">Selected file:</span>
+                <span className="text-slate-800 font-mono text-xs bg-slate-100 px-2 py-1 rounded">
+                  {classRoutinePdfName}
+                </span>
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -582,15 +396,29 @@ export default function EditCourseForm({ course, onSave, onCancel }: EditCourseF
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium"
+          disabled={isSaving || isUploading}
+          className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-6 py-2 bg-dark-blue text-white rounded-lg hover:bg-vibrant-blue transition-colors font-medium"
+          disabled={isSaving || isUploading}
+          className="px-6 py-2 bg-dark-blue text-white rounded-lg hover:bg-vibrant-blue transition-colors font-medium disabled:opacity-50 flex items-center gap-2"
         >
-          Save Changes
+          {isSaving ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              Saving...
+            </>
+          ) : isUploading ? (
+            <>
+              <Loader2 size={18} className="animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            'Save Changes'
+          )}
         </button>
       </div>
     </form>

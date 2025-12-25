@@ -1,12 +1,32 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { apiClient } from '@/lib/api-client';
-import { PlusCircle, Mail, BookOpen, Trash2, Users, Loader2, RefreshCw, Edit } from 'lucide-react';
+import {
+  PlusCircle,
+  Mail,
+  BookOpen,
+  Trash2,
+  Users,
+  Loader2,
+  RefreshCw,
+  Edit,
+  Search,
+} from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLocale } from '@/providers/locale-provider';
 import { toast } from 'sonner';
+import { PaginationControls } from '@/components/utils';
+import { useCourseStore } from '@/lib/zustand/course-store';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Teacher {
   id: string;
@@ -26,31 +46,87 @@ interface Teacher {
   _count: { courses: number };
 }
 
+interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export default function ManageTeachersPage() {
   const { t } = useLocale();
   const pageText = t('superuser');
   const tableText = t('table');
 
   const [teacherList, setTeacherList] = useState<Teacher[]>([]);
+  const { courses } = useCourseStore();
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('all');
+  const [stats, setStats] = useState({ activeTeachers: 0, totalAssignments: 0 });
+  const [pagination, setPagination] = useState<PaginationData>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
 
-  const fetchTeachers = async () => {
+  const fetchTeachers = useCallback(async () => {
     try {
-      setLoading(true);
+      setSearching(true);
       setError(null);
-      const response = await apiClient.getTeachers();
-      setTeacherList(response.data as Teacher[]);
+
+      const response = await apiClient.getTeachers({
+        page: pagination.page,
+        limit: pagination.limit,
+        search: debouncedSearch || undefined,
+        courseId: selectedCourseId && selectedCourseId !== 'all' ? selectedCourseId : undefined,
+      });
+
+      const teachers = response.data as Teacher[];
+      setTeacherList(Array.isArray(teachers) ? teachers : []);
+
+      // Update pagination if backend returns it
+      const responseData = response as unknown as {
+        pagination?: typeof pagination;
+        stats?: typeof stats;
+      };
+      if (responseData.pagination) {
+        setPagination(responseData.pagination);
+      }
+
+      // Use stats from backend response
+      if (responseData.stats) {
+        setStats(responseData.stats);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load teachers');
     } finally {
       setLoading(false);
+      setSearching(false);
     }
-  };
+  }, [pagination.page, pagination.limit, debouncedSearch, selectedCourseId]);
 
   useEffect(() => {
     fetchTeachers();
-  }, []);
+  }, [fetchTeachers]);
+
+  // Debounce search query and reset pagination
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPagination((prev) => ({ ...prev, page: 1 }));
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Reset to page 1 when course filter changes
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [selectedCourseId]);
 
   async function handleDelete(id: string) {
     const t = teacherList.find((x) => x.id === id);
@@ -70,7 +146,7 @@ export default function ManageTeachersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-vibrant-blue mx-auto mb-2" />
           <p className="text-slate-600">Loading teachers...</p>
@@ -81,12 +157,12 @@ export default function ManageTeachersPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={fetchTeachers}
-            className="bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto"
+            className="bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto cursor-pointer"
           >
             <RefreshCw size={16} /> Retry
           </button>
@@ -95,9 +171,6 @@ export default function ManageTeachersPage() {
     );
   }
 
-  const activeTeachers = teacherList.filter((t) => t._count.courses > 0).length;
-  const totalAssignments = teacherList.reduce((acc, t) => acc + t._count.courses, 0);
-
   return (
     <div>
       <PageHeader
@@ -105,7 +178,7 @@ export default function ManageTeachersPage() {
         description={pageText['teacher_management_subtitle']}
         actionButton={
           <Link href="/superuser/teachers/create">
-            <button className="bg-dark-blue hover:bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors">
+            <button className="bg-dark-blue hover:bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors cursor-pointer">
               <PlusCircle size={18} /> {pageText['create_new_teacher']}
             </button>
           </Link>
@@ -117,7 +190,7 @@ export default function ManageTeachersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500 font-medium">{pageText['total_teachers']}</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{teacherList.length}</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{pagination.total}</p>
             </div>
             <div className="bg-vibrant-blue/10 p-3 rounded-lg">
               <Users size={24} className="text-vibrant-blue" />
@@ -129,7 +202,7 @@ export default function ManageTeachersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500 font-medium">{pageText['active_teachers']}</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{activeTeachers}</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{stats.activeTeachers}</p>
             </div>
             <div className="bg-emerald-500/10 p-3 rounded-lg">
               <BookOpen size={24} className="text-emerald-600" />
@@ -141,12 +214,48 @@ export default function ManageTeachersPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500 font-medium">{pageText['total_assignments']}</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{totalAssignments}</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{stats.totalAssignments}</p>
             </div>
             <div className="bg-amber-500/10 p-3 rounded-lg">
               <BookOpen size={24} className="text-amber-600" />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Search and Filter Bar */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          {searching ? (
+            <Loader2
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
+              size={20}
+            />
+          ) : (
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+          )}
+          <input
+            type="text"
+            placeholder={pageText['search_teachers']}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-12 pl-10 pr-4 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent transition-all"
+          />
+        </div>
+        <div className="w-full sm:w-96">
+          <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+            <SelectTrigger fullWidth>
+              <SelectValue placeholder="All Courses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Courses</SelectItem>
+              {courses.map((course) => (
+                <SelectItem key={course.id} value={course.id}>
+                  {course.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -173,13 +282,23 @@ export default function ManageTeachersPage() {
               <tr key={teacher.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="shrink-0 h-10 w-10 bg-vibrant-blue rounded-full flex items-center justify-center text-white font-semibold">
-                      {teacher.name
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')
-                        .toUpperCase()}
-                    </div>
+                    {teacher.profileImage ? (
+                      <Image
+                        src={teacher.profileImage}
+                        alt={teacher.name}
+                        width={40}
+                        height={40}
+                        className="shrink-0 h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="shrink-0 h-10 w-10 bg-vibrant-blue rounded-full flex items-center justify-center text-white font-semibold">
+                        {teacher.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()}
+                      </div>
+                    )}
                     <div className="ml-4">
                       <div className="text-sm font-medium text-slate-900">{teacher.name}</div>
                       <div className="text-sm text-slate-500">ID: {teacher.id.slice(0, 8)}</div>
@@ -206,13 +325,13 @@ export default function ManageTeachersPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-3">
                     <Link href={`/superuser/teachers/edit/${teacher.id}`}>
-                      <button className="text-vibrant-blue bg-blue-100 hover:bg-blue-200 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5">
+                      <button className="text-vibrant-blue bg-blue-100 hover:bg-blue-200 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5 cursor-pointer">
                         <Edit size={16} />
                         <span className="font-medium capitalize">Manage</span>
                       </button>
                     </Link>
                     <button
-                      className="text-red-500 bg-red-100 hover:text-red-700 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5"
+                      className="text-red-500 bg-red-100 hover:text-red-700 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5 cursor-pointer"
                       onClick={() => handleDelete(teacher.id)}
                     >
                       <Trash2 size={16} />
@@ -222,8 +341,46 @@ export default function ManageTeachersPage() {
                 </td>
               </tr>
             ))}
+            {teacherList.length === 0 &&
+              !loading &&
+              (debouncedSearch || (selectedCourseId && selectedCourseId !== 'all')) && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                    {selectedCourseId && selectedCourseId !== 'all'
+                      ? `No teachers found for the selected course${debouncedSearch ? ` matching "${searchQuery}"` : ''}`
+                      : `No teachers found matching "${searchQuery}"`}
+                  </td>
+                </tr>
+              )}
           </tbody>
         </table>
+
+        {teacherList.length === 0 &&
+          !loading &&
+          !debouncedSearch &&
+          (!selectedCourseId || selectedCourseId === 'all') && (
+            <div className="py-12 text-center">
+              <Users className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+              <p className="text-slate-600 mb-4">No teachers found</p>
+              <Link
+                href="/superuser/teachers/create"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors font-medium cursor-pointer"
+              >
+                <PlusCircle size={18} />
+                Create Your First Teacher
+              </Link>
+            </div>
+          )}
+
+        {pagination.totalPages > 1 && (
+          <div className="border-t p-4">
+            <PaginationControls
+              currentPage={pagination.page}
+              totalPages={pagination.totalPages}
+              onPageChange={(page) => setPagination((prev) => ({ ...prev, page }))}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

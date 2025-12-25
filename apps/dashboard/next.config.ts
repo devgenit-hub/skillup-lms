@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  transpilePackages: ['@repo/shared'],
   images: {
     remotePatterns: [
       {
@@ -10,7 +11,23 @@ const nextConfig: NextConfig = {
         hostname: 't4.ftcdn.net',
         port: '',
       },
+      {
+        pathname: '/**',
+        hostname: '*.googleusercontent.com',
+        protocol: 'https',
+      },
+      {
+        pathname: '/**',
+        hostname: '**',
+        protocol: 'https',
+      },
+      {
+        pathname: '/**',
+        hostname: '**',
+        protocol: 'http',
+      },
     ],
+    unoptimized: true,
   },
 };
 

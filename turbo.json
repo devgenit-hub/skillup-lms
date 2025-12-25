@@ -8,7 +8,9 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_JWT_SECRET",
     "ADMIN_EMAILS",
-    "ADMIN_PASSWORDS"
+    "ADMIN_PASSWORDS",
+    "PORT",
+    "ALLOWED_ORIGINS"
   ],
   "tasks": {
     "build": {

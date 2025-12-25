@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from '../providers/theme-provider';
 import { LocaleProvider } from '../providers/locale-provider';
 import AuthProvider from '../providers/auth-provider';
+import { AppContextProvider } from '../context/app-context';
 import { cookies } from 'next/headers';
 import { Toaster } from 'sonner';
 import './globals.css';
@@ -81,14 +82,19 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased min-h-screen bg-background text-foreground">
+      <body
+        className="antialiased min-h-screen bg-background text-foreground"
+        suppressHydrationWarning
+      >
         <LocaleProvider initialLocale={locale}>
           <ThemeProvider>
             <AuthProvider>
-              <div className="relative flex min-h-screen flex-col">
-                <div className="flex-1">{children}</div>
-              </div>
-              <Toaster position="top-right" richColors />
+              <AppContextProvider>
+                <div className="relative flex min-h-screen flex-col">
+                  <div className="flex-1">{children}</div>
+                </div>
+                <Toaster position="top-right" richColors closeButton />
+              </AppContextProvider>
             </AuthProvider>
           </ThemeProvider>
         </LocaleProvider>

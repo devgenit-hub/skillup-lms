@@ -28,11 +28,13 @@ model User {
  updatedAt        DateTime     @updatedAt
 
  enrollments Enrollment[]
- courses     Course[]     @relation("instructor")
  payments    Payment[]
 
  @@index([supabaseId])
  @@index([email])
+ @@index([suspended])
+ @@index([createdAt])
+ @@index([role])
  @@map("users")
 }
 
@@ -53,6 +55,8 @@ model Teacher {
  createdAt      DateTime  @default(now())
  updatedAt      DateTime  @updatedAt
 
+ courseTeachers CourseTeacher[]
+
  @@index([supabaseId])
  @@index([email])
  @@map("teachers")
@@ -69,22 +73,33 @@ enum AuthProvider {
  GOOGLE
 }
 
+// Course fee type enum
+enum FeeType {
+ FREE
+ PAID
+}
+
 // Course model
 model Course {
- id           String   @id @default(cuid())
- title        String
- description  String?
- published    Boolean  @default(false)
- instructorId String
- createdAt    DateTime @default(now())
- updatedAt    DateTime @updatedAt
+ id             String   @id @default(cuid())
+ title          String
+ description    String?
+ published      Boolean  @default(false)
+ introVideoLink String?
+ feeType        FeeType  @default(FREE)
+ price          Float?
+ metadata       Json?
+ createdAt      DateTime @default(now())
+ updatedAt      DateTime @updatedAt
 
- // Relations
- instructor  User         @relation("instructor", fields: [instructorId], references: [id], onDelete: Cascade)
- enrollments Enrollment[]
- lessons     Lesson[]
+ enrollments       Enrollment[]
+ lessons           Lesson[]
+ courseTeachers    CourseTeacher[]
+ coupons           Coupon[]
+ curriculumModules CurriculumModule[]
 
- @@index([instructorId])
+ @@index([published])
+ @@index([feeType])
  @@map("courses")
 }
 
@@ -136,7 +151,8 @@ enum EnrollmentStatus {
 model Payment {
  id            String        @id @default(cuid())
  userId        String
- courseId      String
+ courseId      String?
+ webinarId     String?
  amount        Float
  status        PaymentStatus @default(PENDING)
  transactionId String?       @unique
@@ -144,10 +160,12 @@ model Payment {
  createdAt     DateTime      @default(now())
  updatedAt     DateTime      @updatedAt
 
- user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ webinar Webinar? @relation(fields: [webinarId], references: [id], onDelete: Cascade)
 
  @@index([userId])
  @@index([courseId])
+ @@index([webinarId])
  @@index([transactionId])
  @@map("payments")
 }
@@ -157,4 +175,143 @@ enum PaymentStatus {
  COMPLETED
  FAILED
  REFUNDED
+}
+
+model Webinar {
+ id                String   @id @default(cuid())
+ title             String
+ category          String
+ image             String?
+ scheduleDateTime  DateTime
+ duration          Int
+ feeType           String   @default("free")
+ price             Float?
+ platform          String
+ status            String   @default("draft")
+ sessionHighlights String?  @db.Text
+ aboutWebinar      String?  @db.Text
+ speakers          Json?
+ sessionAgenda     Json?
+ resources         Json?
+ liveLink          String?
+ createdAt         DateTime @default(now())
+ updatedAt         DateTime @updatedAt
+
+ registrations WebinarRegistration[]
+ coupons       Coupon[]
+ payments      Payment[]
+
+ @@index([status])
+ @@index([scheduleDateTime])
+ @@map("webinars")
+}
+
+model WebinarRegistration {
+ id           String   @id @default(cuid())
+ webinarId    String
+ userId       String
+ registeredAt DateTime @default(now())
+
+ webinar Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+
+ @@unique([webinarId, userId])
+ @@index([webinarId])
+ @@index([userId])
+ @@map("webinar_registrations")
+}
+
+model CourseTeacher {
+ id        String   @id @default(cuid())
+ courseId  String
+ teacherId String
+ createdAt DateTime @default(now())
+
+ course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+ teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+ @@unique([courseId, teacherId])
+ @@index([courseId])
+ @@index([teacherId])
+ @@map("course_teachers")
+}
+
+// Coupon model for course/webinar discounts
+model Coupon {
+ id         String   @id @default(cuid())
+ code       String   @unique
+ title      String? // Coupon title/description
+ courseId   String?
+ webinarId  String?
+ discount   Int // Percentage discount (1-100)
+ expiresAt  DateTime
+ usageCount Int      @default(0)
+ maxUsage   Int? // Null means unlimited
+ active     Boolean  @default(true)
+ createdAt  DateTime @default(now())
+ updatedAt  DateTime @updatedAt
+
+ course  Course?  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+ webinar Webinar? @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+
+ @@index([courseId])
+ @@index([webinarId])
+ @@index([code])
+ @@index([expiresAt])
+ @@map("coupons")
+}
+
+// Curriculum Module model for course curriculum
+model CurriculumModule {
+ id        String   @id @default(cuid())
+ title     String
+ details   String?  @db.Text
+ order     Int      @default(0)
+ courseId  String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ course    Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
+ classes   CurriculumClass[]
+ materials CurriculumMaterial[]
+
+ @@index([courseId])
+ @@index([order])
+ @@map("curriculum_modules")
+}
+
+// Curriculum Class (video lessons within a module)
+model CurriculumClass {
+ id        String   @id @default(cuid())
+ title     String
+ videoUrl  String?
+ duration  Int? // Duration in minutes
+ order     Int      @default(0)
+ moduleId  String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ module CurriculumModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+ @@index([moduleId])
+ @@index([order])
+ @@map("curriculum_classes")
+}
+
+// Curriculum Material (downloadable resources within a module)
+model CurriculumMaterial {
+ id        String   @id @default(cuid())
+ title     String
+ fileUrl   String?
+ fileType  String? // pdf, doc, zip, etc.
+ fileSize  Int? // Size in bytes
+ order     Int      @default(0)
+ moduleId  String
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+
+ module CurriculumModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+ @@index([moduleId])
+ @@index([order])
+ @@map("curriculum_materials")
 }

@@ -19,19 +19,19 @@ export interface WebinarResource {
 export interface WebinarProps {
   id: string;
   title: string;
-  category: 'webdev' | 'frontend' | 'backend' | 'mobiledev' | 'devOps' | 'ui-ux' | 'others';
-  image: string;
+  category: string;
+  image?: string;
   scheduleDateTime: string; // ISO date string
   duration: number; // in minutes
   feeType: 'free' | 'paid';
   price?: number;
-  platform: 'zoom' | 'facebook' | 'youtube';
+  platform: string;
   liveLink?: string;
-  sessionHighlights: string; // Markdown format - list of highlights
-  aboutWebinar: string; // Markdown format - detailed description
-  speakers: WebinarSpeaker[];
-  sessionAgenda: SessionAgenda[];
-  resources: WebinarResource[];
+  sessionHighlights?: string; // Markdown format - list of highlights
+  aboutWebinar?: string; // Markdown format - detailed description
+  speakers?: WebinarSpeaker[];
+  sessionAgenda?: SessionAgenda[];
+  resources?: WebinarResource[];
   status: 'upcoming' | 'live' | 'completed' | 'draft';
   registeredUsers?: number;
 }
