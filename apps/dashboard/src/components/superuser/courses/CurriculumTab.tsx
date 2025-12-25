@@ -190,7 +190,7 @@ export function CurriculumTab({
                   </h3>
                   <button
                     onClick={onAddVideoLesson}
-                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1 cursor-pointer"
                   >
                     <Plus size={16} /> Add More
                   </button>
@@ -209,7 +209,7 @@ export function CurriculumTab({
                         {modalVideoLessons.length > 1 && (
                           <button
                             onClick={() => onRemoveVideoLesson(index)}
-                            className="text-red-500 hover:text-red-700 p-1"
+                            className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -243,7 +243,7 @@ export function CurriculumTab({
                   </h3>
                   <button
                     onClick={onAddMaterialField}
-                    className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
                   >
                     <Plus size={16} /> Add More
                   </button>
@@ -272,7 +272,7 @@ export function CurriculumTab({
                         {modalMaterials.length > 1 && (
                           <button
                             onClick={() => onRemoveMaterial(index)}
-                            className="text-red-500 hover:text-red-700 p-1"
+                            className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
                             disabled={isSaving}
                           >
                             <Trash2 size={16} />
@@ -382,14 +382,14 @@ export function CurriculumTab({
               <button
                 onClick={onCloseModuleModal}
                 disabled={isSaving}
-                className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={onSaveModule}
                 disabled={isSaving}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isSaving ? (
                   <>
@@ -412,7 +412,7 @@ export function CurriculumTab({
         <h2 className="text-xl font-bold text-slate-900">Course Curriculum</h2>
         <button
           onClick={onOpenAddModuleModal}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer"
         >
           <Plus size={18} /> Add Module
         </button>
@@ -450,7 +450,7 @@ export function CurriculumTab({
                     e.stopPropagation();
                     onOpenEditModuleModal(module.id);
                   }}
-                  className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors"
+                  className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors cursor-pointer"
                 >
                   <Edit2 size={18} />
                 </button>
@@ -459,7 +459,7 @@ export function CurriculumTab({
                     e.stopPropagation();
                     onDeleteModule(module.id);
                   }}
-                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors cursor-pointer"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -487,7 +487,7 @@ export function CurriculumTab({
                         <p className="text-sm text-slate-500">No video lessons added yet.</p>
                         <button
                           onClick={() => onOpenEditModuleModal(module.id)}
-                          className="text-sm text-emerald-600 font-medium mt-1 hover:underline"
+                          className="text-sm text-emerald-600 font-medium mt-1 hover:underline cursor-pointer"
                         >
                           Add video lessons
                         </button>
@@ -514,7 +514,7 @@ export function CurriculumTab({
                           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                             <button
                               onClick={() => onDeleteClass(module.id, cls.id)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50"
+                              className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50 cursor-pointer"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -545,7 +545,7 @@ export function CurriculumTab({
                         <p className="text-sm text-slate-500">No materials uploaded yet.</p>
                         <button
                           onClick={() => onOpenEditModuleModal(module.id)}
-                          className="text-sm text-blue-600 font-medium mt-1 hover:underline"
+                          className="text-sm text-blue-600 font-medium mt-1 hover:underline cursor-pointer"
                         >
                           Upload materials
                         </button>
@@ -567,7 +567,7 @@ export function CurriculumTab({
                                   href={mat.fileUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-xs text-blue-500 hover:underline truncate block mt-0.5"
+                                  className="text-xs text-blue-500 hover:underline truncate block mt-0.5 cursor-pointer"
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   View file ↗
@@ -580,7 +580,7 @@ export function CurriculumTab({
                           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                             <button
                               onClick={() => onDeleteMaterial(module.id, mat.id)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50"
+                              className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50 cursor-pointer"
                             >
                               <Trash2 size={16} />
                             </button>

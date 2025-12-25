@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
-import { DollarSign, Users, Video, RefreshCw } from 'lucide-react';
+import { DollarSign, Users, Video, RefreshCw, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale } from '@/providers/locale-provider';
+import { useApp } from '@/context/app-context';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
 
@@ -37,6 +38,7 @@ interface DashboardStats {
 }
 
 export default function SuperuserDashboard() {
+  const { refreshAll } = useApp();
   const { t } = useLocale();
   const pageText = t('superuser');
 
@@ -74,23 +76,30 @@ export default function SuperuserDashboard() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <PageHeader
-          title={pageText['dashboard_title']}
-          description={pageText['dashboard_subtitle']}
-        />
-        <button
-          onClick={() => fetchStats(true)}
-          disabled={refreshing}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
-          Refresh
-        </button>
-      </div>
+      <PageHeader
+        title={pageText['dashboard_title']}
+        description={pageText['dashboard_subtitle']}
+        actionButton={
+          <button
+            onClick={async () => {
+              setRefreshing(true);
+              try {
+                await Promise.all([refreshAll(), fetchStats(true)]);
+              } finally {
+                setRefreshing(false);
+              }
+            }}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+        }
+      />
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="my-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
@@ -107,7 +116,7 @@ export default function SuperuserDashboard() {
           ))}
         </div>
       ) : stats ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="my-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card
             title={pageText['total_revenue']}
             value={formatCurrency(stats.revenue.total)}
@@ -132,18 +141,33 @@ export default function SuperuserDashboard() {
       <h2 className="text-xl font-bold text-slate-900 mb-4">{pageText['quick_actions']}</h2>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Link href="/superuser/courses/create">
-          <button className="w-full p-4 bg-white border border-slate-200 rounded-lg text-left font-medium text-slate-700 hover:border-vibrant-blue hover:text-vibrant-blue transition-colors">
-            {pageText['create_course']}
+          <button className="w-full p-6 min-h-25 bg-linear-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl text-left font-semibold text-slate-800 hover:from-blue-100 hover:to-indigo-100 hover:border-vibrant-blue hover:shadow-md transition-all duration-200 group cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="bg-vibrant-blue/10 p-2 rounded-lg group-hover:bg-vibrant-blue/20 transition-colors">
+                <PlusCircle size={20} className="text-vibrant-blue" />
+              </div>
+              <span>{pageText['create_course']}</span>
+            </div>
           </button>
         </Link>
         <Link href="/superuser/teachers/create">
-          <button className="w-full p-4 bg-white border border-slate-200 rounded-lg text-left font-medium text-slate-700 hover:border-vibrant-blue hover:text-vibrant-blue transition-colors">
-            {pageText['create_teacher']}
+          <button className="w-full p-6 min-h-25 bg-linear-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl text-left font-semibold text-slate-800 hover:from-emerald-100 hover:to-teal-100 hover:border-emerald-500 hover:shadow-md transition-all duration-200 group cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-500/10 p-2 rounded-lg group-hover:bg-emerald-500/20 transition-colors">
+                <PlusCircle size={20} className="text-emerald-600" />
+              </div>
+              <span>{pageText['create_teacher']}</span>
+            </div>
           </button>
         </Link>
         <Link href="/superuser/webinars/create">
-          <button className="w-full p-4 bg-white border border-slate-200 rounded-lg text-left font-medium text-slate-700 hover:border-vibrant-blue hover:text-vibrant-blue transition-colors">
-            {pageText['create_webinar']}
+          <button className="w-full p-6 min-h-25 bg-linear-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl text-left font-semibold text-slate-800 hover:from-purple-100 hover:to-pink-100 hover:border-purple-500 hover:shadow-md transition-all duration-200 group cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-500/10 p-2 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+                <Video size={20} className="text-purple-600" />
+              </div>
+              <span>{pageText['create_webinar']}</span>
+            </div>
           </button>
         </Link>
       </div>

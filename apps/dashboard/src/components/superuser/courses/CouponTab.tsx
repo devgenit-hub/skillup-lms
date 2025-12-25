@@ -79,7 +79,7 @@ export function CouponTab({
           {editingCouponId && (
             <button
               onClick={onCancelEdit}
-              className="p-1.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors"
+              className="p-1.5 rounded-lg bg-slate-200 text-slate-600 hover:bg-slate-300 transition-colors cursor-pointer"
               title="Cancel editing"
             >
               <X size={16} />
@@ -136,7 +136,7 @@ export function CouponTab({
             <button
               type="button"
               onClick={() => setShowCalendar(!showCalendar)}
-              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-left flex items-center justify-between"
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-left flex items-center justify-between cursor-pointer"
             >
               <span className={expiryDate ? 'text-slate-900' : 'text-slate-400'}>
                 {expiryDate ? expiryDate.toLocaleDateString() : 'Select a date'}
@@ -162,7 +162,7 @@ export function CouponTab({
           <button
             onClick={onSubmit}
             disabled={!couponTag || !expiryDate || !discount || isSubmitting}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>
@@ -216,7 +216,7 @@ export function CouponTab({
                     <button
                       onClick={() => onToggleCoupon?.(coupon.id)}
                       disabled={isTogglingCoupon === coupon.id}
-                      className={`px-3 py-2 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1.5 text-sm font-medium ${
+                      className={`px-3 py-2 rounded-lg transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1.5 text-sm font-medium ${
                         coupon.isActive
                           ? 'bg-green-100 text-green-700 hover:bg-green-200'
                           : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
@@ -246,7 +246,7 @@ export function CouponTab({
                         })
                       }
                       disabled={editingCouponId === coupon.id}
-                      className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors disabled:opacity-50"
+                      className="p-2 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors disabled:opacity-50 cursor-pointer"
                       title="Edit coupon"
                     >
                       <Pencil size={18} />
@@ -259,7 +259,7 @@ export function CouponTab({
                         }
                       }}
                       disabled={isDeletingCoupon === coupon.id}
-                      className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors disabled:opacity-50"
+                      className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors disabled:opacity-50 cursor-pointer"
                       title="Delete coupon"
                     >
                       {isDeletingCoupon === coupon.id ? (

@@ -15,6 +15,7 @@ import {
   Search,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLocale } from '@/providers/locale-provider';
 import { toast } from 'sonner';
 import { PaginationControls } from '@/components/utils';
@@ -161,7 +162,7 @@ export default function ManageTeachersPage() {
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={fetchTeachers}
-            className="bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto"
+            className="bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto cursor-pointer"
           >
             <RefreshCw size={16} /> Retry
           </button>
@@ -177,7 +178,7 @@ export default function ManageTeachersPage() {
         description={pageText['teacher_management_subtitle']}
         actionButton={
           <Link href="/superuser/teachers/create">
-            <button className="bg-dark-blue hover:bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors">
+            <button className="bg-dark-blue hover:bg-vibrant-blue text-white px-4 py-2 rounded-lg flex items-center gap-2 font-medium transition-colors cursor-pointer">
               <PlusCircle size={18} /> {pageText['create_new_teacher']}
             </button>
           </Link>
@@ -281,13 +282,23 @@ export default function ManageTeachersPage() {
               <tr key={teacher.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="shrink-0 h-10 w-10 bg-vibrant-blue rounded-full flex items-center justify-center text-white font-semibold">
-                      {teacher.name
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')
-                        .toUpperCase()}
-                    </div>
+                    {teacher.profileImage ? (
+                      <Image
+                        src={teacher.profileImage}
+                        alt={teacher.name}
+                        width={40}
+                        height={40}
+                        className="shrink-0 h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="shrink-0 h-10 w-10 bg-vibrant-blue rounded-full flex items-center justify-center text-white font-semibold">
+                        {teacher.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()}
+                      </div>
+                    )}
                     <div className="ml-4">
                       <div className="text-sm font-medium text-slate-900">{teacher.name}</div>
                       <div className="text-sm text-slate-500">ID: {teacher.id.slice(0, 8)}</div>
@@ -314,13 +325,13 @@ export default function ManageTeachersPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex items-center justify-end gap-3">
                     <Link href={`/superuser/teachers/edit/${teacher.id}`}>
-                      <button className="text-vibrant-blue bg-blue-100 hover:bg-blue-200 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5">
+                      <button className="text-vibrant-blue bg-blue-100 hover:bg-blue-200 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5 cursor-pointer">
                         <Edit size={16} />
                         <span className="font-medium capitalize">Manage</span>
                       </button>
                     </Link>
                     <button
-                      className="text-red-500 bg-red-100 hover:text-red-700 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5"
+                      className="text-red-500 bg-red-100 hover:text-red-700 transition-colors flex items-center gap-1 rounded-full px-2.5 py-0.5 cursor-pointer"
                       onClick={() => handleDelete(teacher.id)}
                     >
                       <Trash2 size={16} />
@@ -353,7 +364,7 @@ export default function ManageTeachersPage() {
               <p className="text-slate-600 mb-4">No teachers found</p>
               <Link
                 href="/superuser/teachers/create"
-                className="inline-flex items-center gap-2 px-6 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors font-medium"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-vibrant-blue text-white rounded-lg hover:bg-dark-blue transition-colors font-medium cursor-pointer"
               >
                 <PlusCircle size={18} />
                 Create Your First Teacher
