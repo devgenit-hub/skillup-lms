@@ -102,7 +102,7 @@ export default function TeacherSettingsPage() {
 
   if (fetchingTeacher) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-2" />
           <p className="text-slate-600">Loading profile...</p>
@@ -127,7 +127,7 @@ export default function TeacherSettingsPage() {
             Profile Picture
           </h2>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-start gap-6">
             <div className="shrink-0">
               {formData.profileImage ? (
                 <img
@@ -142,35 +142,54 @@ export default function TeacherSettingsPage() {
               )}
             </div>
 
-            <div className="flex-1">
-              <input
-                type="file"
-                id="profileImage"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    if (file.size > 2 * 1024 * 1024) {
-                      toast.error('File size exceeds 2MB. Please choose a smaller file.');
-                      return;
+            <div className="flex-1 space-y-4">
+              {/* File Upload */}
+              <div>
+                <input
+                  type="file"
+                  id="profileImage"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 2 * 1024 * 1024) {
+                        toast.error('File size exceeds 2MB. Please choose a smaller file.');
+                        return;
+                      }
+                      const imageUrl = URL.createObjectURL(file);
+                      setFormData((prev) => ({
+                        ...prev,
+                        profileImage: imageUrl,
+                      }));
                     }
-                    const imageUrl = URL.createObjectURL(file);
-                    setFormData((prev) => ({
-                      ...prev,
-                      profileImage: imageUrl,
-                    }));
-                  }
-                }}
-                className="hidden"
-              />
-              <label
-                htmlFor="profileImage"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg cursor-pointer hover:bg-emerald-700 transition-colors"
-              >
-                <Upload size={18} />
-                Upload Picture
-              </label>
-              <p className="text-sm text-slate-500 mt-2">
+                  }}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="profileImage"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg cursor-pointer hover:bg-emerald-700 transition-colors"
+                >
+                  <Upload size={18} />
+                  Upload Picture
+                </label>
+              </div>
+
+              {/* URL Input */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Or paste image URL
+                </label>
+                <input
+                  type="url"
+                  name="profileImage"
+                  value={formData.profileImage}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                />
+              </div>
+
+              <p className="text-sm text-slate-500">
                 Recommended: Square image, at least 400x400px
               </p>
             </div>

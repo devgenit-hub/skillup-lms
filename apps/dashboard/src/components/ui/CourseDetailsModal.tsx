@@ -5,7 +5,7 @@ import { X, Check, Loader2 } from 'lucide-react';
 import { CourseProps } from '../props/CourseProps';
 import { TeacherProps } from '../props/TeacherProps';
 import { apiClient } from '@/lib/api-client';
-import { uploadFile, STORAGE_BUCKETS } from '@/lib/supabase/storage';
+import { uploadFile, deleteFile, STORAGE_BUCKETS } from '@/lib/supabase/storage';
 import EditCourseForm from './EditCourseForm';
 import { toast } from 'sonner';
 import {
@@ -474,8 +474,17 @@ export default function CourseDetailsModal({
     const updated = [...modalMaterials];
     if (updated[index]) {
       updated[index].file = file;
+      // If removing file, also clear fileUrl to prevent keeping old reference
+      if (!file) {
+        updated[index].fileUrl = null;
+        // Clear the file input element
+        if (fileInputRefs.current?.[index]) {
+          fileInputRefs.current[index]!.value = '';
+        }
+      }
+      // Auto-fill title from filename if empty
       if (file && !updated[index].title) {
-        updated[index].title = file.name;
+        updated[index].title = file.name.split('.')[0] || file.name;
       }
     }
     setModalMaterials(updated);
@@ -507,6 +516,8 @@ export default function CourseDetailsModal({
 
     // Upload files to Supabase and create materials
     const materials: MaterialItem[] = [];
+    const filesToDelete: string[] = []; // Track old files to delete
+
     for (let i = 0; i < modalMaterials.length; i++) {
       const m = modalMaterials[i];
       if (!m || !m.title.trim()) continue;
@@ -518,10 +529,15 @@ export default function CourseDetailsModal({
       if (m.file) {
         try {
           setUploadProgress((prev) => ({ ...prev, [i]: 'uploading' }));
+
+          // If replacing an existing file, mark old file for deletion
+          if (existingMaterial?.fileUrl && existingMaterial.fileUrl !== m.fileUrl) {
+            filesToDelete.push(existingMaterial.fileUrl);
+          }
+
           fileUrl = await uploadFile(m.file, STORAGE_BUCKETS.MATERIALS, `course-${course.id}`);
           setUploadProgress((prev) => ({ ...prev, [i]: 'success' }));
         } catch (uploadError) {
-          console.error('File upload error:', uploadError);
           setUploadProgress((prev) => ({ ...prev, [i]: 'error' }));
           const errorMessage = uploadError instanceof Error ? uploadError.message : 'Unknown error';
           toast.error(`Failed to upload ${m.file.name}: ${errorMessage}`);
@@ -532,6 +548,16 @@ export default function CourseDetailsModal({
         id: existingMaterial?.id || `mat-${Date.now()}-${i}`,
         title: m.title.trim(),
         fileUrl,
+      });
+    }
+
+    // Check for removed materials (materials that existed but are no longer in the modal)
+    if (existingModule) {
+      existingModule.materials.forEach((existingMat) => {
+        const stillExists = materials.some((m) => m.fileUrl === existingMat.fileUrl);
+        if (!stillExists && existingMat.fileUrl) {
+          filesToDelete.push(existingMat.fileUrl);
+        }
       });
     }
 
@@ -556,12 +582,20 @@ export default function CourseDetailsModal({
 
     try {
       await apiClient.updateCourseCurriculum(course.id, formatModulesForApi(updatedModules));
+
+      if (filesToDelete.length > 0) {
+        Promise.all(
+          filesToDelete.map((fileUrl) =>
+            deleteFile(fileUrl, STORAGE_BUCKETS.MATERIALS).catch(() => {})
+          )
+        ).catch(() => {});
+      }
+
       setModules(updatedModules);
       toast.success('Module saved successfully!');
-      closeModuleModal();
     } catch (error) {
-      console.error('Failed to save module:', error);
-      toast.error('Failed to save module. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save module';
+      toast.error(errorMessage);
     } finally {
       setIsSavingModule(false);
       setUploadProgress({});
@@ -572,14 +606,29 @@ export default function CourseDetailsModal({
     const moduleToDelete = modules.find((m) => m.id === moduleId);
     if (!moduleToDelete) return;
     if (!confirm(`Are you sure you want to delete "${moduleToDelete.title}"?`)) return;
+
+    // Collect file URLs to delete
+    const filesToDelete = moduleToDelete.materials
+      .map((mat) => mat.fileUrl)
+      .filter((url): url is string => !!url);
+
     const updatedModules = modules.filter((m) => m.id !== moduleId);
     try {
       await apiClient.updateCourseCurriculum(course.id, formatModulesForApi(updatedModules));
+
+      if (filesToDelete.length > 0) {
+        Promise.all(
+          filesToDelete.map((fileUrl) =>
+            deleteFile(fileUrl, STORAGE_BUCKETS.MATERIALS).catch(() => {})
+          )
+        ).catch(() => {});
+      }
+
       setModules(updatedModules);
       toast.success('Module deleted successfully!');
     } catch (error) {
-      console.error('Failed to delete module:', error);
-      toast.error('Failed to delete module. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete module';
+      toast.error(errorMessage);
     }
   };
 
@@ -592,12 +641,17 @@ export default function CourseDetailsModal({
       setModules(updatedModules);
       toast.success('Class deleted!');
     } catch (error) {
-      console.error('Failed to delete class:', error);
-      toast.error('Failed to delete class. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete class';
+      toast.error(errorMessage);
     }
   };
 
   const deleteMaterial = async (moduleId: string, materialId: string) => {
+    // Find the material to get its fileUrl for deletion
+    const module = modules.find((m) => m.id === moduleId);
+    const materialToDelete = module?.materials.find((mat) => mat.id === materialId);
+    const fileUrlToDelete = materialToDelete?.fileUrl;
+
     const updatedModules = modules.map((m) =>
       m.id === moduleId
         ? { ...m, materials: m.materials.filter((mat) => mat.id !== materialId) }
@@ -605,11 +659,16 @@ export default function CourseDetailsModal({
     );
     try {
       await apiClient.updateCourseCurriculum(course.id, formatModulesForApi(updatedModules));
+
+      if (fileUrlToDelete) {
+        deleteFile(fileUrlToDelete, STORAGE_BUCKETS.MATERIALS).catch(() => {});
+      }
+
       setModules(updatedModules);
       toast.success('Material deleted!');
     } catch (error) {
-      console.error('Failed to delete material:', error);
-      toast.error('Failed to delete material. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete material';
+      toast.error(errorMessage);
     }
   };
 

@@ -51,6 +51,10 @@ class ApiClient {
     return this.request('/api/teachers/me', { method: 'GET' });
   }
 
+  async getTeacherCourses() {
+    return this.request('/api/courses?teacherId=me', { method: 'GET' });
+  }
+
   async updateCurrentTeacher(data: {
     name?: string;
     phone?: string;
@@ -362,6 +366,10 @@ class ApiClient {
 
   async getCourseById(id: string) {
     return this.request(`/api/courses/${id}`, { method: 'GET' });
+  }
+
+  async getTeacherCourseById(id: string) {
+    return this.request(`/api/courses/teacher/${id}`, { method: 'GET' });
   }
 
   async createCourse(data: {

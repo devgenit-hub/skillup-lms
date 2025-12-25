@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express';
-import { prisma } from '@repo/db';
+import { prisma, UserRole } from '@repo/db';
 import { supabaseAdmin } from '../config/supabase.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
@@ -18,7 +18,7 @@ export class StudentController {
     const query = studentQuerySchema.parse(req.query);
 
     const where: Record<string, unknown> = {
-      role: 'STUDENT',
+      role: UserRole.STUDENT,
     };
 
     if (query.search) {
@@ -76,7 +76,7 @@ export class StudentController {
     const { id } = idParamSchema.parse(req.params);
 
     const student = await prisma.user.findUnique({
-      where: { id, role: 'STUDENT' },
+      where: { id, role: UserRole.STUDENT },
       include: {
         enrollments: {
           include: {
@@ -133,7 +133,7 @@ export class StudentController {
         name: data.name,
         phone: data.phone,
         avatarUrl: data.avatarUrl,
-        role: 'STUDENT',
+        role: UserRole.STUDENT,
         emailVerified: true,
       },
       select: {
@@ -155,7 +155,7 @@ export class StudentController {
     const data = updateStudentSchema.parse(req.body);
 
     const existingStudent = await prisma.user.findUnique({
-      where: { id, role: 'STUDENT' },
+      where: { id, role: UserRole.STUDENT },
     });
 
     if (!existingStudent) {
@@ -194,7 +194,7 @@ export class StudentController {
     const adminId = req.user!.id;
 
     const student = await prisma.user.findUnique({
-      where: { id, role: 'STUDENT' },
+      where: { id, role: UserRole.STUDENT },
     });
 
     if (!student) {
@@ -222,7 +222,7 @@ export class StudentController {
     const { id } = idParamSchema.parse(req.params);
 
     const student = await prisma.user.findUnique({
-      where: { id, role: 'STUDENT' },
+      where: { id, role: UserRole.STUDENT },
     });
 
     if (!student) {
@@ -255,7 +255,7 @@ export class StudentController {
     }
 
     const student = await prisma.user.findUnique({
-      where: { id, role: 'STUDENT' },
+      where: { id, role: UserRole.STUDENT },
     });
 
     if (!student) {

@@ -307,13 +307,13 @@ export function CurriculumTab({
                           type="file"
                           onChange={(e) => onHandleFileSelect(index, e.target.files?.[0] ?? null)}
                           accept=".pdf,.ppt,.pptx,.doc,.docx,.zip"
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer pointer-events-none"
                           id={`file-modal-${index}`}
                           disabled={isSaving}
                         />
 
                         {material.file ? (
-                          <div className="flex items-center justify-center gap-3">
+                          <div className="flex items-center justify-center gap-3 relative z-10">
                             <FileIcon size={24} className="text-green-600" />
                             <div className="text-left">
                               <p className="text-sm font-medium text-slate-900 truncate max-w-50">
@@ -324,12 +324,13 @@ export function CurriculumTab({
                               </p>
                             </div>
                             <button
+                              type="button"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 onHandleFileSelect(index, null);
                               }}
-                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-full ml-2"
+                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-full ml-2 pointer-events-auto"
                               title="Remove file"
                               disabled={isSaving}
                             >
@@ -337,7 +338,7 @@ export function CurriculumTab({
                             </button>
                           </div>
                         ) : material.fileUrl ? (
-                          <div className="flex items-center justify-center gap-3">
+                          <div className="flex items-center justify-center gap-3 relative z-10">
                             <FileIcon size={24} className="text-blue-600" />
                             <div className="text-left">
                               <p className="text-sm font-medium text-slate-900 truncate max-w-50">
@@ -346,12 +347,13 @@ export function CurriculumTab({
                               <p className="text-xs text-green-600">Already uploaded</p>
                             </div>
                             <button
+                              type="button"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 onHandleFileSelect(index, null);
                               }}
-                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-full ml-2"
+                              className="p-1.5 text-red-500 hover:bg-red-100 rounded-full ml-2 pointer-events-auto"
                               title="Remove file"
                               disabled={isSaving}
                             >
@@ -359,7 +361,10 @@ export function CurriculumTab({
                             </button>
                           </div>
                         ) : (
-                          <div className="py-2">
+                          <div
+                            className="py-2 pointer-events-auto cursor-pointer"
+                            onClick={() => fileInputRefs.current?.[index]?.click()}
+                          >
                             <UploadCloud size={32} className="mx-auto text-slate-400 mb-2" />
                             <p className="text-sm text-slate-600">
                               <span className="font-medium text-blue-600">Click to upload</span> or

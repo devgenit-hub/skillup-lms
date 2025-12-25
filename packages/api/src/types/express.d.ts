@@ -4,6 +4,8 @@ declare global {
   namespace Express {
     interface Request {
       user?: User;
+      teacher?: { id: string };
+      courseId?: string;
     }
   }
 }

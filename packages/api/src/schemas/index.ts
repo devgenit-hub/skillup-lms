@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserRole } from '@repo/db';
 
 // Common schemas
 export const idParamSchema = z.object({
@@ -15,13 +16,13 @@ export const createUserSchema = z.object({
   supabaseId: z.string().min(1, 'Supabase ID is required'),
   email: z.string().email('Invalid email address'),
   name: z.string().min(1, 'Name is required').optional(),
-  role: z.enum(['STUDENT', 'INSTRUCTOR', 'ADMIN']).default('STUDENT'),
+  role: z.nativeEnum(UserRole).default(UserRole.STUDENT),
 });
 
 export const updateUserSchema = z.object({
   email: z.string().email('Invalid email address').optional(),
   name: z.string().min(1, 'Name is required').optional(),
-  role: z.enum(['STUDENT', 'INSTRUCTOR', 'ADMIN']).optional(),
+  role: z.nativeEnum(UserRole).optional(),
 });
 
 // Course fee type enum

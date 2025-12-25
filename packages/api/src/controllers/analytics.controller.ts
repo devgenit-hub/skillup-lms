@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { prisma } from '@repo/db';
+import { prisma, UserRole } from '@repo/db';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 
@@ -28,9 +28,9 @@ export class AnalyticsController {
       upcomingWebinars,
       totalWebinarRegistrations,
     ] = await Promise.all([
-      prisma.user.count({ where: { role: 'STUDENT' } }),
-      prisma.user.count({ where: { role: 'STUDENT', suspended: false } }),
-      prisma.user.count({ where: { role: 'STUDENT', suspended: true } }),
+      prisma.user.count({ where: { role: UserRole.STUDENT } }),
+      prisma.user.count({ where: { role: UserRole.STUDENT, suspended: false } }),
+      prisma.user.count({ where: { role: UserRole.STUDENT, suspended: true } }),
       prisma.course.count(),
       prisma.course.count({ where: { published: true } }),
       prisma.enrollment.count(),
@@ -68,13 +68,13 @@ export class AnalyticsController {
       }),
       prisma.user.count({
         where: {
-          role: 'STUDENT',
+          role: UserRole.STUDENT,
           createdAt: { gte: firstDayOfMonth },
         },
       }),
       prisma.user.count({
         where: {
-          role: 'STUDENT',
+          role: UserRole.STUDENT,
           createdAt: {
             gte: firstDayOfLastMonth,
             lt: firstDayOfThisMonth,
@@ -197,7 +197,7 @@ export class AnalyticsController {
 
     const students = await prisma.user.findMany({
       where: {
-        role: 'STUDENT',
+        role: UserRole.STUDENT,
         createdAt: {
           gte: startDate,
           lt: endDate,

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { UserRole } from '@repo/db';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 import {
@@ -16,10 +17,10 @@ const router: ExpressRouter = Router();
 
 router.use(authenticate);
 
-router.get('/me', requireRole(['INSTRUCTOR']), getCurrentTeacher);
-router.patch('/me', requireRole(['INSTRUCTOR']), updateCurrentTeacher);
+router.get('/me', requireRole([UserRole.INSTRUCTOR]), getCurrentTeacher);
+router.patch('/me', requireRole([UserRole.INSTRUCTOR]), updateCurrentTeacher);
 
-router.use(requireRole(['ADMIN']));
+router.use(requireRole([UserRole.ADMIN]));
 
 router.get('/', getTeachers);
 router.post('/', createTeacher);

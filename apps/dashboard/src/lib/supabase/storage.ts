@@ -115,3 +115,22 @@ export async function deleteImage(url: string, bucket: StorageBucket): Promise<v
     throw new Error(`Delete failed: ${error.message}`);
   }
 }
+
+export async function deleteFile(url: string, bucket: StorageBucket): Promise<void> {
+  const supabase = createClient();
+
+  try {
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split('/');
+    const bucketIndex = pathParts.indexOf(bucket);
+
+    if (bucketIndex === -1) {
+      return;
+    }
+
+    const filePath = pathParts.slice(bucketIndex + 1).join('/');
+    await supabase.storage.from(bucket).remove([filePath]);
+  } catch {
+    // Silent fail for non-blocking deletion
+  }
+}

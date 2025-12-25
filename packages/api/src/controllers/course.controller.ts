@@ -1,8 +1,8 @@
 import { type Request, type Response } from 'express';
-import { prisma } from '@repo/db';
+import { prisma, UserRole } from '@repo/db';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import { NotFoundError, ConflictError, AppError } from '../utils/errors.js';
+import { NotFoundError, ConflictError, AppError, BadRequestError } from '../utils/errors.js';
 import {
   createCourseSchema,
   updateCourseSchema,
@@ -14,7 +14,6 @@ import {
 } from '../schemas/index.js';
 
 export class CourseController {
-  // Get all courses with pagination and filters
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const query = courseQuerySchema.parse(req.query);
 
@@ -27,25 +26,49 @@ export class CourseController {
       }),
     };
 
+    const isTeacherContext = !!query.teacherId;
+
     const [courses, total] = await Promise.all([
-      prisma.course.findMany({
-        where,
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
-        include: {
-          courseTeachers: {
-            include: {
-              teacher: {
-                select: { id: true, name: true, email: true, profileImage: true },
+      isTeacherContext
+        ? prisma.course.findMany({
+            where,
+            skip: (query.page - 1) * query.limit,
+            take: query.limit,
+            select: {
+              id: true,
+              title: true,
+              published: true,
+              feeType: true,
+              price: true,
+              metadata: true,
+              _count: {
+                select: { curriculumModules: true },
               },
             },
-          },
-          _count: {
-            select: { enrollments: true, lessons: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-      }),
+            orderBy: { createdAt: 'desc' },
+          })
+        : prisma.course.findMany({
+            where,
+            skip: (query.page - 1) * query.limit,
+            take: query.limit,
+            include: {
+              courseTeachers: {
+                include: {
+                  teacher: {
+                    select: { id: true, name: true, email: true, profileImage: true },
+                  },
+                },
+              },
+              _count: {
+                select: {
+                  enrollments: true,
+                  lessons: true,
+                  curriculumModules: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          }),
       prisma.course.count({ where }),
     ]);
 
@@ -125,6 +148,7 @@ export class CourseController {
   static update = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const data = updateCourseSchema.parse(req.body);
+    const userRole = req.user?.role;
 
     // Check if course exists
     const existingCourse = await prisma.course.findUnique({
@@ -135,18 +159,31 @@ export class CourseController {
       throw new NotFoundError('Course');
     }
 
-    // Merge metadata instead of replacing it
-    let updateData = { ...data };
-    if (data.metadata && existingCourse.metadata) {
-      const existingMetadata =
-        typeof existingCourse.metadata === 'object' ? existingCourse.metadata : {};
-      updateData = {
-        ...data,
-        metadata: {
-          ...existingMetadata,
-          ...data.metadata,
-        },
-      };
+    // Teachers can only update 'published' field, admins can update everything
+    let updateData: Partial<typeof data>;
+    if (userRole === UserRole.ADMIN) {
+      // Admin can update all fields
+      updateData = { ...data };
+      if (data.metadata && existingCourse.metadata) {
+        const existingMetadata =
+          typeof existingCourse.metadata === 'object' ? existingCourse.metadata : {};
+        updateData = {
+          ...data,
+          metadata: {
+            ...existingMetadata,
+            ...data.metadata,
+          },
+        };
+      }
+    } else {
+      // Teachers can only update published status
+      if (Object.keys(data).length === 1 && 'published' in data) {
+        updateData = { published: data.published };
+      } else {
+        throw new BadRequestError(
+          'Teachers can only update the published status. Contact an administrator for other changes.'
+        );
+      }
     }
 
     const course = await prisma.course.update({
