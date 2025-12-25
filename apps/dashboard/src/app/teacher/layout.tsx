@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Home, Settings, Loader2 } from 'lucide-react';
+import { BookOpen, Home, Settings, Loader2, Users } from 'lucide-react';
 import { ReactNode } from 'react';
 import { useAuthStore } from '@/lib/zustand/auth-store';
 import { TeacherProvider, useTeacher } from '@/context/teacher-context';
@@ -20,13 +20,10 @@ function TeacherSidebar() {
 
   return (
     <aside className="w-64 px-3 bg-emerald-900 text-emerald-50 hidden md:flex md:flex-col shrink-0 h-screen sticky top-0">
-      <Link
-        href="/teacher"
-        className="block p-6 cursor-pointer hover:opacity-80 transition-opacity"
-      >
-        <h1 className="text-xl font-bold">Teacher Portal</h1>
-      </Link>
-      <nav className="mt-6 flex-1 overflow-y-auto">
+      <div className="p-6">
+        <h1 className="text-2xl font-bold text-center">Teacher Portal</h1>
+      </div>
+      <nav className="mt-2 flex-1 overflow-y-auto">
         <Link
           href="/teacher"
           className={`flex items-center space-x-3 px-4 py-3 mb-2 rounded-lg transition-colors cursor-pointer ${
@@ -38,6 +35,19 @@ function TeacherSidebar() {
           <Home size={20} />
           <span>My Dashboard</span>
         </Link>
+
+        <Link
+          href="/teacher/students"
+          className={`flex items-center space-x-3 px-4 py-3 mb-2 rounded-lg transition-colors cursor-pointer ${
+            pathname === '/teacher/students'
+              ? 'bg-emerald-800 text-white'
+              : 'text-emerald-200 hover:bg-emerald-800 hover:text-white'
+          }`}
+        >
+          <Users size={20} />
+          <span>Students</span>
+        </Link>
+
         <Link
           href="/teacher/settings"
           className={`flex items-center space-x-3 px-4 py-3 mb-2 rounded-lg transition-colors cursor-pointer ${

@@ -140,21 +140,33 @@ class ApiClient {
     });
   }
 
-  async getStudents(courseId?: string) {
-    const query = courseId ? `?courseId=${courseId}` : '';
-    return this.request(`/api/instructor/students${query}`, { method: 'GET' });
+  async getStudents(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: 'all' | 'active' | 'suspended';
+    courseId?: string;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.status) query.append('status', params.status);
+    if (params?.courseId) query.append('courseId', params.courseId);
+
+    return this.request(`/api/students/teacher?${query.toString()}`, { method: 'GET' });
   }
 
   async suspendStudent(userId: string, reason: string) {
-    return this.request(`/api/instructor/students/${userId}/suspend`, {
-      method: 'POST',
+    return this.request(`/api/students/teacher/${userId}/suspend`, {
+      method: 'PATCH',
       data: { reason },
     });
   }
 
   async unsuspendStudent(userId: string) {
-    return this.request(`/api/instructor/students/${userId}/unsuspend`, {
-      method: 'POST',
+    return this.request(`/api/students/teacher/${userId}/unsuspend`, {
+      method: 'PATCH',
     });
   }
 
