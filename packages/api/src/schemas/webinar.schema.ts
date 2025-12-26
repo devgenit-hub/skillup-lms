@@ -3,7 +3,8 @@ import { paginationSchema } from './index.js';
 
 export const createWebinarSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  category: z.string().min(1, 'Category is required'),
+  categoryId: z.string().optional(),
+  categoryTitle: z.string().optional(), // For creating new category inline
   image: z.string().optional(),
   scheduleDateTime: z.string().datetime(),
   duration: z.number().int().min(1, 'Duration must be at least 1 minute'),
@@ -21,7 +22,8 @@ export const createWebinarSchema = z.object({
 
 export const updateWebinarSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),
-  category: z.string().optional(),
+  categoryId: z.string().optional(),
+  categoryTitle: z.string().optional(), // For creating new category inline
   image: z.string().optional(),
   scheduleDateTime: z.string().datetime().optional(),
   duration: z.number().int().min(1).optional(),
@@ -40,4 +42,6 @@ export const updateWebinarSchema = z.object({
 export const webinarQuerySchema = paginationSchema.extend({
   search: z.string().optional(),
   status: z.enum(['draft', 'upcoming', 'live', 'completed', 'all']).optional(),
+  category: z.string().optional(),
+  feeType: z.enum(['free', 'paid']).optional(),
 });

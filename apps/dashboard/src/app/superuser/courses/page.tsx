@@ -24,6 +24,11 @@ interface Course {
   metadata: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
+  category?: {
+    id: string;
+    title: string;
+    slug: string;
+  } | null;
   courseTeachers: {
     teacher: {
       id: string;
@@ -91,9 +96,11 @@ export default function ManageCoursesPage() {
         // Handle paginated response structure
         const paginatedData = response.data as PaginatedApiResponse<Course[]>;
         if (paginatedData.data && Array.isArray(paginatedData.data)) {
+          console.log('Courses data:', paginatedData.data[0]); // Debug log
           setCourses(paginatedData.data);
         } else if (Array.isArray(response.data)) {
           // Fallback for non-paginated response
+          console.log('Courses data (fallback):', response.data[0]); // Debug log
           setCourses(response.data as Course[]);
         }
       }
@@ -148,7 +155,7 @@ export default function ManageCoursesPage() {
       type: 'Course',
       teachers: course.courseTeachers.map((ct) => ct.teacher),
       assignedTeachers: course.courseTeachers.map((ct) => ct.teacher.id),
-      category: metadata?.category || 'webdev',
+      category: course.category || null,
       numClasses: metadata?.numClasses || 0,
       courseInstructors: (metadata?.courseInstructors as CourseInstructor[]) || [],
       status: course.published ? 'Active' : 'Deactive',
@@ -312,6 +319,9 @@ export default function ManageCoursesPage() {
                 {pageText['course_title']}
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Category
+              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Teachers
               </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -335,6 +345,9 @@ export default function ManageCoursesPage() {
                   <div className="text-sm font-medium text-slate-900 hover:text-dark-blue transition-colors">
                     {course.title}
                   </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="text-sm text-slate-600">{course.category?.title || '-'}</span>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center">

@@ -15,7 +15,6 @@ import {
   EyeOff,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { WebinarProps } from '@/components/props/WebinarProps';
 import WebinarDetailsModal from '@/components/ui/WebinarDetailsModal';
 import { useLocale } from '@/providers/locale-provider';
@@ -24,7 +23,6 @@ import { toast } from 'sonner';
 
 export default function WebinarsPage() {
   const { t } = useLocale();
-  const _router = useRouter();
   const pageText = t('superuser');
   const tableText = t('table');
 
@@ -331,7 +329,7 @@ export default function WebinarsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 capitalize">
-                        {webinar.category}
+                        {webinar.category?.title || '-'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600">

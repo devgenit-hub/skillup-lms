@@ -79,6 +79,23 @@ enum FeeType {
  PAID
 }
 
+// Category model for courses and webinars
+model Category {
+ id           String   @id @default(cuid())
+ title        String   @unique
+ slug         String   @unique
+ courseCount  Int      @default(0)
+ webinarCount Int      @default(0)
+ createdAt    DateTime @default(now())
+ updatedAt    DateTime @updatedAt
+
+ courses  Course[]
+ webinars Webinar[]
+
+ @@index([slug])
+ @@map("categories")
+}
+
 // Course model
 model Course {
  id             String   @id @default(cuid())
@@ -88,10 +105,12 @@ model Course {
  introVideoLink String?
  feeType        FeeType  @default(FREE)
  price          Float?
+ categoryId     String?
  metadata       Json?
  createdAt      DateTime @default(now())
  updatedAt      DateTime @updatedAt
 
+ category          Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull)
  enrollments       Enrollment[]
  lessons           Lesson[]
  courseTeachers    CourseTeacher[]
@@ -100,6 +119,7 @@ model Course {
 
  @@index([published])
  @@index([feeType])
+ @@index([categoryId])
  @@map("courses")
 }
 
@@ -180,7 +200,7 @@ enum PaymentStatus {
 model Webinar {
  id                String   @id @default(cuid())
  title             String
- category          String
+ categoryId        String?
  image             String?
  scheduleDateTime  DateTime
  duration          Int
@@ -197,12 +217,14 @@ model Webinar {
  createdAt         DateTime @default(now())
  updatedAt         DateTime @updatedAt
 
+ category      Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
  registrations WebinarRegistration[]
  coupons       Coupon[]
  payments      Payment[]
 
  @@index([status])
  @@index([scheduleDateTime])
+ @@index([categoryId])
  @@map("webinars")
 }
 

@@ -6,6 +6,9 @@ import { validateTeacherCourseAccess } from '../middleware/teacher.middleware.js
 
 export const coursesRouter: IRouter = Router();
 
+coursesRouter.get('/public/:id', CourseController.getPublicCourse);
+coursesRouter.get('/public', CourseController.getPublicCourses);
+
 coursesRouter.get('/', CourseController.getAll);
 
 // Teacher-specific route to manage their course (with access validation)

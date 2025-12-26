@@ -6,6 +6,7 @@ import type { CourseProps } from '@/components/props/CourseProps';
 import { toast } from 'sonner';
 import { ImageUpload } from './ImageUpload';
 import { RichTextEditor } from './RichTextEditor';
+import CategoryAutocomplete from './CategoryAutocomplete';
 import { STORAGE_BUCKETS, uploadFile } from '@/lib/supabase/storage';
 
 interface EditCourseFormProps {
@@ -30,7 +31,8 @@ export default function EditCourseForm({
     feeType: course.feeType || ('free' as 'free' | 'paid'),
     price: course.price?.toString() || '',
     assignedTeachers: course.assignedTeachers || ([] as string[]),
-    category: course.category || '',
+    category: course.category?.title || '',
+    categoryId: course.category?.id || null,
     numClasses: course.numClasses?.toString() || '',
     aboutCourseAbout: course.aboutCourse?.about || '',
     aboutCourseDetails: course.aboutCourse?.details || '',
@@ -80,8 +82,7 @@ export default function EditCourseForm({
       }));
       setClassRoutinePdfName(file.name);
       toast.success('PDF uploaded successfully', { id: 'pdf-upload' });
-    } catch (error) {
-      console.error('PDF upload error:', error);
+    } catch {
       toast.error('Failed to upload PDF', { id: 'pdf-upload' });
     } finally {
       setIsUploading(false);
@@ -91,16 +92,33 @@ export default function EditCourseForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const updatedCourse: CourseProps = {
+    const updatedCourse: CourseProps & { categoryId?: string | null } = {
       ...course,
-      ...formData,
+      title: formData.title,
+      batchNo: formData.batchNo,
+      heroImage: formData.heroImage,
+      courseType: formData.courseType,
+      level: formData.level,
+      feeType: formData.feeType,
       price: formData.feeType === 'paid' ? parseFloat(formData.price) : undefined,
+      assignedTeachers: formData.assignedTeachers,
       numClasses: parseInt(formData.numClasses),
+      classRoutinePdf: formData.classRoutinePdf,
       courseInstructors: course.courseInstructors || [],
       aboutCourse: {
         about: formData.aboutCourseAbout,
         details: formData.aboutCourseDetails,
       },
+      // Use the new category title from form, or keep existing category object if unchanged
+      category: formData.category
+        ? {
+            id: formData.categoryId || '',
+            title: formData.category,
+            slug: '',
+          }
+        : course.category,
+      // Pass the categoryId for the API update
+      categoryId: formData.categoryId,
     };
 
     onSave(updatedCourse);
@@ -224,13 +242,12 @@ export default function EditCourseForm({
 
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">Category *</label>
-            <input
-              type="text"
-              name="category"
+            <CategoryAutocomplete
               value={formData.category}
-              onChange={handleInputChange}
+              onChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+              onCategoryIdChange={(categoryId) => setFormData((prev) => ({ ...prev, categoryId }))}
+              placeholder="e.g., Web Development"
               required
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
             />
           </div>
 

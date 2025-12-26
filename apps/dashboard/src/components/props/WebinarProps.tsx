@@ -19,7 +19,11 @@ export interface WebinarResource {
 export interface WebinarProps {
   id: string;
   title: string;
-  category: string;
+  category?: {
+    id: string;
+    title: string;
+    slug: string;
+  } | null;
   image?: string;
   scheduleDateTime: string; // ISO date string
   duration: number; // in minutes

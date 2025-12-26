@@ -70,8 +70,8 @@ export default function CourseDetailsModal({
           if (response.data && Array.isArray(response.data)) {
             setCoupons(response.data as Coupon[]);
           }
-        } catch (error) {
-          console.error('Failed to load coupons:', error);
+        } catch {
+          // Silently fail - coupons will show as empty
         } finally {
           setIsLoadingCoupons(false);
         }
@@ -128,8 +128,7 @@ export default function CourseDetailsModal({
             }));
             setModules(loadedModules);
           }
-        } catch (error) {
-          console.error('Failed to load curriculum:', error);
+        } catch {
           setModules([]);
         } finally {
           setIsLoadingCurriculum(false);
@@ -241,8 +240,7 @@ export default function CourseDetailsModal({
       setExpiryDate(undefined);
       setDiscount('');
       setShowCalendar(false);
-    } catch (error) {
-      console.error('Failed to save coupon:', error);
+    } catch {
       toast.error('Failed to save coupon. Please try again.');
     } finally {
       setIsCreatingCoupon(false);
@@ -320,10 +318,8 @@ export default function CourseDetailsModal({
         },
       });
       toast.success('Facebook Group Link saved successfully!');
-      // Keep the link visible after saving, update the course object
       course.facebookGroupLink = fbGroupLink.trim();
-    } catch (error) {
-      console.error('Failed to save Facebook group link:', error);
+    } catch {
       toast.error('Failed to save Facebook group link. Please try again.');
     } finally {
       setIsSavingFbGroup(false);
@@ -335,38 +331,33 @@ export default function CourseDetailsModal({
     try {
       setIsSavingCourse(true);
 
-      // Build metadata with all course details
-      const existingMetadata =
-        (course as CourseProps & { metadata?: Record<string, unknown> }).metadata || {};
-      const metadata = {
-        ...existingMetadata,
-        batchNo: updatedCourse.batchNo,
-        heroImage: updatedCourse.heroImage,
-        courseType: updatedCourse.courseType,
-        level: updatedCourse.level,
-        category: updatedCourse.category,
-        numClasses: updatedCourse.numClasses,
-        courseInstructors: updatedCourse.courseInstructors,
-        classRoutinePdf: updatedCourse.classRoutinePdf,
-        aboutCourse: updatedCourse.aboutCourse,
-      };
+      const formCategoryId = (updatedCourse as CourseProps & { categoryId?: string | null })
+        .categoryId;
+      const categoryTitle = updatedCourse.category?.title;
 
-      await apiClient.updateCourse(course.id, {
+      const response = await apiClient.updateCourse(course.id, {
         title: updatedCourse.title,
         description: updatedCourse.aboutCourse?.about || '',
         feeType: updatedCourse.feeType === 'paid' ? 'PAID' : 'FREE',
         price: updatedCourse.feeType === 'paid' ? updatedCourse.price || null : null,
-        metadata,
+        categoryId: formCategoryId || undefined,
+        categoryTitle: !formCategoryId && categoryTitle ? categoryTitle : undefined,
       });
 
-      // Update local course object with new values (don't close modal)
+      // Add new category to store if created
+      const result = response.data as { newCategory?: { id: string; title: string; slug: string } };
+      if (result?.newCategory) {
+        const { useCategoryStore } = await import('@/lib/zustand/category-store');
+        const { addCategory } = useCategoryStore.getState();
+        addCategory({ ...result.newCategory, courseCount: 1, webinarCount: 0 });
+        toast.success(`Created new category: ${result.newCategory.title}`);
+      }
+
       Object.assign(course, updatedCourse);
       course.status = courseStatus;
 
       toast.success('Course updated successfully!');
-      // Stay on edit tab - don't switch tabs
-    } catch (error) {
-      console.error('Failed to update course:', error);
+    } catch {
       toast.error('Failed to update course. Please try again.');
     } finally {
       setIsSavingCourse(false);
@@ -387,8 +378,7 @@ export default function CourseDetailsModal({
       });
       setCourseStatus(newPublishedStatus ? 'Active' : 'Deactive');
       toast.success(newPublishedStatus ? 'Course published!' : 'Course unpublished!');
-    } catch (error) {
-      console.error('Failed to toggle publish status:', error);
+    } catch {
       toast.error('Failed to update course status. Please try again.');
     } finally {
       setIsTogglingPublish(false);
@@ -648,8 +638,8 @@ export default function CourseDetailsModal({
 
   const deleteMaterial = async (moduleId: string, materialId: string) => {
     // Find the material to get its fileUrl for deletion
-    const module = modules.find((m) => m.id === moduleId);
-    const materialToDelete = module?.materials.find((mat) => mat.id === materialId);
+    const currModule = modules.find((m) => m.id === moduleId);
+    const materialToDelete = currModule?.materials.find((mat) => mat.id === materialId);
     const fileUrlToDelete = materialToDelete?.fileUrl;
 
     const updatedModules = modules.map((m) =>

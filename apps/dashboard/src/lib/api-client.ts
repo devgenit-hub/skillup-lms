@@ -267,7 +267,8 @@ class ApiClient {
 
   async createWebinar(data: {
     title: string;
-    category: string;
+    categoryId?: string;
+    categoryTitle?: string;
     scheduleDateTime: string;
     duration: number;
     feeType: 'free' | 'paid';
@@ -292,7 +293,8 @@ class ApiClient {
     id: string,
     data: {
       title?: string;
-      category?: string;
+      categoryId?: string;
+      categoryTitle?: string;
       scheduleDateTime?: string;
       duration?: number;
       feeType?: 'free' | 'paid';
@@ -391,6 +393,8 @@ class ApiClient {
     introVideoLink?: string;
     feeType?: 'FREE' | 'PAID';
     price?: number | null;
+    categoryId?: string;
+    categoryTitle?: string;
     metadata?: Record<string, unknown>;
   }) {
     return this.request('/api/courses', {
@@ -408,6 +412,8 @@ class ApiClient {
       introVideoLink?: string;
       feeType?: 'FREE' | 'PAID';
       price?: number | null;
+      categoryId?: string;
+      categoryTitle?: string;
       metadata?: Record<string, unknown>;
     }
   ) {
@@ -584,6 +590,24 @@ class ApiClient {
   async deleteWebinarCoupon(webinarId: string, couponId: string) {
     return this.request(`/api/webinars/${webinarId}/coupons/${couponId}`, {
       method: 'DELETE',
+    });
+  }
+
+  // Category methods
+  async getCategories() {
+    return this.request('/api/categories', { method: 'GET' });
+  }
+
+  async createCategory(data: { title: string }) {
+    return this.request<{
+      id: string;
+      title: string;
+      slug: string;
+      courseCount: number;
+      webinarCount: number;
+    }>('/api/categories', {
+      method: 'POST',
+      data,
     });
   }
 }

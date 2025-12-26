@@ -5,6 +5,11 @@ import { requireAdmin } from '../middleware/role.middleware.js';
 
 export const webinarsRouter: IRouter = Router();
 
+// Public routes (no auth required) - Must come first
+webinarsRouter.get('/public', WebinarController.getPublicWebinars);
+webinarsRouter.get('/public/:id', WebinarController.getPublicWebinar);
+
+// Protected routes
 webinarsRouter.get('/', WebinarController.getAll);
 webinarsRouter.get('/:id', WebinarController.getById);
 webinarsRouter.post('/', authenticate, requireAdmin, WebinarController.create);

@@ -960,11 +960,11 @@ export default function CourseManagementPage() {
                       </p>
                     </div>
                   )}
-                  {(course.metadata?.category || course.category) && (
+                  {course.category?.title && (
                     <div className="p-3 bg-slate-50 rounded-lg">
                       <p className="text-xs text-slate-500 mb-1">Category</p>
                       <p className="font-medium text-slate-900 capitalize">
-                        {course.metadata?.category || course.category}
+                        {course.category.title}
                       </p>
                     </div>
                   )}

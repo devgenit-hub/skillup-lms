@@ -1,7 +1,7 @@
 'use client';
 
 import { PageHeader } from '@/components/ui/PageHeader';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale } from '@/providers/locale-provider';
@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import CategoryAutocomplete from '@/components/ui/CategoryAutocomplete';
+import { useCategoryStore } from '@/lib/zustand/category-store';
 import { STORAGE_BUCKETS, uploadFile } from '@/lib/supabase/storage';
 
 interface Instructor {
@@ -24,6 +26,7 @@ export default function CreateCoursePage() {
   const { t } = useLocale();
   const formText = t('forms');
   const buttonText = t('buttons');
+  const { addCategory } = useCategoryStore();
 
   const [loading, setLoading] = useState(false);
   const [instructors, setInstructors] = useState<Instructor[]>([]);
@@ -40,6 +43,7 @@ export default function CreateCoursePage() {
     feeType: 'free' as 'free' | 'paid',
     price: '',
     category: '',
+    categoryId: null as string | null,
     numClasses: '',
     aboutCourseAbout: '',
     aboutCourseDetails: '',
@@ -49,6 +53,9 @@ export default function CreateCoursePage() {
 
   const [selectedInstructorIds, setSelectedInstructorIds] = useState<string[]>([]);
   const [isPdfDragging, setIsPdfDragging] = useState(false);
+
+  // Ref to store latest category values (bypasses React state batching)
+  const categoryDataRef = useRef({ category: '', categoryId: null as string | null });
 
   useEffect(() => {
     fetchInstructors();
@@ -112,8 +119,7 @@ export default function CreateCoursePage() {
         classRoutinePdfName: file.name,
       }));
       toast.success('PDF uploaded successfully', { id: 'pdf-upload' });
-    } catch (error) {
-      console.error('PDF upload error:', error);
+    } catch {
       toast.error('Failed to upload PDF', { id: 'pdf-upload' });
     }
   };
@@ -144,13 +150,14 @@ export default function CreateCoursePage() {
     try {
       setLoading(true);
 
-      // Prepare metadata with all additional form data
+      const currentCategory = categoryDataRef.current.category;
+      const currentCategoryId = categoryDataRef.current.categoryId;
+
       const metadata = {
         batchNo: formData.batchNo,
         heroImage: formData.heroImage,
         courseType: formData.courseType,
         level: formData.level,
-        category: formData.category,
         numClasses: formData.numClasses ? parseInt(formData.numClasses) : undefined,
         aboutCourse: {
           about: formData.aboutCourseAbout,
@@ -159,7 +166,6 @@ export default function CreateCoursePage() {
         classRoutinePdf: formData.classRoutinePdf,
       };
 
-      // Create course without instructorId (will use CourseTeacher table for all teachers)
       const response = await apiClient.createCourse({
         title: formData.title,
         description: formData.description || undefined,
@@ -167,12 +173,25 @@ export default function CreateCoursePage() {
         introVideoLink: formData.introVideoLink || undefined,
         feeType: formData.feeType === 'paid' ? 'PAID' : 'FREE',
         price: formData.feeType === 'paid' ? parseFloat(formData.price) || null : null,
+        categoryId: currentCategoryId || undefined,
+        categoryTitle: !currentCategoryId && currentCategory ? currentCategory : undefined,
         metadata,
       });
 
+      // Add new category to store if created
+      const result = response.data as {
+        course?: { category?: { id: string; title: string; slug: string } };
+        newCategory?: { id: string; title: string; slug: string };
+      };
+      if (result.newCategory) {
+        addCategory({ ...result.newCategory, courseCount: 1, webinarCount: 0 });
+        toast.success(`Created new category: ${result.newCategory.title}`);
+      }
+
       // Assign all selected teachers to the course via CourseTeacher table
-      if (response.data && selectedInstructorIds.length > 0) {
-        const courseId = (response.data as { id: string }).id;
+      const courseData = result.course || response.data;
+      if (courseData && selectedInstructorIds.length > 0) {
+        const courseId = (courseData as { id: string }).id;
         await apiClient.assignCourseTeachers(courseId, selectedInstructorIds);
       }
 
@@ -349,31 +368,19 @@ export default function CreateCoursePage() {
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 {formText['category']} <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                name="category"
+              <CategoryAutocomplete
                 value={formData.category}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
+                onChange={(value) => {
+                  categoryDataRef.current.category = value;
+                  setFormData((prev) => ({ ...prev, category: value }));
+                }}
+                onCategoryIdChange={(categoryId) => {
+                  categoryDataRef.current.categoryId = categoryId;
+                  setFormData((prev) => ({ ...prev, categoryId }));
+                }}
                 placeholder="e.g., Web Development"
-              />
-              <select
-                hidden
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
                 required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
-              >
-                <option value="webdev">Web Development</option>
-                <option value="frontend">Frontend</option>
-                <option value="backend">Backend</option>
-                <option value="mobiledev">Mobile Development</option>
-                <option value="devOps">DevOps</option>
-                <option value="ui-ux">UI/UX</option>
-                <option value="others">Others</option>
-              </select>
+              />
             </div>
 
             <div>

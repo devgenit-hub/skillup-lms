@@ -36,6 +36,8 @@ export const createCourseSchema = z.object({
   introVideoLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   feeType: feeTypeEnum.default('FREE'),
   price: z.number().positive('Price must be positive').optional().nullable(),
+  categoryId: z.string().optional(),
+  categoryTitle: z.string().optional(), // For creating new category inline
   metadata: z.any().optional(),
 });
 
@@ -46,12 +48,19 @@ export const updateCourseSchema = z.object({
   introVideoLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   feeType: feeTypeEnum.optional(),
   price: z.number().positive('Price must be positive').optional().nullable(),
+  categoryId: z.string().optional().nullable(),
+  categoryTitle: z.string().optional(), // For creating new category inline
   metadata: z.any().optional(),
 });
 
 export const courseQuerySchema = paginationSchema.extend({
   published: z.coerce.boolean().optional(),
   teacherId: z.string().optional(),
+  search: z.string().optional(),
+  category: z.string().optional(),
+  level: z.string().optional(),
+  language: z.string().optional(),
+  feeType: feeTypeEnum.optional(),
 });
 
 export const assignTeachersSchema = z.object({
