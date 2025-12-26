@@ -159,7 +159,7 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-slate-500">
+      <div className="mt-6 text-center text-sm text-slate-500 hidden" hidden>
         {pageText['no_account']}{' '}
         <Link
           href="/signup"

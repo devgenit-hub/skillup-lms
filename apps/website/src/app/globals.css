@@ -125,17 +125,17 @@
 
 @font-face {
   font-family: HindSiliguri-normal;
-  src: url('../../fonts/HindSiliguri-Regular.ttf') format('truetype');
+  src: url('../fonts/HindSiliguri-Regular.ttf') format('truetype');
 }
 
 @font-face {
   font-family: HindSiliguri-bold;
-  src: url('../../fonts/HindSiliguri-Bold.ttf') format('truetype');
+  src: url('../fonts/HindSiliguri-Bold.ttf') format('truetype');
 }
 
 @font-face {
   font-family: HindSiliguri-light;
-  src: url('../../fonts/HindSiliguri-Light.ttf') format('truetype');
+  src: url('../fonts/HindSiliguri-Light.ttf') format('truetype');
 }
 
 @layer base {
