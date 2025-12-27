@@ -59,7 +59,7 @@ export const courseQuerySchema = paginationSchema.extend({
   search: z.string().optional(),
   category: z.string().optional(),
   level: z.string().optional(),
-  language: z.string().optional(),
+  courseType: z.string().optional(),
   feeType: feeTypeEnum.optional(),
 });
 

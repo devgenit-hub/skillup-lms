@@ -8,6 +8,12 @@ import React, { useState } from 'react';
 
 export default function Page() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<{
+    category?: string;
+    level?: string;
+    feeType?: string;
+    courseType?: string;
+  }>({});
 
   return (
     <div>
@@ -15,12 +21,17 @@ export default function Page() {
       <div className="flex flex-col md:flex-row mt-16 mb-20 gap-10 px-4 max-w-7xl mx-auto">
         {/* Desktop: always visible, Mobile: controlled by state */}
         <div className="hidden md:block">
-          <FilterSection />
+          <FilterSection onFilterChange={setFilters} currentFilters={filters} />
         </div>
 
         {/* Mobile filter popup */}
         <div className="md:hidden">
-          <FilterSection isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+          <FilterSection
+            isOpen={isFilterOpen}
+            onClose={() => setIsFilterOpen(false)}
+            onFilterChange={setFilters}
+            currentFilters={filters}
+          />
         </div>
 
         {/* Course section with mobile filter button */}
@@ -33,7 +44,7 @@ export default function Page() {
             <Funnel size={16} />
             ফিল্টার
           </button>
-          <CourseSection />
+          <CourseSection filters={filters} />
         </div>
       </div>
     </div>

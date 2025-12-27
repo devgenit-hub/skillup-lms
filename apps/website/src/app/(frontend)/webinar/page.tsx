@@ -7,21 +7,25 @@ import { Funnel } from 'lucide-react';
 
 export default function Page() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filter, setFilter] = useState<string>('');
+  const [filters, setFilters] = useState<{
+    category?: string;
+    feeType?: string;
+  }>({});
+
   return (
     <div>
       <Hero />
       <div className="flex flex-col md:flex-row mt-16 mb-20 gap-10 px-4 max-w-7xl mx-auto">
         {/* Desktop: always visible, Mobile: controlled by state */}
         <div className="hidden md:block">
-          <FilterSection setFilter={setFilter} filter={filter} />
+          <FilterSection onFilterChange={setFilters} currentFilters={filters} />
         </div>
 
         {/* Mobile filter popup */}
         <div className="md:hidden">
           <FilterSection
-            setFilter={setFilter}
-            filter={filter}
+            onFilterChange={setFilters}
+            currentFilters={filters}
             isOpen={isFilterOpen}
             onClose={() => setIsFilterOpen(false)}
           />
@@ -37,7 +41,7 @@ export default function Page() {
             <Funnel size={16} />
             ফিল্টার
           </button>
-          <WebinarSection />
+          <WebinarSection filters={filters} />
         </div>
       </div>
     </div>

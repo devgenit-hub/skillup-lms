@@ -69,8 +69,8 @@ class ApiClient {
     search?: string;
     category?: string;
     level?: string;
-    language?: string;
-    feeType?: 'free' | 'paid';
+    courseType?: string;
+    feeType?: string;
     published?: boolean;
   }) {
     const query = new URLSearchParams();
@@ -79,7 +79,7 @@ class ApiClient {
     if (params?.search) query.append('search', params.search);
     if (params?.category) query.append('category', params.category);
     if (params?.level) query.append('level', params.level);
-    if (params?.language) query.append('language', params.language);
+    if (params?.courseType) query.append('courseType', params.courseType);
     if (params?.feeType) query.append('feeType', params.feeType);
     if (params?.published !== undefined) query.append('published', params.published.toString());
 
@@ -100,8 +100,8 @@ class ApiClient {
     limit?: number;
     search?: string;
     category?: string;
-    status?: 'draft' | 'upcoming' | 'live' | 'completed' | 'all';
-    feeType?: 'free' | 'paid';
+    status?: string;
+    feeType?: string;
   }) {
     const query = new URLSearchParams();
     if (params?.page) query.append('page', params.page.toString());

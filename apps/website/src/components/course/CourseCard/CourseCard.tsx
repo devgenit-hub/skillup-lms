@@ -15,7 +15,8 @@ export default function CourseCard(props: CourseCardProps) {
           imageUrl={props.imageUrl || '/test_images/course_test.png'}
           title={props.title || 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস'}
           batchNo={props.batchNo || 'ব্যাচ ১'}
-          rating={props.rating || 1}
+          feeType={props.feeType}
+          price={props.price}
         />
         <CourseCardBody
           category={props.category || 'UI/UX ডিজাইন'}

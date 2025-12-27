@@ -6,7 +6,8 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 interface CourseMetadata {
   level?: string;
   heroImage?: string;
-  language?: string;
+  courseType?: string;
+  batchNo?: string;
   [key: string]: unknown;
 }
 
@@ -21,19 +22,8 @@ export class PublicController {
           feeType: true,
           price: true,
           metadata: true,
-          category: {
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-            },
-          },
-          _count: {
-            select: {
-              enrollments: true,
-              curriculumModules: true,
-            },
-          },
+          category: { select: { id: true, title: true, slug: true } },
+          _count: { select: { enrollments: true, curriculumModules: true } },
         },
         take: 9,
         orderBy: { createdAt: 'desc' },
@@ -44,35 +34,19 @@ export class PublicController {
           id: true,
           title: true,
           image: true,
-          category: {
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-            },
-          },
+          category: { select: { id: true, title: true, slug: true } },
           scheduleDateTime: true,
           duration: true,
           feeType: true,
           price: true,
           status: true,
-          _count: {
-            select: {
-              registrations: true,
-            },
-          },
+          _count: { select: { registrations: true } },
         },
         take: 9,
         orderBy: { scheduleDateTime: 'asc' },
       }),
       prisma.category.findMany({
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          courseCount: true,
-          webinarCount: true,
-        },
+        select: { id: true, title: true, slug: true, courseCount: true, webinarCount: true },
         orderBy: { title: 'asc' },
       }),
     ]);
@@ -87,15 +61,12 @@ export class PublicController {
         price: course.price,
         category: course.category,
         level: metadata.level || null,
-        language: metadata.language || null,
+        courseType: metadata.courseType || null,
+        batchNo: metadata.batchNo || null,
         _count: course._count,
       };
     });
 
-    ApiResponse.success(res, {
-      courses,
-      webinars,
-      categories,
-    });
+    ApiResponse.success(res, { courses, webinars, categories });
   });
 }

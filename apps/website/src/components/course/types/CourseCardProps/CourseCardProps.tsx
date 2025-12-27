@@ -1,8 +1,9 @@
 export interface CourseCardProps {
   imageUrl?: string;
-  courseId?: number;
+  courseId?: string;
   batchNo?: string;
-  rating?: number;
+  feeType?: string;
+  price?: number | null;
   category?: string;
   title?: string;
   studentsEnrolled?: string;

@@ -1,16 +1,18 @@
 import React from 'react';
 import Image from 'next/image';
-const starFill = '/CourseDetails/starfill.svg';
-const starEmpty = '/CourseDetails/starnofill.svg';
+import { FeeType } from '@repo/shared';
+
 export default function CourseCardHeader({
   imageUrl,
   title,
-  rating,
+  feeType,
+  price,
   batchNo,
 }: {
   imageUrl: string;
   title: string;
-  rating: number;
+  feeType?: string;
+  price?: number | null;
   batchNo: string;
 }) {
   return (
@@ -41,24 +43,20 @@ export default function CourseCardHeader({
             height={56}
             alt="course-batch-icon"
           />
-          <span className="absolute left-3 top-1/2 -translate-y-2/3 text-xs font-medium text-white">
+          <span className="absolute left-1.5 top-1/2 -translate-y-2/3 text-xs font-medium text-white">
             {batchNo}
           </span>
         </span>
 
-        <span className="flex gap-px">
-          {Array.from({ length: 5 }, (_, index) => {
-            if (index < rating) {
-              return (
-                <Image key={index} src={starFill} width={20} height={20} alt="course-batch-icon" />
-              );
-            } else {
-              return (
-                <Image key={index} src={starEmpty} width={20} height={20} alt="course-batch-icon" />
-              );
-            }
-          })}
-        </span>
+        {feeType === FeeType.FREE ? (
+          <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+            ফ্রি
+          </span>
+        ) : (
+          <span className="px-3 py-0.5 bg-blue-500 text-white text-sm font-semibold rounded-full">
+            ৳ {price || 0}
+          </span>
+        )}
       </div>
     </div>
   );

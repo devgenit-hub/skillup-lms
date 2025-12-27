@@ -16,59 +16,53 @@ import {
 export class CourseController {
   static getPublicCourses = asyncHandler(async (req: Request, res: Response) => {
     const query = courseQuerySchema.parse(req.query);
+    const { page, limit, search, category, feeType, level, courseType } = query;
 
-    const where: Record<string, unknown> = {
-      published: true,
-    };
+    const baseWhere: Record<string, unknown> = { published: true };
 
-    if (query.search) {
-      where.OR = [
-        { title: { contains: query.search, mode: 'insensitive' as const } },
-        { description: { contains: query.search, mode: 'insensitive' as const } },
+    if (search) {
+      baseWhere.OR = [
+        { title: { contains: search, mode: 'insensitive' as const } },
+        { description: { contains: search, mode: 'insensitive' as const } },
       ];
     }
 
-    if (query.category) {
-      where.category = {
-        slug: query.category,
-      };
+    if (category) {
+      baseWhere.category = { slug: category };
     }
 
-    if (query.feeType) {
-      where.feeType = query.feeType;
+    if (feeType) {
+      baseWhere.feeType = feeType;
     }
+
+    const metadataFilters: Array<{ path: string[]; equals: string }> = [];
+    if (level) metadataFilters.push({ path: ['level'], equals: level });
+    if (courseType) metadataFilters.push({ path: ['courseType'], equals: courseType });
+
+    const where =
+      metadataFilters.length > 0
+        ? { AND: [baseWhere, ...metadataFilters.map((f) => ({ metadata: f }))] }
+        : baseWhere;
 
     const [coursesRaw, total] = await Promise.all([
       prisma.course.findMany({
         where,
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
+        skip: (page - 1) * limit,
+        take: limit,
         select: {
           id: true,
           title: true,
           feeType: true,
           price: true,
           metadata: true,
-          category: {
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-            },
-          },
-          _count: {
-            select: {
-              enrollments: true,
-              curriculumModules: true,
-            },
-          },
+          category: { select: { id: true, title: true, slug: true } },
+          _count: { select: { enrollments: true, curriculumModules: true } },
         },
         orderBy: { createdAt: 'desc' },
       }),
       prisma.course.count({ where }),
     ]);
 
-    // Transform to include metadata fields
     const courses = coursesRaw.map((course) => {
       const metadata = (course.metadata || {}) as Record<string, unknown>;
       return {
@@ -79,16 +73,13 @@ export class CourseController {
         price: course.price,
         category: course.category,
         level: (metadata.level as string) || null,
-        language: (metadata.language as string) || null,
+        courseType: (metadata.courseType as string) || null,
+        batchNo: (metadata.batchNo as string) || null,
         _count: course._count,
       };
     });
 
-    ApiResponse.paginated(res, courses, {
-      page: query.page,
-      limit: query.limit,
-      total,
-    });
+    ApiResponse.paginated(res, courses, { page, limit, total });
   });
 
   static getPublicCourse = asyncHandler(async (req: Request, res: Response) => {

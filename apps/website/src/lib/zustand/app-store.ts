@@ -12,17 +12,12 @@ export interface CourseCard {
   id: string;
   title: string;
   image: string | null;
-  feeType: 'free' | 'paid';
+  feeType: string;
   price: number | null;
   category: Category | null;
   level: string | null;
-  language: string | null;
-  published: boolean;
-  teachers: Array<{
-    id: string;
-    name: string | null;
-    profileImage: string | null;
-  }>;
+  courseType: string | null;
+  batchNo: string | null;
   _count: {
     enrollments: number;
     curriculumModules: number;
@@ -36,9 +31,9 @@ export interface WebinarCard {
   category: Category | null;
   scheduleDateTime: string;
   duration: number;
-  feeType: 'free' | 'paid';
+  feeType: string;
   price: number | null;
-  status: 'draft' | 'upcoming' | 'live' | 'completed';
+  status: string;
   _count: {
     registrations: number;
   };

@@ -9,7 +9,7 @@ export default function OurCourses() {
   const { t } = useLocale();
   const pageText = t('landing');
   const studentText = t('student');
-  const courseText = t('course');
+  // const courseText = t('course');
   const { courses, categories, coursesLoading } = useAppStore();
   const [selected, setSelected] = useState<string>('');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -164,8 +164,7 @@ export default function OurCourses() {
             <CourseCard
               key={course.id}
               imageUrl={course.image || '/Card/cover.png'}
-              batchNo={`${courseText.batch || 'Batch'} 1`}
-              rating={4.5}
+              batchNo={course.batchNo || 'Batch 1'}
               category={course.category?.title || ''}
               title={course.title}
               studentsEnrolled={course._count.enrollments.toString()}
