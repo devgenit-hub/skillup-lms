@@ -1,15 +1,6 @@
 import { type Request, type Response, type NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { prisma } from '@repo/db';
-import { SUPABASE_JWT_SECRET } from '../config/supabase.js';
-
-interface SupabaseJWTPayload {
-  sub: string;
-  email?: string;
-  role?: string;
-  aud?: string;
-  exp?: number;
-}
+import { supabaseAdmin } from '../config/supabase.js';
 
 export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
   let token: string | undefined;
@@ -29,20 +20,18 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    if (!SUPABASE_JWT_SECRET) {
-      res.status(500).json({ error: 'Server configuration error' });
-      return;
-    }
+    const {
+      data: { user: supabaseUser },
+      error,
+    } = await supabaseAdmin.auth.getUser(token);
 
-    const decoded = jwt.verify(token, SUPABASE_JWT_SECRET) as SupabaseJWTPayload;
-
-    if (!decoded.sub) {
-      res.status(401).json({ error: 'Invalid token payload' });
+    if (error || !supabaseUser) {
+      res.status(401).json({ error: error?.message || 'Invalid token' });
       return;
     }
 
     const user = await prisma.user.findUnique({
-      where: { supabaseId: decoded.sub },
+      where: { supabaseId: supabaseUser.id },
       include: {
         _count: {
           select: { enrollments: true },
@@ -62,19 +51,7 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
     req.user = user;
     next();
   } catch (error: unknown) {
-    if (error instanceof Error && 'name' in error && error.name === 'TokenExpiredError') {
-      res.status(401).json({
-        error: 'Token expired',
-        code: 'TOKEN_EXPIRED',
-        message: 'Please refresh your session',
-      });
-      return;
-    }
-
-    if (error instanceof Error && 'name' in error && error.name === 'JsonWebTokenError') {
-      res.status(401).json({ error: 'Invalid token' });
-      return;
-    }
+    console.error('Auth error:', error);
     res.status(500).json({ error: 'Authentication failed' });
   }
 }
@@ -88,16 +65,21 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
   }
 
   try {
-    const decoded = jwt.verify(token, SUPABASE_JWT_SECRET) as SupabaseJWTPayload;
-    const user = await prisma.user.findUnique({
-      where: { supabaseId: decoded.sub },
-    });
+    const {
+      data: { user: supabaseUser },
+    } = await supabaseAdmin.auth.getUser(token);
 
-    if (user) {
-      req.user = user;
+    if (supabaseUser) {
+      const user = await prisma.user.findUnique({
+        where: { supabaseId: supabaseUser.id },
+      });
+
+      if (user) {
+        req.user = user;
+      }
     }
   } catch {
-    // Continue without user if auth fails
+    // Silent fail for optional auth
   }
 
   next();

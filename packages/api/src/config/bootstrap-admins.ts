@@ -47,9 +47,17 @@ export async function bootstrapAdmins(): Promise<void> {
               where: { email },
               data: { supabaseId: authUser.user.id },
             });
-            console.log(`✅ Admin ${email} created | Password: ${password}`);
+            console.log(`✅ Admin ${email} Supabase auth created and synced`);
           }
         } else {
+          // Auth user exists - sync supabaseId if different and update password
+          if (existingUser.supabaseId !== authUserExists.id) {
+            await prisma.user.update({
+              where: { email },
+              data: { supabaseId: authUserExists.id },
+            });
+            console.log(`✅ Admin ${email} supabaseId synced to ${authUserExists.id}`);
+          }
           await supabase.auth.admin.updateUserById(authUserExists.id, { password });
         }
 
