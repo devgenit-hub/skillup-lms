@@ -405,7 +405,8 @@ export class CourseController {
     let updateData: Partial<typeof updateFields>;
     if (userRole === UserRole.ADMIN) {
       updateData = { ...updateFields };
-      if (updateFields.metadata && existingCourse.metadata) {
+      // Properly merge metadata, preserving existing fields
+      if (updateFields.metadata) {
         const existingMetadata =
           typeof existingCourse.metadata === 'object' ? existingCourse.metadata : {};
         updateData = {

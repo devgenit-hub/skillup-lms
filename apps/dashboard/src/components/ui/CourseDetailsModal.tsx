@@ -335,13 +335,28 @@ export default function CourseDetailsModal({
         .categoryId;
       const categoryTitle = updatedCourse.category?.title;
 
+      const metadata = {
+        batchNo: updatedCourse.batchNo,
+        heroImage: updatedCourse.heroImage,
+        courseType: updatedCourse.courseType,
+        level: updatedCourse.level,
+        numClasses: updatedCourse.numClasses,
+        aboutCourse: {
+          about: updatedCourse.aboutCourse?.about || '',
+          details: updatedCourse.aboutCourse?.details || '',
+        },
+        classRoutinePdf: updatedCourse.classRoutinePdf,
+        courseInstructors: updatedCourse.courseInstructors,
+      };
+
       const response = await apiClient.updateCourse(course.id, {
         title: updatedCourse.title,
-        description: updatedCourse.aboutCourse?.about || '',
+        description: updatedCourse.description || undefined,
         feeType: updatedCourse.feeType === 'paid' ? 'PAID' : 'FREE',
         price: updatedCourse.feeType === 'paid' ? updatedCourse.price || null : null,
         categoryId: formCategoryId || undefined,
         categoryTitle: !formCategoryId && categoryTitle ? categoryTitle : undefined,
+        metadata,
       });
 
       // Add new category to store if created

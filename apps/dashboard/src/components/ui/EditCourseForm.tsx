@@ -24,6 +24,7 @@ export default function EditCourseForm({
 }: EditCourseFormProps) {
   const [formData, setFormData] = useState({
     title: course.title || '',
+    description: course.description || '',
     batchNo: course.batchNo || '',
     heroImage: course.heroImage || '',
     courseType: course.courseType || ('live' as 'live' | 'record'),
@@ -95,6 +96,7 @@ export default function EditCourseForm({
     const updatedCourse: CourseProps & { categoryId?: string | null } = {
       ...course,
       title: formData.title,
+      description: formData.description,
       batchNo: formData.batchNo,
       heroImage: formData.heroImage,
       courseType: formData.courseType,
@@ -158,6 +160,18 @@ export default function EditCourseForm({
               onChange={handleInputChange}
               required
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              rows={3}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
+              placeholder="Brief description of the course..."
             />
           </div>
 
@@ -277,24 +291,24 @@ export default function EditCourseForm({
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              About (Markdown) *
+              বিবরণ (Markdown) *
             </label>
             <RichTextEditor
-              value={formData.aboutCourseAbout}
-              onChange={(value) => setFormData((prev) => ({ ...prev, aboutCourseAbout: value }))}
-              placeholder="Describe what this course is about..."
+              value={formData.aboutCourseDetails}
+              onChange={(value) => setFormData((prev) => ({ ...prev, aboutCourseDetails: value }))}
+              placeholder="কোর্স সম্পর্কে বিস্তারিত বিবরণ লিখুন..."
               minHeight="150px"
             />
           </div>
 
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
-              Details (Markdown) *
+              কোর্স বিষয়বস্তু (Markdown) *
             </label>
             <RichTextEditor
-              value={formData.aboutCourseDetails}
-              onChange={(value) => setFormData((prev) => ({ ...prev, aboutCourseDetails: value }))}
-              placeholder="Add detailed course information..."
+              value={formData.aboutCourseAbout}
+              onChange={(value) => setFormData((prev) => ({ ...prev, aboutCourseAbout: value }))}
+              placeholder="মূল তথ্য এবং কোর্সের বিষয়বস্তু লিখুন..."
               minHeight="150px"
             />
           </div>

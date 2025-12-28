@@ -138,7 +138,7 @@ export default function ManageCoursesPage() {
       category?: 'webdev' | 'frontend' | 'backend' | 'mobiledev' | 'devOps' | 'ui-ux' | 'others';
       numClasses?: number;
       courseInstructors?: CourseInstructor[];
-      aboutCourse?: { details?: string };
+      aboutCourse?: { about?: string; details?: string };
       classRoutinePdf?: string;
       facebookGroupLink?: string;
     } | null;
@@ -146,6 +146,7 @@ export default function ManageCoursesPage() {
     const courseForModal: CourseProps = {
       id: course.id,
       title: course.title,
+      description: course.description || '',
       batchNo: metadata?.batchNo || '',
       heroImage: metadata?.heroImage || '',
       courseType: metadata?.courseType || 'live',
@@ -160,7 +161,7 @@ export default function ManageCoursesPage() {
       courseInstructors: (metadata?.courseInstructors as CourseInstructor[]) || [],
       status: course.published ? 'Active' : 'Deactive',
       aboutCourse: {
-        about: course.description || '',
+        about: metadata?.aboutCourse?.about || '',
         details: metadata?.aboutCourse?.details || '',
       },
       curriculum:

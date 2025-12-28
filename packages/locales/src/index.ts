@@ -1,6 +1,6 @@
 // Auto-generated file - DO NOT EDIT MANUALLY
 // Run 'pnpm generate:locales' to regenerate this file
-// Generated on: 2025-12-27T06:38:27.291Z
+// Generated on: 2025-12-28T05:52:28.023Z
 
 import bnCommon from './bn/common.json';
 import bnDashboard from './bn/dashboard.json';

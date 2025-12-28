@@ -38,6 +38,7 @@ export interface Curriculum {
 export interface CourseProps {
   id: string;
   title: string;
+  description?: string;
   batchNo: string;
   heroImage: string;
   courseType: 'live' | 'record';
