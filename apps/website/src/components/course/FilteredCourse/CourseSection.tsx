@@ -112,7 +112,7 @@ export default function CourseSection({ filters }: CourseSectionProps) {
               key={course.id}
               imageUrl={course.image || '/Card/cover.png'}
               batchNo={course.batchNo || 'Batch 1'}
-              feeType={course.feeType}
+              feeType={course.feeType as 'FREE' | 'PAID'}
               price={course.price}
               category={course.category?.title || ''}
               title={course.title}
