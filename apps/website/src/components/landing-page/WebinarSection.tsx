@@ -4,10 +4,12 @@ import WebinarCard from '@/components/webinar/WebinarCard/WebinarCard';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useLocale } from '@/providers/locale-provider';
+import { useAppStore } from '@/lib/zustand/app-store';
 
 export default function WebinarSection() {
   const { t } = useLocale();
   const pageText = t('landing');
+  const { webinars } = useAppStore();
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     align: 'center',
@@ -39,42 +41,16 @@ export default function WebinarSection() {
   useEffect(() => {
     if (!emblaApi) return;
     setScrollSnaps(emblaApi.scrollSnapList());
-    emblaApi.scrollTo(1, true);
+    if (webinars.length > 0) {
+      emblaApi.scrollTo(Math.min(1, webinars.length - 1), true);
+    }
     onSelect();
     emblaApi.on('select', onSelect);
 
     return () => {
       emblaApi.off('select', onSelect);
     };
-  }, [emblaApi, onSelect]);
-
-  const webinars = [
-    {
-      category: 'প্রোগ্রামিং',
-      title: 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস',
-      endDate: '',
-      duration: '৪ দিন বাকি',
-    },
-    {
-      category: 'প্রোগ্রামিং',
-      title: 'ওয়েব ডেভেলপমেন্ট মাস্টারক্লাস',
-      endDate: '',
-      duration: '৩ দিন বাকি',
-      imageUrl: '/UI/LandingPage/services.png',
-    },
-    {
-      category: 'প্রোগ্রামিং',
-      title: 'মোবাইল অ্যাপ ডেভেলপমেন্ট',
-      endDate: '',
-      duration: '৫ দিন বাকি',
-    },
-    {
-      category: 'প্রোগ্রামিং',
-      title: 'ডেটা সায়েন্স বেসিক',
-      endDate: '',
-      duration: '২ দিন বাকি',
-    },
-  ];
+  }, [emblaApi, onSelect, webinars.length]);
 
   return (
     <div className="container px-4 w-full max-w-7xl mx-auto mt-20 py-8">
@@ -87,18 +63,33 @@ export default function WebinarSection() {
           <div className="absolute top-0 bottom-0 z-10 h-full w-1/3 from-background to-transparent right-0 bg-gradient-to-l pointer-events-none"></div> */}
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-6 px-10 py-14">
-              {webinars.map((webinar, idx) => (
-                <div
-                  key={idx}
-                  className={`
-                    flex-[0_0_85%] sm:flex-[0_0_60%] md:flex-[0_0_45%] lg:flex-[0_0_35%] min-w-0
-                    transition-transform duration-500 ease-out
-                    ${selectedIndex === idx ? 'scale-100' : 'scale-75'}
-                  `}
-                >
-                  <WebinarCard {...webinar} showShadow={selectedIndex === idx} />
+              {webinars.length > 0 ? (
+                webinars.map((webinar, idx) => (
+                  <div
+                    key={webinar.id}
+                    className={`
+                      flex-[0_0_85%] sm:flex-[0_0_60%] md:flex-[0_0_45%] lg:flex-[0_0_35%] min-w-0
+                      transition-transform duration-500 ease-out
+                      ${selectedIndex === idx ? 'scale-100' : 'scale-75'}
+                    `}
+                  >
+                    <WebinarCard
+                      imageUrl={webinar.image || undefined}
+                      category={webinar.category?.title}
+                      title={webinar.title}
+                      webinarId={webinar.id}
+                      endDate={webinar.scheduleDateTime}
+                      feeType={webinar.feeType}
+                      price={webinar.price}
+                      showShadow={selectedIndex === idx}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12 text-gray-400">
+                  No webinars available
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

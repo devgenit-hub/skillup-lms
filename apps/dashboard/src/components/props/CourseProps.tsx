@@ -38,6 +38,7 @@ export interface Curriculum {
 export interface CourseProps {
   id: string;
   title: string;
+  description?: string;
   batchNo: string;
   heroImage: string;
   courseType: 'live' | 'record';
@@ -47,7 +48,11 @@ export interface CourseProps {
   type: string;
   teachers: CourseTeacher[]; // Teachers from CourseTeacher junction table
   assignedTeachers: string[]; // Array of teacher IDs for form handling
-  category: 'webdev' | 'frontend' | 'backend' | 'mobiledev' | 'devOps' | 'ui-ux' | 'others';
+  category?: {
+    id: string;
+    title: string;
+    slug: string;
+  } | null;
   numClasses: number;
   courseInstructors: CourseInstructor[];
   status: 'Active' | 'Deactive';

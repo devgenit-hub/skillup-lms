@@ -22,6 +22,7 @@ export default function InfoCard(props: InfoCardProps) {
       <InfoCardHeader
         chipText={props.chipText || 'লাইভ'}
         chipColor={props.chipColor || 'rgba(83,150,34,1)'}
+        maxDiscount={props.maxDiscount}
       />
 
       <InfoCardBody

@@ -348,6 +348,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.87.3
         version: 2.87.3
+      axios:
+        specifier: ^1.13.2
+        version: 1.13.2
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7

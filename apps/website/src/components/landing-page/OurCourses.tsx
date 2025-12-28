@@ -1,21 +1,26 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import CourseCard from '../course/CourseCard/CourseCard';
-import { CourseCardProps } from '../course/types/CourseCardProps/CourseCardProps';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocale } from '@/providers/locale-provider';
+import { useAppStore } from '@/lib/zustand/app-store';
 
 export default function OurCourses() {
   const { t } = useLocale();
   const pageText = t('landing');
+  const studentText = t('student');
+  // const courseText = t('course');
+  const { courses, categories, coursesLoading } = useAppStore();
   const [selected, setSelected] = useState<string>('');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   useEffect(() => {
-    setSelected('সব');
-  }, []);
+    if (categories.length > 0) {
+      setSelected(pageText.courses_category_all || 'সব');
+    }
+  }, [categories, pageText]);
 
   const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
@@ -51,10 +56,20 @@ export default function OurCourses() {
       };
     }
   }, []);
+
+  const allCategories = [
+    pageText.courses_category_all || 'সব',
+    ...categories.map((cat) => cat.title),
+  ];
+
+  const filteredCourses =
+    selected === (pageText.courses_category_all || 'সব')
+      ? courses
+      : courses.filter((course) => course.category?.title === selected);
   return (
     <div className="container px-4 w-full max-w-7xl mx-auto my-20">
       <h3 className="text-center font-bold text-2xl sm:text-3xl md:text-4xl bg-linear-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text my-8 py-8">
-        {pageText['courses_heading']}
+        {pageText.courses_heading}
       </h3>
 
       {/* Categories Section with Enhanced UI */}
@@ -81,7 +96,7 @@ export default function OurCourses() {
             className="flex-1 flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {categories.map((category, idx) => (
+            {allCategories.map((category, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelected(category)}
@@ -136,111 +151,39 @@ export default function OurCourses() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-12">
-        {courseData.map((course, idx) => (
-          <CourseCard key={idx} {...course} courseId={idx + 1} route="/course/" />
-        ))}
+        {coursesLoading ? (
+          <div className="col-span-full text-center py-12 text-gray-400">
+            {studentText.loading || 'Loading courses...'}
+          </div>
+        ) : filteredCourses.length === 0 ? (
+          <div className="col-span-full text-center py-12 text-gray-400">
+            {'No courses available'}
+          </div>
+        ) : (
+          filteredCourses.map((course) => (
+            <CourseCard
+              key={course.id}
+              courseId={course.id}
+              imageUrl={course.image || '/Card/cover.png'}
+              batchNo={course.batchNo || 'Batch 1'}
+              category={course.category?.title || ''}
+              title={course.title}
+              studentsEnrolled={course._count.enrollments.toString()}
+              totalSessions={course._count.curriculumModules.toString()}
+              route="/course/"
+              price={course.price}
+            />
+          ))
+        )}
       </div>
       <div className="flex justify-center items-center">
         <a
           href="/allcourse"
           className="border border-vibrant-blue font-bold rounded-full px-6 py-2 hover:bg-white/5 text-sm flex items-center gap-2 mt-20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20"
         >
-          {pageText['courses_viewAll']} <ArrowRight size={25} />
+          {pageText.courses_viewAll} <ArrowRight size={25} />
         </a>
       </div>
     </div>
   );
 }
-
-const categories = [
-  'সব',
-  'ফুল স্ট্যাক ওয়েব ডেভেলপমেন্ট',
-  'গ্রাফিক্স ডিজাইন',
-  'জাভাস্ক্রিপ্ট & রিয়েক্ট ডেভেলপমেন্ট',
-  'ক্লাউড কম্পিউটিং',
-  'অ্যাপ ডেভেলপমেন্ট (অ্যান্ড্রয়েড/আইওএস)',
-];
-
-const courseData: CourseCardProps[] = [
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ১',
-    rating: 4,
-    category: 'UI/UX ডিজাইন',
-    title: 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস',
-    studentsEnrolled: '৫২৪',
-    totalSessions: '১৬',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ২',
-    rating: 4.5,
-    category: 'গ্রাফিক ডিজাইন',
-    title: 'গ্রাফিক ডিজাইন প্রফেশনাল কোর্স',
-    studentsEnrolled: '৬০০',
-    totalSessions: '২০',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ৩',
-    rating: 3.8,
-    category: 'ফ্রন্টএন্ড ডেভেলপমেন্ট',
-    title: 'ওয়েব ডেভেলপমেন্ট ফান্ডামেন্টালস',
-    studentsEnrolled: '৩৫০',
-    totalSessions: '১৮',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ৪',
-    rating: 4.2,
-    category: 'ব্যাকএন্ড ডেভেলপমেন্ট',
-    title: 'ডাটাবেজ এবং সার্ভার সাইড টেকনোলজিজ',
-    studentsEnrolled: '৪২০',
-    totalSessions: '২২',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ৫',
-    rating: 5,
-    category: 'পাইথন প্রোগ্রামিং',
-    title: 'পাইথন প্রোগ্রামিং ফান্ডামেন্টালস',
-    studentsEnrolled: '৭৫০',
-    totalSessions: '২৫',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ৬',
-    rating: 4.6,
-    category: 'মোবাইল অ্যাপ ডেভেলপমেন্ট',
-    title: 'অ্যান্ড্রয়েড অ্যাপ ডেভেলপমেন্ট',
-    studentsEnrolled: '৫৮০',
-    totalSessions: '১৮',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ৭',
-    rating: 3.9,
-    category: 'ডিজিটাল মার্কেটিং',
-    title: 'ডিজিটাল মার্কেটিং মাস্টারক্লাস',
-    studentsEnrolled: '৬৫০',
-    totalSessions: '২২',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ৮',
-    rating: 4.7,
-    category: 'ডাটা সায়েন্স',
-    title: 'ডাটা সায়েন্স এবং মেশিন লার্নিং',
-    studentsEnrolled: '৮৫০',
-    totalSessions: '৩০',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ৯',
-    rating: 4.1,
-    category: 'ক্লাউড কম্পিউটিং',
-    title: 'এমাজন ওয়েব সার্ভিসেস (AWS) এর সাথে পরিচিতি',
-    studentsEnrolled: '৪০০',
-    totalSessions: '২৪',
-  },
-];

@@ -2,10 +2,16 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-export interface ApiResponse<T = any> {
-  success: boolean;
+export interface ApiResponse<T = unknown> {
+  status: 'success';
   data: T;
   message?: string;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 class ApiClient {
@@ -44,7 +50,7 @@ class ApiClient {
   }
 
   async updateProfile(data: { name?: string; avatarUrl?: string; phone?: string }) {
-    return this.request<any>('/api/auth/profile', {
+    return this.request<unknown>('/api/auth/profile', {
       method: 'PATCH',
       data,
     });
@@ -56,9 +62,65 @@ class ApiClient {
     });
   }
 
+  // Public Course endpoints (no auth required)
+  async getPublicCourses(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    level?: string;
+    courseType?: string;
+    feeType?: string;
+    published?: boolean;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.category) query.append('category', params.category);
+    if (params?.level) query.append('level', params.level);
+    if (params?.courseType) query.append('courseType', params.courseType);
+    if (params?.feeType) query.append('feeType', params.feeType);
+    if (params?.published !== undefined) query.append('published', params.published.toString());
+
+    return this.request(`/api/courses/public?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getPublicCourse(id: string) {
+    return this.request(`/api/courses/public/${id}`, { method: 'GET' });
+  }
+
+  async getInitialData() {
+    return this.request('/api/public/initial', { method: 'GET' });
+  }
+
+  // Public Webinar endpoints (no auth required)
+  async getPublicWebinars(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    status?: string;
+    feeType?: string;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.category) query.append('category', params.category);
+    if (params?.status) query.append('status', params.status);
+    if (params?.feeType) query.append('feeType', params.feeType);
+
+    return this.request(`/api/webinars/public?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getPublicWebinar(id: string) {
+    return this.request(`/api/webinars/public/${id}`, { method: 'GET' });
+  }
+
   // Course endpoints
   async getCourses(params?: { category?: string; search?: string }) {
-    const query = new URLSearchParams(params as any).toString();
+    const query = new URLSearchParams(params as Record<string, string>).toString();
     return this.request(`/api/courses${query ? `?${query}` : ''}`, { method: 'GET' });
   }
 
@@ -66,14 +128,14 @@ class ApiClient {
     return this.request(`/api/courses/${id}`, { method: 'GET' });
   }
 
-  async createCourse(data: any) {
+  async createCourse(data: Record<string, unknown>) {
     return this.request('/api/courses', {
       method: 'POST',
       data,
     });
   }
 
-  async updateCourse(id: string, data: any) {
+  async updateCourse(id: string, data: Record<string, unknown>) {
     return this.request(`/api/courses/${id}`, {
       method: 'PUT',
       data,
@@ -113,7 +175,7 @@ class ApiClient {
 
   // User endpoints (admin only)
   async getUsers(params?: { role?: string; page?: number; limit?: number }) {
-    const query = new URLSearchParams(params as any).toString();
+    const query = new URLSearchParams(params as Record<string, string>).toString();
     return this.request(`/api/users${query ? `?${query}` : ''}`, { method: 'GET' });
   }
 
@@ -121,7 +183,7 @@ class ApiClient {
     return this.request(`/api/users/${id}`, { method: 'GET' });
   }
 
-  async updateUser(id: string, data: any) {
+  async updateUser(id: string, data: Record<string, unknown>) {
     return this.request(`/api/users/${id}`, {
       method: 'PUT',
       data,

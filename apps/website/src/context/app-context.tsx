@@ -1,10 +1,12 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, ReactNode, useRef } from 'react';
+import { useAppStore } from '@/lib/zustand/app-store';
+import { apiClient } from '@/lib/api-client';
+import type { CourseCard, WebinarCard, Category } from '@/lib/zustand/app-store';
 
 export interface AppContextValue {
   isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
   isReady: boolean;
 }
 
@@ -19,28 +21,74 @@ export function useApp() {
 }
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isReady, setIsReady] = useState(false);
+  const {
+    setCourses,
+    setWebinars,
+    setCategories,
+    setCoursesLoading,
+    setWebinarsLoading,
+    setCategoriesLoading,
+    initialDataFetched,
+    setInitialDataFetched,
+  } = useAppStore();
+
+  // Use ref to track if fetch is in progress
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
-    const initApp = async () => {
+    if (initialDataFetched || fetchingRef.current) {
+      return;
+    }
+
+    const fetchInitialData = async () => {
+      fetchingRef.current = true;
       try {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        setIsReady(true);
+        const response = await apiClient.getInitialData();
+
+        if (response.status === 'success' && response.data) {
+          const data = response.data as {
+            courses: CourseCard[];
+            webinars: WebinarCard[];
+            categories: Category[];
+          };
+
+          const filteredCategories = (data.categories || []).filter(
+            (category) => (category.courseCount ?? 0) > 0 || (category.webinarCount ?? 0) > 0
+          );
+
+          setCourses(data.courses || []);
+          setWebinars(data.webinars || []);
+          setCategories(filteredCategories);
+          setInitialDataFetched(true);
+        } else {
+          setCoursesLoading(false);
+          setWebinarsLoading(false);
+          setCategoriesLoading(false);
+        }
       } catch {
-        // Silent fail
+        setCoursesLoading(false);
+        setWebinarsLoading(false);
+        setCategoriesLoading(false);
       } finally {
-        setIsLoading(false);
+        fetchingRef.current = false;
       }
     };
 
-    initApp();
-  }, []);
+    fetchInitialData();
+  }, [
+    setCourses,
+    setWebinars,
+    setCategories,
+    setCoursesLoading,
+    setWebinarsLoading,
+    setCategoriesLoading,
+    initialDataFetched,
+    setInitialDataFetched,
+  ]);
 
   const value = {
-    isLoading,
-    setIsLoading,
-    isReady,
+    isLoading: !initialDataFetched,
+    isReady: initialDataFetched,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

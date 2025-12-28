@@ -19,4 +19,5 @@ export interface InfoCardProps {
   borderColor?: string;
   totalStudents?: string;
   topProfileImagesURLs?: string[];
+  maxDiscount?: string | null;
 }

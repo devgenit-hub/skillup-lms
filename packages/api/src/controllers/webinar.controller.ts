@@ -11,6 +11,130 @@ import {
 import { idParamSchema, createCouponSchema } from '../schemas/index.js';
 
 export class WebinarController {
+  static getPublicWebinars = asyncHandler(async (req: Request, res: Response) => {
+    const query = webinarQuerySchema.parse(req.query);
+
+    const where: Record<string, unknown> = {};
+
+    if (query.search) {
+      where.title = { contains: query.search, mode: 'insensitive' as const };
+    }
+
+    if (query.status && query.status !== 'all') {
+      where.status = query.status;
+    } else {
+      where.status = { in: ['upcoming', 'live'] };
+    }
+
+    if (query.category) {
+      where.category = {
+        slug: query.category,
+      };
+    }
+
+    if (query.feeType) {
+      where.feeType = query.feeType;
+    }
+
+    const [webinarsRaw, total] = await Promise.all([
+      prisma.webinar.findMany({
+        where,
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+        select: {
+          id: true,
+          title: true,
+          image: true,
+          category: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+            },
+          },
+          scheduleDateTime: true,
+          duration: true,
+          feeType: true,
+          price: true,
+          status: true,
+          coupons: {
+            select: { discount: true },
+            where: {
+              active: true,
+            },
+            orderBy: { discount: 'desc' },
+            take: 1,
+          },
+          _count: {
+            select: { registrations: true },
+          },
+        },
+        orderBy: { scheduleDateTime: 'asc' },
+      }),
+      prisma.webinar.count({ where }),
+    ]);
+
+    const webinars = webinarsRaw.map(({ coupons, ...webinarRest }) => ({
+      ...webinarRest,
+      maxDiscount: coupons[0]?.discount || null,
+    }));
+
+    ApiResponse.paginated(res, webinars, {
+      page: query.page,
+      limit: query.limit,
+      total,
+    });
+  });
+
+  static getPublicWebinar = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+
+    const webinar = await prisma.webinar.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        image: true,
+        category: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+        scheduleDateTime: true,
+        duration: true,
+        feeType: true,
+        price: true,
+        status: true,
+        platform: true,
+        sessionHighlights: true,
+        aboutWebinar: true,
+        speakers: true,
+        sessionAgenda: true,
+        resources: true,
+        coupons: {
+          where: { active: true },
+          orderBy: { discount: 'desc' },
+          select: {
+            code: true,
+            discount: true,
+            title: true,
+          },
+        },
+        _count: {
+          select: { registrations: true },
+        },
+      },
+    });
+
+    if (!webinar) {
+      throw new NotFoundError('Webinar');
+    }
+
+    ApiResponse.success(res, webinar);
+  });
+
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const query = webinarQuerySchema.parse(req.query);
 
@@ -30,6 +154,13 @@ export class WebinarController {
         skip: (query.page - 1) * query.limit,
         take: query.limit,
         include: {
+          category: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+            },
+          },
           _count: {
             select: { registrations: true },
           },
@@ -52,6 +183,13 @@ export class WebinarController {
     const webinar = await prisma.webinar.findUnique({
       where: { id },
       include: {
+        category: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
         _count: {
           select: { registrations: true },
         },
@@ -65,69 +203,169 @@ export class WebinarController {
     ApiResponse.success(res, webinar);
   });
 
+  // Helper to resolve categoryId from categoryTitle (creates new if needed)
+  private static async resolveCategoryId(
+    tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+    categoryId?: string,
+    categoryTitle?: string
+  ): Promise<{
+    categoryId: string | null;
+    newCategory?: { id: string; title: string; slug: string };
+  }> {
+    if (categoryId) {
+      return { categoryId };
+    }
+
+    if (categoryTitle) {
+      const slug = categoryTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+      const existing = await tx.category.findUnique({
+        where: { slug },
+        select: { id: true, title: true, slug: true },
+      });
+
+      if (existing) {
+        return { categoryId: existing.id };
+      }
+
+      const newCategory = await tx.category.create({
+        data: {
+          title: categoryTitle,
+          slug,
+          courseCount: 0,
+          webinarCount: 0,
+        },
+        select: { id: true, title: true, slug: true },
+      });
+
+      return { categoryId: newCategory.id, newCategory };
+    }
+
+    return { categoryId: null };
+  }
+
   static create = asyncHandler(async (req: Request, res: Response) => {
     const data = createWebinarSchema.parse(req.body);
+    const { categoryTitle, ...webinarData } = data;
 
     if (data.feeType === 'paid' && !data.price) {
       throw new AppError(400, 'Price is required for paid webinars');
     }
 
-    const webinar = await prisma.webinar.create({
-      data: {
-        title: data.title,
-        category: data.category,
-        image: data.image,
-        scheduleDateTime: new Date(data.scheduleDateTime),
-        duration: data.duration,
-        feeType: data.feeType,
-        price: data.price,
-        platform: data.platform,
-        status: data.status,
-        sessionHighlights: data.sessionHighlights,
-        aboutWebinar: data.aboutWebinar,
-        speakers: data.speakers,
-        sessionAgenda: data.sessionAgenda,
-        resources: data.resources,
-        liveLink: data.liveLink,
-      },
-      include: {
-        _count: {
-          select: { registrations: true },
+    const result = await prisma.$transaction(async (tx) => {
+      const { categoryId, newCategory } = await WebinarController.resolveCategoryId(
+        tx,
+        data.categoryId,
+        categoryTitle
+      );
+
+      const newWebinar = await tx.webinar.create({
+        data: {
+          title: webinarData.title,
+          categoryId,
+          image: webinarData.image,
+          scheduleDateTime: new Date(webinarData.scheduleDateTime),
+          duration: webinarData.duration,
+          feeType: webinarData.feeType,
+          price: webinarData.price,
+          platform: webinarData.platform,
+          status: webinarData.status,
+          sessionHighlights: webinarData.sessionHighlights,
+          aboutWebinar: webinarData.aboutWebinar,
+          speakers: webinarData.speakers,
+          sessionAgenda: webinarData.sessionAgenda,
+          resources: webinarData.resources,
+          liveLink: webinarData.liveLink,
         },
-      },
+        include: {
+          category: {
+            select: { id: true, title: true, slug: true },
+          },
+          _count: {
+            select: { registrations: true },
+          },
+        },
+      });
+
+      if (categoryId) {
+        await tx.category.update({
+          where: { id: categoryId },
+          data: { webinarCount: { increment: 1 } },
+        });
+      }
+
+      return { webinar: newWebinar, newCategory };
     });
 
-    ApiResponse.created(res, webinar, 'Webinar created successfully');
+    ApiResponse.created(res, result, 'Webinar created successfully');
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const data = updateWebinarSchema.parse(req.body);
+    const { categoryTitle, ...updateFields } = data;
 
     const existingWebinar = await prisma.webinar.findUnique({
       where: { id },
+      select: { id: true, categoryId: true },
     });
 
     if (!existingWebinar) {
       throw new NotFoundError('Webinar');
     }
 
-    const updateData: Record<string, unknown> = { ...data };
-    if (data.scheduleDateTime) {
-      updateData.scheduleDateTime = new Date(data.scheduleDateTime);
+    const updateData: Record<string, unknown> = { ...updateFields };
+    if (updateFields.scheduleDateTime) {
+      updateData.scheduleDateTime = new Date(updateFields.scheduleDateTime);
     }
 
-    const webinar = await prisma.webinar.update({
-      where: { id },
-      data: updateData,
-      include: {
-        _count: {
-          select: { registrations: true },
+    const result = await prisma.$transaction(async (tx) => {
+      let newCategory: { id: string; title: string; slug: string } | undefined;
+      let finalCategoryId = updateData.categoryId as string | undefined;
+
+      if (categoryTitle && !updateData.categoryId) {
+        const resolved = await WebinarController.resolveCategoryId(tx, undefined, categoryTitle);
+        finalCategoryId = resolved.categoryId ?? undefined;
+        newCategory = resolved.newCategory;
+        updateData.categoryId = finalCategoryId;
+      }
+
+      if (finalCategoryId !== undefined && finalCategoryId !== existingWebinar.categoryId) {
+        if (existingWebinar.categoryId) {
+          await tx.category.update({
+            where: { id: existingWebinar.categoryId },
+            data: { webinarCount: { decrement: 1 } },
+          });
+        }
+
+        if (finalCategoryId) {
+          await tx.category.update({
+            where: { id: finalCategoryId },
+            data: { webinarCount: { increment: 1 } },
+          });
+        }
+      }
+
+      const webinar = await tx.webinar.update({
+        where: { id },
+        data: updateData,
+        include: {
+          category: {
+            select: { id: true, title: true, slug: true },
+          },
+          _count: {
+            select: { registrations: true },
+          },
         },
-      },
+      });
+
+      return { webinar, newCategory };
     });
 
-    ApiResponse.success(res, webinar, 'Webinar updated successfully');
+    ApiResponse.success(res, result, 'Webinar updated successfully');
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
@@ -135,14 +373,26 @@ export class WebinarController {
 
     const existingWebinar = await prisma.webinar.findUnique({
       where: { id },
+      select: { id: true, categoryId: true },
     });
 
     if (!existingWebinar) {
       throw new NotFoundError('Webinar');
     }
 
-    await prisma.webinar.delete({
-      where: { id },
+    await prisma.$transaction(async (tx) => {
+      // Delete the webinar
+      await tx.webinar.delete({
+        where: { id },
+      });
+
+      // Decrement category count if categoryId exists
+      if (existingWebinar.categoryId) {
+        await tx.category.update({
+          where: { id: existingWebinar.categoryId },
+          data: { webinarCount: { decrement: 1 } },
+        });
+      }
     });
 
     ApiResponse.noContent(res);

@@ -1,61 +1,190 @@
 'use client';
+import { useEffect, useState, useMemo } from 'react';
+import { useParams } from 'next/navigation';
+import { WebinarFeeType, WebinarStatus } from '@repo/shared';
 import Hero from '@/components/webinar-details/sections/Hero';
 import MainContent from '@/components/webinar-details/sections/MainContent';
 import SideBar from '@/components/webinar-details/sections/SideBar';
 import { AboutWebinar } from '@/components/webinar-details/types/AboutCourse';
 import { HeroProps } from '@/components/webinar-details/types/HeroProps';
-import React from 'react';
+import { Loader2 } from 'lucide-react';
 
-const aboutWebinarData: AboutWebinar = {
-  about: `# UX ডিজাইন মাস্টারক্লাস: ব্যবহারকারী-কেন্দ্রিক ডিজাইন শিখুন
+interface WebinarDetails {
+  id: string;
+  title: string;
+  image: string | null;
+  category: { id: string; title: string; slug: string } | null;
+  scheduleDateTime: string;
+  duration: number;
+  feeType: 'free' | 'paid';
+  price: number | null;
+  status: 'upcoming' | 'live' | 'completed';
+  platform: string | null;
+  sessionHighlights: string | null;
+  aboutWebinar: string | null;
+  speakers: unknown | null;
+  sessionAgenda: unknown | null;
+  resources: unknown | null;
+  coupons: Array<{ code: string; discount: number; title: string | null }>;
+  _count: { registrations: number };
+}
 
-এই ওয়েবিনারে আপনি শিখবেন কীভাবে ব্যবহারকারীদের চাহিদা বুঝে কার্যকর ডিজাইন সলিউশন তৈরি করতে হয়। UI/UX ডিজাইনের মূল নীতি থেকে শুরু করে বাস্তব প্রয়োগ পর্যন্ত সম্পূর্ণ গাইডলাইন।
+export default function WebinarPage() {
+  const params = useParams();
+  const webinarId = params.webinar_id as string;
+  const [webinar, setWebinar] = useState<WebinarDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-## এই ওয়েবিনারে কী কী থাকছে:
+  useEffect(() => {
+    let isMounted = true;
 
-- ইউজার রিসার্চ ও পার্সোনা তৈরির কৌশল
-- ওয়্যারফ্রেম এবং প্রোটোটাইপিং এর বেসিক থেকে অ্যাডভান্স
-- ইন্টারেকশন ডিজাইনের মূল নীতি ও বেস্ট প্র্যাকটিস
-- রিয়েল-ওয়ার্ল্ড কেস স্টাডি ও প্রজেক্ট রিভিউ
+    const fetchWebinar = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/public/webinars/${webinarId}`
+        );
 
-## বিশেষজ্ঞদের কাছ থেকে শিখুন:
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Webinar not found');
+        }
 
-ইন্ডাস্ট্রি এক্সপার্টদের সাথে লাইভ ইন্টারেকশনের সুযোগ। আপনার প্রশ্নের সরাসরি উত্তর পান এবং ক্যারিয়ার গাইডেন্স নিন।
+        const data = await response.json();
+        if (isMounted) {
+          setWebinar(data.data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to load webinar');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-**নোট:** এই ওয়েবিনার সম্পূর্ণ বাংলায় হবে এবং সকলের জন্য উন্মুক্ত।`,
-  highlights: `- UX ডিজাইন ফান্ডামেন্টালস
-- ইউজার রিসার্চ মেথডলজি
-- ওয়্যারফ্রেমিং ও প্রোটোটাইপিং
-- ডিজাইন সিস্টেম ও কম্পোনেন্ট লাইব্রেরি
-- ইন্টারেক্টিভ Q&A সেশন
-- ফ্রি সার্টিফিকেট অফ অ্যাটেনডেন্স
-- ডিজাইন রিসোর্স প্যাক`,
-};
+    if (webinarId) {
+      fetchWebinar();
+    }
 
-const webinarData: HeroProps = {
-  title: 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস',
-  subtitle: 'UI/UX ডিজাইন মাস্টারক্লাস',
-  sessionDate: '১৫ ডিসেম্বর, ২০২৫',
-  sessionTime: 'রাত ৮:০০ PM',
-  duration: '২ ঘণ্টা',
-  totalRegistered: 254,
-  isLive: false,
-  isFree: true,
-  price: '৳ ৪৯৯',
-  deletedPrice: '৳ ৯৯৯',
-  videoThumbnail: '/Card/cover.png',
-  platform: 'Zoom',
-};
+    return () => {
+      isMounted = false;
+    };
+  }, [webinarId]);
 
-export default function CoursePage() {
+  const aboutWebinarData: AboutWebinar | null = useMemo(() => {
+    if (!webinar) return null;
+    return {
+      about: webinar.aboutWebinar || '',
+      highlights: webinar.sessionHighlights || '',
+    };
+  }, [webinar]);
+
+  const webinarHeroData: HeroProps | null = useMemo(() => {
+    if (!webinar) return null;
+
+    const scheduleDate = new Date(webinar.scheduleDateTime);
+    const formattedDate = scheduleDate.toLocaleDateString('bn-BD', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+    const formattedTime = scheduleDate.toLocaleTimeString('bn-BD', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    // Calculate discounted price if coupons exist
+    const maxDiscount = webinar.coupons[0]?.discount || 0;
+    const originalPrice = webinar.price || 0;
+    const discountedPrice = originalPrice - (originalPrice * maxDiscount) / 100;
+    const hasCoupon = webinar.coupons.length > 0 && maxDiscount > 0;
+
+    return {
+      title: webinar.title,
+      subtitle: webinar.category?.title || 'Webinar',
+      sessionDate: formattedDate,
+      sessionTime: formattedTime,
+      duration: `${webinar.duration} মিনিট`,
+      totalRegistered: webinar._count.registrations,
+      isLive: webinar.status === WebinarStatus.LIVE,
+      isFree: webinar.feeType === WebinarFeeType.FREE,
+      price:
+        webinar.feeType === WebinarFeeType.PAID && webinar.price
+          ? `৳${discountedPrice ? discountedPrice : webinar.price}`
+          : 'ফ্রি',
+      deletedPrice:
+        webinar.feeType === WebinarFeeType.PAID && webinar.price && hasCoupon
+          ? `৳${webinar.price}`
+          : '',
+      videoThumbnail: webinar.image || '/Card/cover.png',
+      platform: webinar.platform || 'Zoom',
+      coupons: webinar.coupons.map((c) => ({
+        code: c.code,
+        discount: `${c.discount}%`,
+        title: c.title || '',
+      })),
+      introVideoLink: null,
+    };
+  }, [webinar]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-vibrant-blue mx-auto mb-4" />
+          <p className="text-slate-600">Loading webinar details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !webinar || !webinarHeroData || !aboutWebinarData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-2">Webinar Not Found</h1>
+          <p className="text-slate-600">
+            {error || 'The webinar you are looking for does not exist.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Hero {...webinarData} />
+      <Hero {...webinarHeroData} />
       <div
         id="details"
-        className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 relative max-w-7xl"
+        className="container mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 relative max-w-7xl"
       >
-        <MainContent AboutWebinar={aboutWebinarData} />
+        <MainContent
+          AboutWebinar={aboutWebinarData}
+          speakers={
+            Array.isArray(webinar.speakers)
+              ? (webinar.speakers as { name: string; image: string; designation: string }[])
+              : undefined
+          }
+          sessionAgenda={
+            Array.isArray(webinar.sessionAgenda)
+              ? (webinar.sessionAgenda as {
+                  time: string;
+                  title: string;
+                  description: string;
+                  speakerName?: string;
+                }[])
+              : undefined
+          }
+          resources={
+            Array.isArray(webinar.resources)
+              ? (webinar.resources as { fileUrl: string; fileName: string }[])
+              : undefined
+          }
+        />
         <SideBar AboutWebinar={aboutWebinarData} />
       </div>
     </>

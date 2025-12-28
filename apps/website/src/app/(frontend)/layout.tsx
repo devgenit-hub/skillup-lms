@@ -41,18 +41,18 @@ export default async function RootLayout({
       </head>
       <body className={`subpixel-antialiased`}>
         <QueryProvider>
-          <AppContextProvider>
-            <LocaleProvider initialLocale={locale}>
-              <ThemeProvider>
-                <AuthProvider>
+          <LocaleProvider initialLocale={locale}>
+            <ThemeProvider>
+              <AuthProvider>
+                <AppContextProvider>
                   <Toaster position="top-right" richColors />
                   <NavBar />
                   <main className="px-4 pb-40 w-full">{children}</main>
                   <Footer />
-                </AuthProvider>
-              </ThemeProvider>
-            </LocaleProvider>
-          </AppContextProvider>
+                </AppContextProvider>
+              </AuthProvider>
+            </ThemeProvider>
+          </LocaleProvider>
         </QueryProvider>
       </body>
     </html>

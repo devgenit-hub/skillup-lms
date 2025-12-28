@@ -14,7 +14,36 @@ const links: LinksProps[] = [
   { text: 'রুটিন', link: '#routine' },
 ];
 
-export default function MainContent({ AboutCourse }: AboutCourseProps) {
+interface MainContentProps extends AboutCourseProps {
+  teachers?: Array<{
+    id: string;
+    name: string;
+    profileImage: string | null;
+    specialization: string | null;
+  }>;
+  curriculum?: Array<{
+    id: string;
+    title: string;
+    details: string | null;
+    order: number;
+    classesCount: number;
+    materialsCount: number;
+  }>;
+  classRoutinePdf?: string | null;
+  contactNumbers?: string[];
+  facebookGroupLink?: string | null;
+  introVideoLink?: string | null;
+}
+
+export default function MainContent({
+  AboutCourse,
+  teachers,
+  curriculum,
+  classRoutinePdf,
+  contactNumbers,
+  facebookGroupLink,
+  introVideoLink,
+}: MainContentProps) {
   return (
     <div className="lg:col-span-2 z-30">
       <ul className="absolute -top-8 left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0 w-fit max-w-[95%] lg:max-w-none py-2 sm:py-4 px-2 sm:px-4 md:px-16 bg-white dark:bg-dark-blue/10 backdrop-blur-xl border-2 border-border rounded-full flex justify-center items-center text-xs sm:text-base md:text-xl text-foreground overflow-x-auto">
@@ -39,10 +68,14 @@ export default function MainContent({ AboutCourse }: AboutCourseProps) {
       </ul>
 
       <CourseDetails AboutCourse={AboutCourse} />
-      <Teachers />
-      <ProgramSyllabus />
-      <Prospectus />
-      <FaQCards />
+      <Teachers teachers={teachers} />
+      <ProgramSyllabus curriculum={curriculum} />
+      <Prospectus classRoutinePdf={classRoutinePdf} />
+      <FaQCards
+        contactNumbers={contactNumbers}
+        facebookGroupLink={facebookGroupLink}
+        introVideoLink={introVideoLink}
+      />
     </div>
   );
 }

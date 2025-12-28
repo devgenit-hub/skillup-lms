@@ -128,7 +128,7 @@ function Page() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-5">
         {courseData.map((course, idx) => (
           <div key={idx} className="animate-slide-up" style={{ animationDelay: `${idx * 0.05}s` }}>
-            <CourseCard {...course} courseId={idx} route="/student/class/" />
+            <CourseCard {...course} courseId={String(idx)} route="/student/class/" />
           </div>
         ))}
       </div>

@@ -216,4 +216,210 @@ body {
     scrollbar-width: thin;
     scrollbar-color: rgb(209 213 219) transparent;
   }
+
+  /* Rich Text Display - Full support for all HTML formatting */
+  .rich-text-display {
+    @apply text-foreground;
+  }
+
+  /* Typography */
+  .rich-text-display p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+  }
+
+  .rich-text-display h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin-top: 0.67em;
+    margin-bottom: 0.67em;
+    line-height: 1.2;
+  }
+
+  .rich-text-display h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 0.83em;
+    margin-bottom: 0.83em;
+    line-height: 1.3;
+  }
+
+  .rich-text-display h3 {
+    font-size: 1.25em;
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    line-height: 1.4;
+  }
+
+  .rich-text-display h4 {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .rich-text-display h5,
+  .rich-text-display h6 {
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  /* Text formatting */
+  .rich-text-display strong,
+  .rich-text-display b {
+    font-weight: bolder !important;
+  }
+
+  .rich-text-display em,
+  .rich-text-display i {
+    font-style: italic !important;
+  }
+
+  .rich-text-display u {
+    text-decoration: underline !important;
+  }
+
+  .rich-text-display s,
+  .rich-text-display strike {
+    text-decoration: line-through !important;
+  }
+
+  /* Links */
+  .rich-text-display a {
+    color: var(--vibrant-blue);
+    text-decoration: underline;
+    transition: opacity 0.2s;
+  }
+
+  .rich-text-display a:hover {
+    opacity: 0.8;
+  }
+
+  /* Lists with proper padding and bullets */
+  .rich-text-display ul,
+  .rich-text-display ol {
+    margin-bottom: 1em;
+    margin-top: 0.5em;
+    padding-left: 1rem !important;
+  }
+
+  .rich-text-display ul {
+    list-style-type: disc !important;
+  }
+
+  .rich-text-display ol {
+    list-style-type: decimal !important;
+  }
+
+  .rich-text-display li {
+    display: list-item !important;
+    list-style-position: outside !important;
+    margin-bottom: 0.5em;
+  }
+
+  .rich-text-display ul > li {
+    list-style-type: disc !important;
+  }
+
+  .rich-text-display ol > li {
+    list-style-type: decimal !important;
+  }
+
+  /* Nested lists */
+  .rich-text-display ul ul,
+  .rich-text-display ol ol,
+  .rich-text-display ul ol,
+  .rich-text-display ol ul {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    padding-left: 2rem !important;
+  }
+
+  .rich-text-display ul ul > li {
+    list-style-type: circle !important;
+  }
+
+  .rich-text-display ul ul ul > li {
+    list-style-type: square !important;
+  }
+
+  /* Blockquotes */
+  .rich-text-display blockquote {
+    border-left: 4px solid var(--vibrant-blue);
+    padding-left: 1rem;
+    margin: 1em 0;
+    font-style: italic;
+    opacity: 0.9;
+  }
+
+  /* Code blocks */
+  .rich-text-display code {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  .dark .rich-text-display code {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .rich-text-display pre {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 1em;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 1em 0;
+  }
+
+  .dark .rich-text-display pre {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .rich-text-display pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  /* Images */
+  .rich-text-display img {
+    max-width: 100%;
+    height: auto;
+    margin: 1em 0;
+    border-radius: 5px;
+  }
+
+  /* Horizontal rule */
+  .rich-text-display hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2em 0;
+  }
+
+  /* Tables */
+  .rich-text-display table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+  }
+
+  .rich-text-display th,
+  .rich-text-display td {
+    border: 1px solid var(--border);
+    padding: 0.5em 1em;
+    text-align: left;
+  }
+
+  .rich-text-display th {
+    background-color: rgba(0, 0, 0, 0.05);
+    font-weight: bold;
+  }
+
+  .dark .rich-text-display th {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
 }

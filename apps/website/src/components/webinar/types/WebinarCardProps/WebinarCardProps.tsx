@@ -10,11 +10,14 @@
 
 export interface WebinarCardProps {
   imageUrl?: string;
-  webinarId?: number;
+  webinarId?: string;
   category?: string;
   title?: string;
   showShadow?: boolean;
   endDate?: string;
+  feeType?: string;
+  price?: number | null;
+  maxDiscount?: string | null;
   gradientFrom?: string;
   gradientTo?: string;
 }

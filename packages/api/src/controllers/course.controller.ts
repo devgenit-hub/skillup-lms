@@ -14,6 +14,166 @@ import {
 } from '../schemas/index.js';
 
 export class CourseController {
+  static getPublicCourses = asyncHandler(async (req: Request, res: Response) => {
+    const query = courseQuerySchema.parse(req.query);
+    const { page, limit, search, category, feeType, level, courseType } = query;
+
+    const baseWhere: Record<string, unknown> = { published: true };
+
+    if (search) {
+      baseWhere.OR = [
+        { title: { contains: search, mode: 'insensitive' as const } },
+        { description: { contains: search, mode: 'insensitive' as const } },
+      ];
+    }
+
+    if (category) {
+      baseWhere.category = { slug: category };
+    }
+
+    if (feeType) {
+      baseWhere.feeType = feeType;
+    }
+
+    const metadataFilters: Array<{ path: string[]; equals: string }> = [];
+    if (level) metadataFilters.push({ path: ['level'], equals: level });
+    if (courseType) metadataFilters.push({ path: ['courseType'], equals: courseType });
+
+    const where =
+      metadataFilters.length > 0
+        ? { AND: [baseWhere, ...metadataFilters.map((f) => ({ metadata: f }))] }
+        : baseWhere;
+
+    const [coursesRaw, total] = await Promise.all([
+      prisma.course.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          feeType: true,
+          price: true,
+          metadata: true,
+          category: { select: { id: true, title: true, slug: true } },
+          coupons: {
+            select: { discount: true },
+            where: {
+              active: true,
+            },
+            orderBy: { discount: 'desc' },
+            take: 1,
+          },
+          _count: { select: { enrollments: true, curriculumModules: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.course.count({ where }),
+    ]);
+
+    const courses = coursesRaw.map((course) => {
+      const metadata = (course.metadata || {}) as Record<string, unknown>;
+      return {
+        id: course.id,
+        title: course.title,
+        image: (metadata.heroImage as string) || null,
+        feeType: course.feeType,
+        price: course.price,
+        category: course.category,
+        level: (metadata.level as string) || null,
+        courseType: (metadata.courseType as string) || null,
+        batchNo: (metadata.batchNo as string) || null,
+        maxDiscount: course.coupons[0]?.discount || null,
+        _count: course._count,
+      };
+    });
+
+    ApiResponse.paginated(res, courses, { page, limit, total });
+  });
+
+  static getPublicCourse = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = idParamSchema.parse(req.params);
+
+    const course = await prisma.course.findUnique({
+      where: { id, published: true },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        feeType: true,
+        price: true,
+        published: true,
+        metadata: true,
+        category: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+        courseTeachers: {
+          select: {
+            teacher: {
+              select: {
+                id: true,
+                name: true,
+                profileImage: true,
+                bio: true,
+                specialization: true,
+              },
+            },
+          },
+        },
+        curriculumModules: {
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            classes: {
+              select: {
+                id: true,
+                title: true,
+                duration: true,
+                order: true,
+              },
+              orderBy: { order: 'asc' },
+            },
+          },
+          orderBy: { order: 'asc' },
+        },
+        _count: {
+          select: {
+            enrollments: true,
+          },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundError('Course');
+    }
+
+    const metadata = (course.metadata || {}) as Record<string, unknown>;
+    const transformedCourse = {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      feeType: course.feeType,
+      price: course.price,
+      published: course.published,
+      image: (metadata.heroImage as string) || null,
+      category: course.category,
+      level: (metadata.level as string) || null,
+      language: (metadata.language as string) || null,
+      metadata: course.metadata,
+      teachers: course.courseTeachers.map((ct: { teacher: unknown }) => ct.teacher),
+      curriculumModules: course.curriculumModules,
+      _count: course._count,
+    };
+
+    ApiResponse.success(res, transformedCourse);
+  });
+
   static getAll = asyncHandler(async (req: Request, res: Response) => {
     const query = courseQuerySchema.parse(req.query);
 
@@ -52,6 +212,13 @@ export class CourseController {
             skip: (query.page - 1) * query.limit,
             take: query.limit,
             include: {
+              category: {
+                select: {
+                  id: true,
+                  title: true,
+                  slug: true,
+                },
+              },
               courseTeachers: {
                 include: {
                   teacher: {
@@ -86,6 +253,13 @@ export class CourseController {
     const course = await prisma.course.findUnique({
       where: { id },
       include: {
+        category: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
         courseTeachers: {
           include: {
             teacher: {
@@ -124,35 +298,112 @@ export class CourseController {
     ApiResponse.success(res, course);
   });
 
+  // Helper to resolve categoryId from categoryTitle (creates new if needed)
+  private static async resolveCategoryId(
+    tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+    categoryId?: string,
+    categoryTitle?: string
+  ): Promise<{
+    categoryId: string | null;
+    newCategory?: { id: string; title: string; slug: string };
+  }> {
+    // If categoryId is provided, use it directly
+    if (categoryId) {
+      return { categoryId };
+    }
+
+    // If categoryTitle is provided, find or create category
+    if (categoryTitle) {
+      const slug = categoryTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+      // Try to find existing category
+      const existing = await tx.category.findUnique({
+        where: { slug },
+        select: { id: true, title: true, slug: true },
+      });
+
+      if (existing) {
+        return { categoryId: existing.id };
+      }
+
+      // Create new category
+      const newCategory = await tx.category.create({
+        data: {
+          title: categoryTitle,
+          slug,
+          courseCount: 0,
+          webinarCount: 0,
+        },
+        select: { id: true, title: true, slug: true },
+      });
+
+      return { categoryId: newCategory.id, newCategory };
+    }
+
+    return { categoryId: null };
+  }
+
   // Create new course
   static create = asyncHandler(async (req: Request, res: Response) => {
     const data = createCourseSchema.parse(req.body);
+    const { categoryTitle, ...courseData } = data;
 
-    const course = await prisma.course.create({
-      data,
-      include: {
-        courseTeachers: {
-          include: {
-            teacher: {
-              select: { id: true, name: true, email: true, profileImage: true },
+    const result = await prisma.$transaction(async (tx) => {
+      // Resolve category (find existing or create new)
+      const { categoryId, newCategory } = await CourseController.resolveCategoryId(
+        tx,
+        data.categoryId,
+        categoryTitle
+      );
+
+      // Create the course
+      const newCourse = await tx.course.create({
+        data: {
+          ...courseData,
+          categoryId,
+        },
+        include: {
+          courseTeachers: {
+            include: {
+              teacher: {
+                select: { id: true, name: true, email: true, profileImage: true },
+              },
             },
           },
+          category: {
+            select: { id: true, title: true, slug: true },
+          },
         },
-      },
+      });
+
+      // Increment category count if categoryId is set
+      if (categoryId) {
+        await tx.category.update({
+          where: { id: categoryId },
+          data: { courseCount: { increment: 1 } },
+        });
+      }
+
+      return { course: newCourse, newCategory };
     });
 
-    ApiResponse.created(res, course, 'Course created successfully');
+    ApiResponse.created(res, result, 'Course created successfully');
   });
 
   // Update course
   static update = asyncHandler(async (req: Request, res: Response) => {
     const { id } = idParamSchema.parse(req.params);
     const data = updateCourseSchema.parse(req.body);
+    const { categoryTitle, ...updateFields } = data;
     const userRole = req.user?.role;
 
     // Check if course exists
     const existingCourse = await prisma.course.findUnique({
       where: { id },
+      select: { id: true, categoryId: true, metadata: true },
     });
 
     if (!existingCourse) {
@@ -160,25 +411,24 @@ export class CourseController {
     }
 
     // Teachers can only update 'published' field, admins can update everything
-    let updateData: Partial<typeof data>;
+    let updateData: Partial<typeof updateFields>;
     if (userRole === UserRole.ADMIN) {
-      // Admin can update all fields
-      updateData = { ...data };
-      if (data.metadata && existingCourse.metadata) {
+      updateData = { ...updateFields };
+      // Properly merge metadata, preserving existing fields
+      if (updateFields.metadata) {
         const existingMetadata =
           typeof existingCourse.metadata === 'object' ? existingCourse.metadata : {};
         updateData = {
-          ...data,
+          ...updateFields,
           metadata: {
             ...existingMetadata,
-            ...data.metadata,
+            ...updateFields.metadata,
           },
         };
       }
     } else {
-      // Teachers can only update published status
-      if (Object.keys(data).length === 1 && 'published' in data) {
-        updateData = { published: data.published };
+      if (Object.keys(updateFields).length === 1 && 'published' in updateFields) {
+        updateData = { published: updateFields.published };
       } else {
         throw new BadRequestError(
           'Teachers can only update the published status. Contact an administrator for other changes.'
@@ -186,21 +436,56 @@ export class CourseController {
       }
     }
 
-    const course = await prisma.course.update({
-      where: { id },
-      data: updateData,
-      include: {
-        courseTeachers: {
-          include: {
-            teacher: {
-              select: { id: true, name: true, email: true, profileImage: true },
+    const result = await prisma.$transaction(async (tx) => {
+      let newCategory: { id: string; title: string; slug: string } | undefined;
+      let finalCategoryId = updateData.categoryId;
+
+      // If categoryTitle provided and no categoryId, resolve category
+      if (categoryTitle && !updateData.categoryId) {
+        const resolved = await CourseController.resolveCategoryId(tx, undefined, categoryTitle);
+        finalCategoryId = resolved.categoryId;
+        newCategory = resolved.newCategory;
+        updateData.categoryId = finalCategoryId;
+      }
+
+      // Handle category count changes if categoryId is being updated
+      if (finalCategoryId !== undefined && finalCategoryId !== existingCourse.categoryId) {
+        if (existingCourse.categoryId) {
+          await tx.category.update({
+            where: { id: existingCourse.categoryId },
+            data: { courseCount: { decrement: 1 } },
+          });
+        }
+
+        if (finalCategoryId) {
+          await tx.category.update({
+            where: { id: finalCategoryId },
+            data: { courseCount: { increment: 1 } },
+          });
+        }
+      }
+
+      const course = await tx.course.update({
+        where: { id },
+        data: updateData,
+        include: {
+          courseTeachers: {
+            include: {
+              teacher: {
+                select: { id: true, name: true, email: true, profileImage: true },
+              },
             },
           },
+          category: {
+            select: { id: true, title: true, slug: true },
+          },
         },
-      },
+      });
+
+      return { course, newCategory };
     });
 
-    ApiResponse.success(res, course, 'Course updated successfully');
+    ApiResponse.success(res, result, 'Course updated successfully');
   });
 
   // Delete course
@@ -210,14 +495,26 @@ export class CourseController {
     // Check if course exists
     const existingCourse = await prisma.course.findUnique({
       where: { id },
+      select: { id: true, categoryId: true },
     });
 
     if (!existingCourse) {
       throw new NotFoundError('Course');
     }
 
-    await prisma.course.delete({
-      where: { id },
+    await prisma.$transaction(async (tx) => {
+      // Delete the course
+      await tx.course.delete({
+        where: { id },
+      });
+
+      // Decrement category count if categoryId exists
+      if (existingCourse.categoryId) {
+        await tx.category.update({
+          where: { id: existingCourse.categoryId },
+          data: { courseCount: { decrement: 1 } },
+        });
+      }
     });
 
     ApiResponse.noContent(res);

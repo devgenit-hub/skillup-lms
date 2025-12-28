@@ -36,7 +36,6 @@ async function main() {
       title: 'Introduction to Web Development',
       description: 'Learn the basics of HTML, CSS, and JavaScript',
       published: true,
-      instructorId: instructor.id,
     },
   });
 
@@ -48,7 +47,6 @@ async function main() {
       title: 'Advanced TypeScript',
       description: 'Master TypeScript with advanced patterns',
       published: true,
-      instructorId: instructor.id,
     },
   });
 

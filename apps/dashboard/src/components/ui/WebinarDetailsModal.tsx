@@ -21,12 +21,12 @@ export default function WebinarDetailsModal({
   isOpen,
   onClose,
   onWebinarUpdated,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onWebinarDeleted,
 }: WebinarDetailsModalProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'live-link' | 'coupon'>('live-link');
   const [isSaving, setIsSaving] = useState(false);
-  const [_isDeleting, _setIsDeleting] = useState(false);
   const [isTogglingPublish, setIsTogglingPublish] = useState(false);
   const [webinarStatus, setWebinarStatus] = useState(webinar.status);
 
@@ -78,24 +78,6 @@ export default function WebinarDetailsModal({
       toast.error('Failed to update live link');
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const _handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this webinar? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      _setIsDeleting(true);
-      await apiClient.deleteWebinar(webinar.id);
-      toast.success('Webinar deleted successfully!');
-      onWebinarDeleted?.(webinar.id);
-      onClose();
-    } catch {
-      toast.error('Failed to delete webinar');
-    } finally {
-      _setIsDeleting(false);
     }
   };
 

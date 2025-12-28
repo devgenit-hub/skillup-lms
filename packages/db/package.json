@@ -13,6 +13,7 @@
     "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
     "db:migrate:create": "dotenv -e ../../.env -- prisma migrate dev --create-only",
     "db:migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "db:migrate:categories": "dotenv -e ../../.env -- tsx scripts/migrate-categories.ts",
     "db:studio": "dotenv -e ../../.env -- prisma studio",
     "db:seed": "tsx src/seed.ts",
     "lint": "eslint . --max-warnings 0",

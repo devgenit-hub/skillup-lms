@@ -1,8 +1,9 @@
 export interface CourseCardProps {
   imageUrl?: string;
-  courseId?: number;
+  courseId?: string;
   batchNo?: string;
-  rating?: number;
+  feeType?: string;
+  price?: number | null;
   category?: string;
   title?: string;
   studentsEnrolled?: string;
@@ -10,4 +11,6 @@ export interface CourseCardProps {
   bgColor?: string;
   borderColor?: string;
   route?: string;
+  maxDiscount?: string | null;
+  rating?: number;
 }

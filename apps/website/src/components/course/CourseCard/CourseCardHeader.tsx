@@ -1,20 +1,33 @@
 import React from 'react';
 import Image from 'next/image';
-const starFill = '/CourseDetails/starfill.svg';
-const starEmpty = '/CourseDetails/starnofill.svg';
+import { FeeType } from '@repo/shared';
+
 export default function CourseCardHeader({
   imageUrl,
   title,
-  rating,
+  feeType,
+  price,
   batchNo,
+  maxDiscount,
 }: {
   imageUrl: string;
   title: string;
-  rating: number;
+  feeType?: string;
+  price?: number | null;
   batchNo: string;
+  maxDiscount?: string | null;
 }) {
   return (
     <div className="relative w-full h-full p-1.5 z-0 rounded-3xl">
+      {/* Discount Badge */}
+      {maxDiscount && (
+        <div className="absolute top-2 left-2 z-20">
+          <div className="bg-linear-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-full shadow-lg font-bold text-xs flex items-center gap-1">
+            <span className="text-sm">🔥</span>
+            <span>{maxDiscount}% ছাড়</span>
+          </div>
+        </div>
+      )}
       <Image
         src={imageUrl}
         alt={title}
@@ -41,24 +54,31 @@ export default function CourseCardHeader({
             height={56}
             alt="course-batch-icon"
           />
-          <span className="absolute left-3 top-1/2 -translate-y-2/3 text-xs font-medium text-white">
+          <span className="absolute left-1.5 top-1/2 -translate-y-2/3 text-xs font-medium text-white">
             {batchNo}
           </span>
         </span>
 
-        <span className="flex gap-px">
-          {Array.from({ length: 5 }, (_, index) => {
-            if (index < rating) {
-              return (
-                <Image key={index} src={starFill} width={20} height={20} alt="course-batch-icon" />
-              );
-            } else {
-              return (
-                <Image key={index} src={starEmpty} width={20} height={20} alt="course-batch-icon" />
-              );
-            }
-          })}
-        </span>
+        {feeType === FeeType.FREE ? (
+          <span className="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+            ফ্রি
+          </span>
+        ) : (
+          <div className="flex items-center gap-2">
+            {maxDiscount && price ? (
+              <>
+                <span className="px-3 py-0.5 bg-blue-500 text-white text-sm font-semibold rounded-full">
+                  ৳ {Math.round(price - (price * parseFloat(maxDiscount)) / 100)}
+                </span>
+                <span className="text-xs line-through text-foreground/50">৳{price}</span>
+              </>
+            ) : (
+              <span className="px-3 py-0.5 bg-blue-500 text-white text-sm font-semibold rounded-full">
+                ৳ {price || 0}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

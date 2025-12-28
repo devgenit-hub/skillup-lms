@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const type = requestUrl.searchParams.get('type');
+  const redirect = requestUrl.searchParams.get('redirect');
   const origin = requestUrl.origin;
 
   if (code) {
@@ -37,6 +38,12 @@ export async function GET(request: NextRequest) {
       if (type === 'signup') {
         return NextResponse.redirect(`${origin}/auth/login?confirmed=true`);
       }
+
+      // Handle redirect parameter for post-login redirect
+      if (redirect) {
+        return NextResponse.redirect(`${origin}${redirect}`);
+      }
+
       return NextResponse.redirect(`${origin}/student/dashboard`);
     }
   }

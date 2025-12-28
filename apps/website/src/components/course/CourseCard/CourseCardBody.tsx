@@ -25,7 +25,7 @@ export default function CourseCardBody({
         </span>
         <span className="inline-flex items-center">
           <BookIcon className="size-4"></BookIcon>
-          <span className="font-bold">{totalSessions}</span>টি সেশন
+          <span className="font-bold px-1">{totalSessions}</span> টি সেশন
         </span>
       </div>
     </div>

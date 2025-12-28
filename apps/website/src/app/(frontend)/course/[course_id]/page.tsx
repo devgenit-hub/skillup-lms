@@ -1,66 +1,181 @@
 'use client';
+import { useEffect, useState, useMemo } from 'react';
+import { useParams } from 'next/navigation';
+import { FeeType } from '@repo/shared';
 import Hero from '@/components/course-details/sections/Hero';
 import MainContent from '@/components/course-details/sections/MainContent';
 import SideBar from '@/components/course-details/sections/SideBar';
 import { AboutCourse } from '@/components/course-details/types/AboutCourse';
 import { HeroProps } from '@/components/course-details/types/HeroProps';
-import React from 'react';
+import { Loader2 } from 'lucide-react';
 
-const aboutCourseData: AboutCourse = {
-  about: `# ডেটা অ্যানালিটিক্স ও Power BI: ৬ মাসের কমপ্লিট ক্যারিয়ার পাথ
-
-আপনার জীবনে, আপনার বিজনেসে, এমনকি আপনার স্মার্টওয়াচের হেলথ ট্র্যাকিংয়ে—সবখানে ডেটার ভূমিকা অপরিহার্য। ডেটার এই আকাশছোঁয়া চাহিদার কারণে ডেটা অ্যানালিস্টদের কদর বাড়ছে বিশ্বজুড়ে। এই বিশাল সুযোগকে কাজে লাগাতে ইন্টারেক্টিভ কেয়ারস নিয়ে এলো ৬ মাসের একটি বিশেষায়িত ডেটা অ্যানালিটিক্স ও Power BI ক্যারিয়ার পাথ।
-
-## এই কোর্সের মূল আকর্ষণ:
-
-- ইন্ডাস্ট্রি-বেইজড স্কিলসেট: Excel, Power BI, Google Sheets, Python, SQL, R এবং Database Fundamentals-এর মতো গুরুত্বপূর্ণ টুলস ও টেকনিকস শেখা।
-- সার্টিফিকেশন গাইডলাইন: Microsoft Certified Power BI Data Analyst হওয়ার সম্পূর্ণ পথনির্দেশনা।
-- বাস্তব কাজের অভিজ্ঞতা: প্রফেশনাল পোর্টফোলিও তৈরির জন্য ইন্ডাস্ট্রি স্ট্যান্ডার্ড প্রজেক্টে কাজ করা।
-
-## আপনার জব প্রস্তুতি ও ফ্রিল্যান্সিং মডিউল:
-
-কোর্সের শেষে থাকছে কম্পিটিটিভ মার্কেটে চাকরির জন্য প্রস্তুত করার বিশেষ মডিউল। রিমোটলি ডেটা অ্যানালিস্টের চাকরি পাওয়ার পুরো প্রক্রিয়া, পারসোনাল এক্সপেরিয়েন্স থেকে ধাপে ধাপে দেখানো হবে।
-
-## ফ্রিল্যান্সিং স্পেশাল ক্লাস:
-
-ProcoderBD**-এর ফাউন্ডার ও টপ-রেটেড ফ্রিল্যান্সার আলী হোসাইন ভাই-এর মেন্টরশিপে শিখুন:
-
-- ক্লায়েন্টকে আকৃষ্ট করার মতো প্রফেশনাল প্রোফাইল তৈরি
-- সফল ক্লায়েন্ট কমিউনিকেশন, প্রজেক্ট প্রাইসিং ও নেগোসিয়েশন
-- লং-টার্ম ফ্রিল্যান্সিং-এ সফল হওয়ার কৌশল
-
-ডেটা অ্যানালিটিক্স জগতে আপনার নতুন ক্যারিয়ার শুরু করতে, আজই আমাদের সাথে যোগ দিন!
-
-**যোগাযোগ:** বিস্তারিত জানতে আমাদের হেল্পলাইন নম্বরে কল করুন: +88017XX-XXXXXX অথবা +88017XX-XXXXXX`,
-  details: `- ৫০+ রিয়েলওয়ার্ল্ড প্রজেক্ট লেকচার
-- ৩৮+ কনসেপচুয়াল লাইভ ক্লাস
-- ৩৮+ কনসেপচুয়াল লাইভ ক্লাস
-- ৮০+ প্র্যাকটিক্যাল লাইভ ক্লাস
-- ডেইলি ৬টি সাপোর্ট সেশন
-- ইন্ডাস্ট্রি স্ট্যান্ডার্ড প্রজেক্ট
-- জব প্রিপারেশন সেশন`,
-};
-
-const courseData: HeroProps = {
-  title: 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস',
-  subtitle: 'UI/UX ডিজাইন',
-  totalStudents: 254,
-  totalClasses: 16,
-  batch: 'ব্যাচ ১',
-  rating: 4.0,
-  totalReviews: 25,
-  price: '৳ ৭,৯৯৯',
-  deletedPrice: '৳ ৯,৯৯৯',
-  videoThumbnail: '/Card/cover.png',
-};
+interface CourseDetails {
+  id: string;
+  title: string;
+  description: string | null;
+  batchNo: string;
+  heroImage: string;
+  courseType: 'live' | 'record';
+  level: 'beginner' | 'intermediate' | 'advanced';
+  feeType: 'FREE' | 'PAID';
+  price: number | null;
+  category: { id: string; title: string; slug: string } | null;
+  numClasses: number;
+  totalStudents: number;
+  totalModules: number;
+  aboutCourse: {
+    about: string;
+    details: string;
+  };
+  teachers: Array<{
+    id: string;
+    name: string;
+    profileImage: string | null;
+    specialization: string | null;
+  }>;
+  curriculum: Array<{
+    id: string;
+    title: string;
+    details: string | null;
+    order: number;
+    classesCount: number;
+    materialsCount: number;
+  }>;
+  classRoutinePdf: string | null;
+  coupons: Array<{ code: string; discount: string; title: string }>;
+  facebookGroupLink: string | null;
+  introVideoLink: string | null;
+  contactNumbers: string[];
+}
 
 export default function Page() {
+  const params = useParams();
+  const courseId = params.course_id as string;
+  const [course, setCourse] = useState<CourseDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCourse = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/public/courses/${courseId}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Course not found');
+        }
+
+        const data = await response.json();
+        if (isMounted) {
+          setCourse(data.data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'Failed to load course');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    if (courseId) {
+      fetchCourse();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [courseId]);
+
+  // Memoize course data before conditional returns (Rules of Hooks)
+  const aboutCourseData: AboutCourse | null = useMemo(() => {
+    if (!course) return null;
+    return {
+      about: course.aboutCourse.about,
+      details: course.aboutCourse.details,
+    };
+  }, [course]);
+
+  const courseData: HeroProps | null = useMemo(() => {
+    if (!course) return null;
+
+    // Calculate discounted price if coupons exist
+    const discountStr = course.coupons?.[0]?.discount;
+    // Parse discount - remove any non-numeric characters except decimal point
+    const maxDiscountValue = discountStr
+      ? parseFloat(String(discountStr).replace(/[^\d.]/g, '')) || 0
+      : 0;
+    const originalPrice = course.price || 0;
+    const discountedPrice = originalPrice - (originalPrice * maxDiscountValue) / 100;
+    const hasCoupon = course.coupons && course.coupons.length > 0 && maxDiscountValue > 0;
+
+    return {
+      title: course.title,
+      subtitle: course.category?.title || 'Course',
+      totalStudents: course.totalStudents,
+      totalModules: course.totalModules,
+      batch: course.batchNo,
+      rating: 5.0,
+      totalReviews: 0,
+      price:
+        course.feeType === FeeType.PAID && course.price
+          ? `৳${Math.round(hasCoupon ? discountedPrice : originalPrice).toLocaleString()}`
+          : 'Free',
+      deletedPrice:
+        course.feeType === FeeType.PAID && hasCoupon && originalPrice
+          ? `৳${originalPrice.toLocaleString()}`
+          : undefined,
+      videoThumbnail: course.heroImage || '/Card/cover.png',
+      coupons: course.coupons || [],
+      couponCount: course.coupons?.length || 0,
+      introVideoLink: course.introVideoLink,
+    };
+  }, [course]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-vibrant-blue mx-auto mb-4" />
+          <p className="text-slate-600">Loading course details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !course || !courseData || !aboutCourseData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-2">Course Not Found</h1>
+          <p className="text-slate-600">
+            {error || 'The course you are looking for does not exist.'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <Hero {...courseData} />
       <div className="container px-4 w-full max-w-7xl mx-auto my-8">
-        <div id="details" className="rounded-xl flex flex-col lg:flex-row gap-12 relative">
-          <MainContent AboutCourse={aboutCourseData} />
+        <div className="rounded-xl grid grid-cols-1 lg:grid-cols-3 gap-12 relative">
+          <MainContent
+            AboutCourse={aboutCourseData}
+            teachers={course.teachers}
+            curriculum={course.curriculum}
+            classRoutinePdf={course.classRoutinePdf}
+            contactNumbers={course.contactNumbers}
+            facebookGroupLink={course.facebookGroupLink}
+            introVideoLink={course.introVideoLink}
+          />
           <SideBar AboutCourse={aboutCourseData} />
         </div>
       </div>

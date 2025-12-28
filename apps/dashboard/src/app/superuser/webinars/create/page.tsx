@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { STORAGE_BUCKETS, uploadFile } from '@/lib/supabase/storage';
 import { ImageUpload } from '@/components/ui/ImageUpload';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import CategoryAutocomplete from '@/components/ui/CategoryAutocomplete';
+import { useCategoryStore } from '@/lib/zustand/category-store';
 import type {
   WebinarSpeaker,
   SessionAgenda,
@@ -21,10 +23,12 @@ export default function CreateWebinarPage() {
   const { t } = useLocale();
   const formText = t('forms');
   const buttonText = t('buttons');
+  const { addCategory } = useCategoryStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
+    categoryId: null as string | null,
     image: '',
     scheduleDateTime: '',
     duration: '',
@@ -170,16 +174,15 @@ export default function CreateWebinarPage() {
         return;
       }
 
-      // Validate paid webinar has price
       if (formData.feeType === 'paid' && (!formData.price || parseFloat(formData.price) <= 0)) {
         toast.error('Please enter a valid price for paid webinar');
         return;
       }
 
-      // Prepare data for API
       const webinarData = {
         title: formData.title,
-        category: formData.category,
+        categoryId: formData.categoryId || undefined,
+        categoryTitle: !formData.categoryId && formData.category ? formData.category : undefined,
         image: formData.image,
         scheduleDateTime: new Date(formData.scheduleDateTime).toISOString(),
         duration: parseInt(formData.duration),
@@ -195,11 +198,18 @@ export default function CreateWebinarPage() {
         resources: resources.length > 0 ? resources : undefined,
       };
 
-      await apiClient.createWebinar(webinarData);
+      const response = await apiClient.createWebinar(webinarData);
+
+      // Add new category to store if created
+      const result = response.data as { newCategory?: { id: string; title: string; slug: string } };
+      if (result?.newCategory) {
+        addCategory({ ...result.newCategory, courseCount: 0, webinarCount: 1 });
+        toast.success(`Created new category: ${result.newCategory.title}`);
+      }
+
       toast.success('Webinar created successfully!');
       router.push('/superuser/webinars');
     } catch (error) {
-      console.error('Failed to create webinar:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create webinar');
     } finally {
       setIsSubmitting(false);
@@ -244,31 +254,15 @@ export default function CreateWebinarPage() {
                 {formText['category']} <span className="text-red-500">*</span>
               </label>
 
-              <input
-                type="text"
-                name="category"
+              <CategoryAutocomplete
                 value={formData.category}
-                onChange={handleInputChange}
+                onChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+                onCategoryIdChange={(categoryId) =>
+                  setFormData((prev) => ({ ...prev, categoryId }))
+                }
+                placeholder="e.g., Web Development, UI/UX"
                 required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
-                placeholder="e.g., Web Development, Ui/UX"
               />
-              <select
-                hidden
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent bg-white"
-              >
-                <option value="webdev">Web Development</option>
-                <option value="frontend">Frontend</option>
-                <option value="backend">Backend</option>
-                <option value="mobiledev">Mobile Development</option>
-                <option value="devOps">DevOps</option>
-                <option value="ui-ux">UI/UX</option>
-                <option value="others">Others</option>
-              </select>
             </div>
 
             <div>

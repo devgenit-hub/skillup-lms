@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import Markdown from 'react-markdown';
 import { AboutWebinarProps } from '../types/AboutCourseProps';
 import { IoClose } from 'react-icons/io5';
 import { MdHighlight } from 'react-icons/md';
+import RichTextDisplay from '@/components/ui/RichTextDisplay';
 
 export default function SideBar({ AboutWebinar }: AboutWebinarProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,24 +58,7 @@ export default function SideBar({ AboutWebinar }: AboutWebinarProps) {
             </button>
 
             <h3 className="text-xl font-bold mb-6 text-white pr-10">সেশন হাইলাইটস</h3>
-            {AboutWebinar.highlights && (
-              <div className="">
-                <Markdown
-                  components={{
-                    ul: ({ children }) => <ul className="space-y-4">{children}</ul>,
-                    li: ({ children }) => (
-                      <li className="flex items-start gap-3 list-none">
-                        <div className="w-2 h-2 rounded-full bg-chart-4 dark:bg-chart-2 mt-2 shrink-0"></div>
-                        <span className="text-white leading-relaxed">{children}</span>
-                      </li>
-                    ),
-                    p: ({ children }) => <p className="text-white leading-relaxed">{children}</p>,
-                  }}
-                >
-                  {AboutWebinar.highlights}
-                </Markdown>
-              </div>
-            )}
+            {AboutWebinar.highlights && <RichTextDisplay content={AboutWebinar.highlights} />}
           </div>
         </div>
       )}
@@ -84,24 +67,7 @@ export default function SideBar({ AboutWebinar }: AboutWebinarProps) {
       <div className="hidden lg:block w-full">
         <div className="bg-[#1E3A8A] dark:bg-chart-1/10 border border-dark-blue rounded-xl p-6 px-10 lg:px-16s top-6">
           <h3 className="text-xl font-bold mb-6 text-white">সেশন হাইলাইটস</h3>
-          {AboutWebinar.highlights && (
-            <div className="">
-              <Markdown
-                components={{
-                  ul: ({ children }) => <ul className="space-y-4">{children}</ul>,
-                  li: ({ children }) => (
-                    <li className="flex items-start gap-3 list-none">
-                      <div className="w-2 h-2 rounded-full bg-chart-4 dark:bg-chart-2 mt-2 shrink-0"></div>
-                      <span className="text-white leading-relaxed">{children}</span>
-                    </li>
-                  ),
-                  p: ({ children }) => <p className="text-white leading-relaxed">{children}</p>,
-                }}
-              >
-                {AboutWebinar.highlights}
-              </Markdown>
-            </div>
-          )}
+          {AboutWebinar.highlights && <RichTextDisplay content={AboutWebinar.highlights} />}
         </div>
       </div>
     </>

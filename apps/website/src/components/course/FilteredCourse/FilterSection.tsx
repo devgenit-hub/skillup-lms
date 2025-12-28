@@ -1,12 +1,73 @@
+'use client';
+
 import { FaChevronDown } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
+import { useAppStore } from '@/lib/zustand/app-store';
+import {
+  FeeType,
+  CourseLevel,
+  CourseType,
+  FeeBanglaLabels,
+  LevelBanglaLabels,
+  CourseTypeBanglaLabels,
+} from '@/lib/constants/enums';
 
 interface FilterSectionProps {
   isOpen?: boolean;
   onClose?: () => void;
+  onFilterChange: (filters: {
+    category?: string;
+    level?: string;
+    feeType?: string;
+    courseType?: string;
+  }) => void;
+  currentFilters: {
+    category?: string;
+    level?: string;
+    feeType?: string;
+    courseType?: string;
+  };
 }
 
-export default function FilterSection({ isOpen = true, onClose }: FilterSectionProps) {
+export default function FilterSection({
+  isOpen = true,
+  onClose,
+  onFilterChange,
+  currentFilters,
+}: FilterSectionProps) {
+  const { categories } = useAppStore();
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onFilterChange({
+      ...currentFilters,
+      category: e.target.value === 'all' ? undefined : e.target.value,
+    });
+  };
+
+  const handleLevelChange = (level: string) => {
+    const newLevel = currentFilters.level === level ? undefined : level;
+    onFilterChange({
+      ...currentFilters,
+      level: newLevel,
+    });
+  };
+
+  const handleCourseTypeChange = (courseType: string) => {
+    const newCourseType = currentFilters.courseType === courseType ? undefined : courseType;
+    onFilterChange({
+      ...currentFilters,
+      courseType: newCourseType,
+    });
+  };
+
+  const handleFeeTypeChange = (feeType: string) => {
+    const newFeeType = currentFilters.feeType === feeType ? undefined : feeType;
+    onFilterChange({
+      ...currentFilters,
+      feeType: newFeeType,
+    });
+  };
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -35,11 +96,17 @@ export default function FilterSection({ isOpen = true, onClose }: FilterSectionP
         </div>
 
         <div className="mb-6 relative">
-          <select className="w-full appearance-none bg-background px-4 py-2 rounded-full border border-foreground text-foreground text-sm outline-none pr-10 transition-all duration-200 cursor-pointer">
-            <option>সব বিষয়</option>
-            <option>ডিজাইন</option>
-            <option>ডেভেলপমেন্ট</option>
-            <option>মার্কেটিং</option>
+          <select
+            className="w-full appearance-none bg-background px-4 py-2 rounded-full border border-foreground text-foreground text-sm outline-none pr-10 transition-all duration-200 cursor-pointer"
+            value={currentFilters.category || 'all'}
+            onChange={handleCategoryChange}
+          >
+            <option value="all">সব বিষয়</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.slug}>
+                {cat.title}
+              </option>
+            ))}
           </select>
 
           <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground pointer-events-none" />
@@ -47,30 +114,45 @@ export default function FilterSection({ isOpen = true, onClose }: FilterSectionP
 
         <div className="mb-6">
           <h3 className="font-semibold mb-2 text-sm">টাইপ</h3>
-          {['লাইভ', 'রেকর্ডেড', 'ওয়েবিনার'].map((type) => (
-            <label key={type} className="flex items-center gap-2 mb-2 text-sm">
-              <input type="checkbox" className="accent-blue-500" />
-              {type}
+          {Object.entries(CourseType).map(([key, value]) => (
+            <label key={value} className="flex items-center gap-2 mb-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                className="accent-blue-500"
+                checked={currentFilters.courseType === value}
+                onChange={() => handleCourseTypeChange(value)}
+              />
+              {CourseTypeBanglaLabels[key as keyof typeof CourseType]}
             </label>
           ))}
         </div>
 
         <div className="mb-6">
           <h3 className="font-semibold mb-2 text-sm">লেভেল</h3>
-          {['বেগিনার', 'ইন্টারমিডিয়েট', 'অ্যাডভান্সড'].map((lvl) => (
-            <label key={lvl} className="flex items-center gap-2 mb-2 text-sm">
-              <input type="checkbox" className="accent-blue-500" />
-              {lvl}
+          {Object.entries(CourseLevel).map(([key, value]) => (
+            <label key={value} className="flex items-center gap-2 mb-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                className="accent-blue-500"
+                checked={currentFilters.level === value}
+                onChange={() => handleLevelChange(value)}
+              />
+              {LevelBanglaLabels[key as keyof typeof CourseLevel]}
             </label>
           ))}
         </div>
 
         <div>
           <h3 className="font-semibold mb-2 text-sm">ফি টাইপ</h3>
-          {['ফ্রি', 'পেইড'].map((fee) => (
-            <label key={fee} className="flex items-center gap-2 mb-2 text-sm">
-              <input type="checkbox" className="accent-blue-500" />
-              {fee}
+          {Object.entries(FeeType).map(([key, value]) => (
+            <label key={value} className="flex items-center gap-2 mb-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                className="accent-blue-500"
+                checked={currentFilters.feeType === value}
+                onChange={() => handleFeeTypeChange(value)}
+              />
+              {FeeBanglaLabels[key as keyof typeof FeeType]}
             </label>
           ))}
         </div>
