@@ -17,12 +17,23 @@ export function ThemeToggle({ className, iconClassName }: ThemeToggleProps = {})
     setMounted(true);
   }, []);
 
+  if (!mounted) {
+    return (
+      <button
+        aria-label="Toggle theme"
+        className={className || 'p-2 rounded-md hover:bg-muted/30'}
+        disabled
+      >
+        <div className={iconClassName || 'h-5 w-5'} />
+      </button>
+    );
+  }
+
   return (
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       aria-label="Toggle theme"
       className={className || 'p-2 rounded-md hover:bg-muted/30'}
-      style={{ opacity: mounted ? 1 : 0 }}
     >
       {theme === 'dark' ? (
         <Sun className={iconClassName || 'h-5 w-5 text-amber-400'} />

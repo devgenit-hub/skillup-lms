@@ -11,4 +11,6 @@ export interface CourseCardProps {
   bgColor?: string;
   borderColor?: string;
   route?: string;
+  maxDiscount?: string | null;
+  rating?: number;
 }

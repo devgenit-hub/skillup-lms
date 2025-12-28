@@ -36,7 +36,7 @@ export class WebinarController {
       where.feeType = query.feeType;
     }
 
-    const [webinars, total] = await Promise.all([
+    const [webinarsRaw, total] = await Promise.all([
       prisma.webinar.findMany({
         where,
         skip: (query.page - 1) * query.limit,
@@ -57,6 +57,14 @@ export class WebinarController {
           feeType: true,
           price: true,
           status: true,
+          coupons: {
+            select: { discount: true },
+            where: {
+              active: true,
+            },
+            orderBy: { discount: 'desc' },
+            take: 1,
+          },
           _count: {
             select: { registrations: true },
           },
@@ -65,6 +73,11 @@ export class WebinarController {
       }),
       prisma.webinar.count({ where }),
     ]);
+
+    const webinars = webinarsRaw.map(({ coupons, ...webinarRest }) => ({
+      ...webinarRest,
+      maxDiscount: coupons[0]?.discount || null,
+    }));
 
     ApiResponse.paginated(res, webinars, {
       page: query.page,
@@ -100,6 +113,15 @@ export class WebinarController {
         speakers: true,
         sessionAgenda: true,
         resources: true,
+        coupons: {
+          where: { active: true },
+          orderBy: { discount: 'desc' },
+          select: {
+            code: true,
+            discount: true,
+            title: true,
+          },
+        },
         _count: {
           select: { registrations: true },
         },

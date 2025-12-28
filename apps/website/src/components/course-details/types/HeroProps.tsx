@@ -4,12 +4,15 @@ export interface HeroProps {
   title: string;
   subtitle: string;
   totalStudents: number;
-  totalClasses: number;
+  totalModules: number;
   batch: string;
   rating: number;
   totalReviews: number;
   price: string;
-  deletedPrice: string;
+  deletedPrice?: string;
   videoThumbnail: string;
   bgImage?: string | StaticImageData;
+  coupons?: Array<{ code: string; discount: string; title: string }>;
+  couponCount?: number;
+  introVideoLink?: string | null;
 }

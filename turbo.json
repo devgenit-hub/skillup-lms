@@ -10,7 +10,11 @@
     "ADMIN_EMAILS",
     "ADMIN_PASSWORDS",
     "PORT",
-    "ALLOWED_ORIGINS"
+    "ALLOWED_ORIGINS",
+    "UDDOKTA_PAY_API_KEY",
+    "UDDOKTA_PAY_API_URL",
+    "NEXT_PUBLIC_FRONTEND_URL",
+    "NEXT_PUBLIC_BACKEND_URL"
   ],
   "tasks": {
     "build": {

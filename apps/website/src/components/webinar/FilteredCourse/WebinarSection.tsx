@@ -100,6 +100,7 @@ export default function WebinarSection({ filters }: WebinarSectionProps) {
               endDate={webinar.scheduleDateTime}
               feeType={webinar.feeType}
               price={webinar.price}
+              maxDiscount={webinar.maxDiscount}
             />
           ))
         )}

@@ -8,13 +8,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useLocale } from '@/providers/locale-provider';
 
 export default function AuthForm(props: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const { t } = useLocale();
   const pageText = t('auth');
@@ -75,7 +76,14 @@ export default function AuthForm(props: AuthFormProps) {
         }
 
         toast.success(pageText['toast_loginSuccess']);
-        router.push('/student/dashboard');
+
+        // Check for redirect parameter
+        const redirectUrl = searchParams.get('redirect');
+        if (redirectUrl) {
+          router.push(decodeURIComponent(redirectUrl));
+        } else {
+          router.push('/student/dashboard');
+        }
         router.refresh();
       }
     } catch (err: unknown) {
@@ -90,10 +98,16 @@ export default function AuthForm(props: AuthFormProps) {
     setIsLoading(true);
 
     try {
+      // Get redirect parameter to pass through OAuth callback
+      const redirectUrl = searchParams.get('redirect');
+      const callbackUrl = redirectUrl
+        ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectUrl)}`
+        : `${window.location.origin}/auth/callback`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
           queryParams: {
             prompt: 'select_account',
           },

@@ -14,4 +14,6 @@ export interface HeroProps {
   videoThumbnail: string;
   bgImage?: string | StaticImageData;
   platform?: string; // e.g., "Zoom", "Google Meet"
+  coupons?: Array<{ code: string; discount: string; title: string }>;
+  introVideoLink?: string | null;
 }

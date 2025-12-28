@@ -163,6 +163,7 @@ export default function OurCourses() {
           filteredCourses.map((course) => (
             <CourseCard
               key={course.id}
+              courseId={course.id}
               imageUrl={course.image || '/Card/cover.png'}
               batchNo={course.batchNo || 'Batch 1'}
               category={course.category?.title || ''}
@@ -170,6 +171,7 @@ export default function OurCourses() {
               studentsEnrolled={course._count.enrollments.toString()}
               totalSessions={course._count.curriculumModules.toString()}
               route="/course/"
+              price={course.price}
             />
           ))
         )}

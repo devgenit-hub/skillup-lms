@@ -8,15 +8,26 @@ export default function CourseCardHeader({
   feeType,
   price,
   batchNo,
+  maxDiscount,
 }: {
   imageUrl: string;
   title: string;
   feeType?: string;
   price?: number | null;
   batchNo: string;
+  maxDiscount?: string | null;
 }) {
   return (
     <div className="relative w-full h-full p-1.5 z-0 rounded-3xl">
+      {/* Discount Badge */}
+      {maxDiscount && (
+        <div className="absolute top-2 left-2 z-20">
+          <div className="bg-linear-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-full shadow-lg font-bold text-xs flex items-center gap-1">
+            <span className="text-sm">🔥</span>
+            <span>{maxDiscount}% ছাড়</span>
+          </div>
+        </div>
+      )}
       <Image
         src={imageUrl}
         alt={title}
@@ -53,9 +64,20 @@ export default function CourseCardHeader({
             ফ্রি
           </span>
         ) : (
-          <span className="px-3 py-0.5 bg-blue-500 text-white text-sm font-semibold rounded-full">
-            ৳ {price || 0}
-          </span>
+          <div className="flex items-center gap-2">
+            {maxDiscount && price ? (
+              <>
+                <span className="px-3 py-0.5 bg-blue-500 text-white text-sm font-semibold rounded-full">
+                  ৳ {Math.round(price - (price * parseFloat(maxDiscount)) / 100)}
+                </span>
+                <span className="text-xs line-through text-foreground/50">৳{price}</span>
+              </>
+            ) : (
+              <span className="px-3 py-0.5 bg-blue-500 text-white text-sm font-semibold rounded-full">
+                ৳ {price || 0}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>

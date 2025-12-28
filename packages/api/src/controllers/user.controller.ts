@@ -66,13 +66,6 @@ export class UserController {
             },
           },
         },
-        courses: {
-          select: {
-            id: true,
-            title: true,
-            published: true,
-          },
-        },
       },
     });
 

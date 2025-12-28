@@ -18,6 +18,7 @@ export interface CourseCard {
   level: string | null;
   courseType: string | null;
   batchNo: string | null;
+  maxDiscount?: string | null;
   _count: {
     enrollments: number;
     curriculumModules: number;
@@ -34,6 +35,7 @@ export interface WebinarCard {
   feeType: string;
   price: number | null;
   status: string;
+  maxDiscount?: string | null;
   _count: {
     registrations: number;
   };

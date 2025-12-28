@@ -17,6 +17,7 @@ export interface WebinarCardProps {
   endDate?: string;
   feeType?: string;
   price?: number | null;
+  maxDiscount?: string | null;
   gradientFrom?: string;
   gradientTo?: string;
 }

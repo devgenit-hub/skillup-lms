@@ -56,6 +56,14 @@ export class CourseController {
           price: true,
           metadata: true,
           category: { select: { id: true, title: true, slug: true } },
+          coupons: {
+            select: { discount: true },
+            where: {
+              active: true,
+            },
+            orderBy: { discount: 'desc' },
+            take: 1,
+          },
           _count: { select: { enrollments: true, curriculumModules: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -75,6 +83,7 @@ export class CourseController {
         level: (metadata.level as string) || null,
         courseType: (metadata.courseType as string) || null,
         batchNo: (metadata.batchNo as string) || null,
+        maxDiscount: course.coupons[0]?.discount || null,
         _count: course._count,
       };
     });

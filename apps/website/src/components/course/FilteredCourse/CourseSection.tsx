@@ -120,6 +120,7 @@ export default function CourseSection({ filters }: CourseSectionProps) {
               totalSessions={course._count.curriculumModules.toString()}
               courseId={course.id}
               route="/course/"
+              maxDiscount={course.maxDiscount}
             />
           ))
         )}

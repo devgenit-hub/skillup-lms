@@ -15,6 +15,7 @@ export default function WebinarCard(props: WebinarCardProps) {
         <WebinarCardHeader
           imageUrl={props.imageUrl || '/test_images/webinar_test_image.png'}
           title={props.title || 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস'}
+          maxDiscount={props.maxDiscount}
         />
         <WebinarCardBody
           category={props.category || 'ওয়েবিনার'}
@@ -22,6 +23,7 @@ export default function WebinarCard(props: WebinarCardProps) {
           endDate={props.endDate || '2025-12-31'}
           feeType={props.feeType}
           price={props.price}
+          maxDiscount={props.maxDiscount}
         />
       </div>
       <div className="absolute left-0 bottom-0 translate-y-1/2 w-full flex justify-center">

@@ -5,7 +5,6 @@ import WebinarDetails from './CourseDetails';
 import Speakers from './Speakers';
 import SessionAgenda from './SessionAgenda';
 import Resources from './Resources';
-import FaQCards from './FaQCards';
 
 const links: LinksProps[] = [
   { text: 'বিবরণ', link: '#details' },
@@ -14,9 +13,20 @@ const links: LinksProps[] = [
   { text: 'রিসোর্স', link: '#resources' },
 ];
 
-export default function MainContent({ AboutWebinar }: AboutWebinarProps) {
+interface MainContentProps extends AboutWebinarProps {
+  speakers?: Record<string, unknown>[];
+  sessionAgenda?: Record<string, unknown>[];
+  resources?: Record<string, unknown>[];
+}
+
+export default function MainContent({
+  AboutWebinar,
+  speakers,
+  sessionAgenda,
+  resources,
+}: MainContentProps) {
   return (
-    <div className="lg:col-span-2 px-6 z-30 relative">
+    <div className="lg:col-span-2 z-30 relative">
       <ul className="absolute -top-14 left-1/2 -translate-x-1/2 lg:left-0 lg:translate-x-0 w-fit max-w-[95%] lg:max-w-none py-2 sm:py-4 px-2 sm:px-4 md:px-16 bg-white dark:bg-dark-blue/10 backdrop-blur-xl border-2 border-border rounded-full flex justify-center items-center text-xs sm:text-base md:text-xl text-foreground overflow-x-auto">
         {links.map((link, i) => (
           <React.Fragment key={i}>
@@ -39,10 +49,9 @@ export default function MainContent({ AboutWebinar }: AboutWebinarProps) {
       </ul>
 
       <WebinarDetails AboutWebinar={AboutWebinar} />
-      <Speakers />
-      <SessionAgenda />
-      <Resources />
-      <FaQCards />
+      {speakers && speakers.length > 0 && <Speakers speakers={speakers} />}
+      {sessionAgenda && sessionAgenda.length > 0 && <SessionAgenda agenda={sessionAgenda} />}
+      {resources && resources.length > 0 && <Resources resources={resources} />}
     </div>
   );
 }
