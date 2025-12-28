@@ -17,7 +17,7 @@ export default function CourseCard(props: CourseCardProps) {
           batchNo={props.batchNo || 'ব্যাচ ১'}
           feeType={props.feeType}
           price={props.price}
-          maxDiscount={props.maxDiscount}
+          maxDiscount={props.maxDiscount?.toString() || null}
         />
         <CourseCardBody
           category={props.category || 'UI/UX ডিজাইন'}
