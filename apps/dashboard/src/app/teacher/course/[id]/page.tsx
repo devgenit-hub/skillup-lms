@@ -58,7 +58,7 @@ interface CourseData {
   description?: string | null;
   introImageUrl?: string | null;
   introVideoLink?: string | null;
-  category?: string | null;
+  category?: { id: string; title: string; slug: string } | null;
   level?: string | null;
   feeType: 'FREE' | 'PAID';
   price?: number | null;
