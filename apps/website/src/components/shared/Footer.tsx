@@ -28,21 +28,24 @@ export default function Footer() {
             {/* Social Links */}
             <div className="flex items-center gap-4 pt-2">
               <Link
-                href="#"
+                href="https://www.facebook.com/SkillShikho.it"
+                target="_blank"
                 className="w-10 h-10 rounded-full bg-slate-700 hover:bg-blue-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="Facebook"
               >
                 <Facebook size={18} />
               </Link>
               <Link
-                href="#"
+                href="https://www.youtube.com/SkillShikhoAcademy"
+                target="_blank"
                 className="w-10 h-10 rounded-full bg-slate-700 hover:bg-red-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="YouTube"
               >
                 <Youtube size={18} />
               </Link>
               <Link
-                href="#"
+                href="https://www.instagram.com/SkillShikho.it"
+                target="_blank"
                 className="w-10 h-10 rounded-full bg-slate-700 hover:bg-pink-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="Instagram"
               >

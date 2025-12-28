@@ -98,9 +98,9 @@ export default function CourseSection({ filters }: CourseSectionProps) {
     <section className="w-full flex flex-col items-center gap-12">
       {/* Course Grid */}
       <div
-        className={`grid grid-cols-1 sm:grid-cols-2 ${
+        className={`${
           pn !== '/student/allcourse' ? 'lg:grid-cols-3' : ''
-        } gap-x-6 gap-y-10 space-y-6 w-full`}
+        } grid grid-cols-1 md:grid-cols-2 gap-5 gap-y-6 pb-10 w-full`}
       >
         {isLoading ? (
           <div className="col-span-full text-center py-12 text-gray-400">Loading courses...</div>

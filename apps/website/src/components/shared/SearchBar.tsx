@@ -19,7 +19,7 @@ export default function SearchBar({
 
   return (
     <div
-      className={`relative transition-all duration-300 ease-in-out ${isFocused ? 'w-64 md:w-80' : 'w-48 md:w-64'}`}
+      className={`relative transition-all duration-300 ease-in-out ${isFocused ? 'w-64 md:w-80 not-lg:w-full' : 'w-48 md:w-64'} mx-auto`}
     >
       {Icon && (
         <span className="absolute left-3 bottom-1/2 translate-y-1/2 text-foreground font-bold pointer-events-none z-10">

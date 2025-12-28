@@ -1,4 +1,4 @@
-import '../(frontend)/globals.css';
+import '../globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { LocaleProvider } from '@/providers/locale-provider';
 import { AppContextProvider } from '@/context/app-context';

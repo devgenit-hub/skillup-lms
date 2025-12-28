@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GraduationCap } from 'lucide-react';
+import Image from 'next/image';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -13,11 +13,18 @@ export function Navbar() {
     <nav className="w-full bg-white border-b border-slate-200 h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="bg-dark-blue text-white p-2 rounded-lg">
-            <GraduationCap size={24} />
+        <Link href="/" className="flex items-center -space-x-1">
+          <div className="p-2">
+            <Image
+              className="h-fit object-cover"
+              width={96}
+              height={(96 * 9) / 16}
+              fill={false}
+              src={'/logolight.png'}
+              alt="skillশিখো logo"
+            />
           </div>
-          <span className="text-xl font-bold text-slate-900">LMS Portal</span>
+          <sup className="text-xs font-bold text-slate-900">Admin</sup>
         </Link>
 
         {/* Navigation Links */}

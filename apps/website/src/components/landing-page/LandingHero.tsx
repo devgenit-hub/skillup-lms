@@ -10,16 +10,18 @@ const stats = [
 
 export default function LandingHero() {
   return (
-    <div className="relative pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 mx-auto">
-      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-2xl md:rounded-3xl bg-linear-to-br from-purple-600 via-blue-600 to-cyan-600">
+    <div className="relative pb-24 md:pb-16 px-4 sm:px-6 lg:px-8 mx-auto mt-4">
+      <div className="relative w-full aspect-video max-h-170 rounded-2xl md:rounded-3xl bg-transparent">
+        {' '}
+        {/*  bg-linear-to-br from-purple-600 via-blue-600 to-cyan-600 */}
         <Image
-          src="/UI/LandingPage/waves-bg.png"
+          src="/UI/LandingPage/herobanner.gif"
           alt="Background"
-          fill
+          width={1920}
+          height={600}
           priority
-          className="object-cover rounded-xl"
+          className="object-cover rounded-xl aspect-video h-full w-full pointer-events-none"
         />
-
         {/* Stats Card */}
         <div className="absolute -bottom-20 sm:-bottom-16 md:-bottom-15 left-1/2 -translate-x-1/2 w-[95%] sm:w-[90%] max-w-4xl flex justify-center items-center">
           <div className="relative w-full">
