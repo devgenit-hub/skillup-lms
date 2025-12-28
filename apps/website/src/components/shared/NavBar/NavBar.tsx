@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LucideSearch, Menu, X } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
@@ -13,22 +13,27 @@ import NavButton from './NavButton';
 
 export default function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { theme } = useTheme();
-  console.log('Current theme:', theme);
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/30 backdrop-blur-md shadow-sm text-primary py-3">
       <div className="container px-4 w-full max-w-7xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4" onClick={() => router.push('/')}>
-            {theme == 'dark' ? (
+            {mounted && resolvedTheme === 'dark' ? (
               <Image
                 width={96}
                 height={(96 * 9) / 16}
                 fill={false}
                 src={'/logodark.png'}
                 alt="skillশিখো logo"
+                priority
               />
             ) : (
               <Image
@@ -37,6 +42,7 @@ export default function NavBar() {
                 fill={false}
                 src={'/logolight.png'}
                 alt="skillশিখো logo"
+                priority
               />
             )}
           </div>
