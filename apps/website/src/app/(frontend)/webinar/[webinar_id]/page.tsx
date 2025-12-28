@@ -43,7 +43,7 @@ export default function WebinarPage() {
       try {
         setLoading(true);
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/webinars/public/${webinarId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/public/webinars/${webinarId}`
         );
 
         if (!response.ok) {
@@ -164,9 +164,26 @@ export default function WebinarPage() {
       >
         <MainContent
           AboutWebinar={aboutWebinarData}
-          speakers={webinar.speakers as Record<string, unknown>[] | undefined}
-          sessionAgenda={webinar.sessionAgenda as Record<string, unknown>[] | undefined}
-          resources={webinar.resources as Record<string, unknown>[] | undefined}
+          speakers={
+            Array.isArray(webinar.speakers)
+              ? (webinar.speakers as { name: string; image: string; designation: string }[])
+              : undefined
+          }
+          sessionAgenda={
+            Array.isArray(webinar.sessionAgenda)
+              ? (webinar.sessionAgenda as {
+                  time: string;
+                  title: string;
+                  description: string;
+                  speakerName?: string;
+                }[])
+              : undefined
+          }
+          resources={
+            Array.isArray(webinar.resources)
+              ? (webinar.resources as { fileUrl: string; fileName: string }[])
+              : undefined
+          }
         />
         <SideBar AboutWebinar={aboutWebinarData} />
       </div>

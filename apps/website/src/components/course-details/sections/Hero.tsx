@@ -35,9 +35,9 @@ export default function Hero({
 
   const handleEnrollClick = () => {
     if (!user) {
-      // Store the current page URL to redirect back after login
-      const currentPath = `/course/${course_id}`;
-      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      // Store the payment page URL to redirect after login
+      const paymentPath = `/payment?courseId=${course_id}`;
+      router.push(`/auth/login?redirect=${encodeURIComponent(paymentPath)}`);
       return;
     }
     router.push(`/payment?courseId=${course_id}`);

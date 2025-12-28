@@ -59,7 +59,10 @@ export default function PaymentFailedPage() {
           </button>
 
           <button
-            onClick={() => router.push(`/${itemType}/${itemId}`)}
+            onClick={() => {
+              const targetPath = itemType === 'course' ? `/course/${itemId}` : `/webinar/${itemId}`;
+              router.push(targetPath);
+            }}
             className="w-full bg-muted hover:bg-muted/80 text-foreground py-3.5 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />

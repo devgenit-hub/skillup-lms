@@ -34,9 +34,9 @@ export default function Hero({
 
   const handleRegisterClick = () => {
     if (!user) {
-      // Store the current page URL to redirect back after login
-      const currentPath = `/webinar/${webinar_id}`;
-      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      // Store the payment page URL to redirect after login
+      const paymentPath = `/payment?webinarId=${webinar_id}`;
+      router.push(`/auth/login?redirect=${encodeURIComponent(paymentPath)}`);
       return;
     }
     router.push(`/payment?webinarId=${webinar_id}`);

@@ -13,10 +13,28 @@ const links: LinksProps[] = [
   { text: 'রিসোর্স', link: '#resources' },
 ];
 
+interface Speaker {
+  name: string;
+  image: string;
+  designation: string;
+}
+
+interface AgendaItem {
+  time: string;
+  title: string;
+  description: string;
+  speakerName?: string;
+}
+
+interface Resource {
+  fileUrl: string;
+  fileName: string;
+}
+
 interface MainContentProps extends AboutWebinarProps {
-  speakers?: Record<string, unknown>[];
-  sessionAgenda?: Record<string, unknown>[];
-  resources?: Record<string, unknown>[];
+  speakers?: Speaker[];
+  sessionAgenda?: AgendaItem[];
+  resources?: Resource[];
 }
 
 export default function MainContent({

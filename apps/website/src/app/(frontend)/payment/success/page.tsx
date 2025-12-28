@@ -14,11 +14,14 @@ export default function PaymentSuccessPage() {
   const message = searchParams.get('message') || 'Payment completed successfully!';
 
   useEffect(() => {
+    if (!itemId) return;
+
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          router.push(`/${itemType}/${itemId}`);
+          const targetPath = itemType === 'course' ? `/course/${itemId}` : `/webinar/${itemId}`;
+          router.push(targetPath);
           return 0;
         }
         return prev - 1;
@@ -61,7 +64,10 @@ export default function PaymentSuccessPage() {
         </div>
 
         <button
-          onClick={() => router.push(`/${itemType}/${itemId}`)}
+          onClick={() => {
+            const targetPath = itemType === 'course' ? `/course/${itemId}` : `/webinar/${itemId}`;
+            router.push(targetPath);
+          }}
           className="w-full bg-primary text-primary-foreground py-3.5 px-6 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           Go to {itemType === 'course' ? 'Course' : 'Webinar'} Now →

@@ -221,4 +221,53 @@ export class PublicController {
 
     ApiResponse.success(res, courseDetails);
   });
+
+  static getWebinarDetails = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const webinar = await prisma.webinar.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        image: true,
+        category: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+        scheduleDateTime: true,
+        duration: true,
+        feeType: true,
+        price: true,
+        status: true,
+        platform: true,
+        sessionHighlights: true,
+        aboutWebinar: true,
+        speakers: true,
+        sessionAgenda: true,
+        resources: true,
+        coupons: {
+          where: { active: true },
+          orderBy: { discount: 'desc' },
+          select: {
+            code: true,
+            discount: true,
+            title: true,
+          },
+        },
+        _count: {
+          select: { registrations: true },
+        },
+      },
+    });
+
+    if (!webinar) {
+      throw new NotFoundError('Webinar');
+    }
+
+    ApiResponse.success(res, webinar);
+  });
 }

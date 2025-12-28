@@ -5,3 +5,4 @@ export const publicRouter: IRouter = Router();
 
 publicRouter.get('/initial', PublicController.getInitialData);
 publicRouter.get('/courses/:id', PublicController.getCourseDetails);
+publicRouter.get('/webinars/:id', PublicController.getWebinarDetails);
