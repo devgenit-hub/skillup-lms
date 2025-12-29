@@ -37,27 +37,23 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ pat
     const body =
       request.method !== 'GET' && request.method !== 'HEAD' ? await request.text() : undefined;
 
-    console.log('[Proxy] Request:', {
-      method: request.method,
-      url: url.toString(),
-      hasToken: !!accessToken,
-      body: body?.substring(0, 200),
-    });
-
     const response = await fetch(url.toString(), {
       method: request.method,
       headers,
       body,
     });
 
+    // Handle 204 No Content responses (empty body)
+    if (response.status === 204) {
+      return new NextResponse(null, {
+        status: 204,
+        statusText: 'No Content',
+      });
+    }
+
     const data = await response.text();
 
-    console.log('[Proxy] Response:', {
-      status: response.status,
-      data: data.substring(0, 200),
-    });
-
-    return new NextResponse(data, {
+    return new NextResponse(data || null, {
       status: response.status,
       statusText: response.statusText,
       headers: {

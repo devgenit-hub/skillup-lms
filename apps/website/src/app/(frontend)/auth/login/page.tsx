@@ -8,18 +8,35 @@ import AuthFormHeader from '@/components/auth/AuthFormHeader';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useLocale } from '@/providers/locale-provider';
+import { useAuthStore } from '@/lib/zustand/auth-store';
+import { clearAuthCookies } from '@/app/(auth)/actions';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Page() {
   const searchParams = useSearchParams();
   const confirmed = searchParams.get('confirmed');
   const { t } = useLocale();
   const pageText = t('auth');
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (confirmed === 'true') {
       toast.success(pageText['toast_emailConfirmed']);
     }
   }, [confirmed, pageText]);
+
+  // Clear cookies if user lands on login page without being logged in
+  useEffect(() => {
+    if (!user) {
+      const supabase = createClient();
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          // No session, make sure cookies are cleared
+          clearAuthCookies();
+        }
+      });
+    }
+  }, [user]);
   return (
     <div className="flex w-full max-w-5xl h-fit justify-between bg-vibrant-blue/10 backdrop-blur-2xl mx-auto rounded-2xl my-24 relative overflow-hidden">
       <div className="absolute w-full h-full bg-linear-to-br from-vibrant-blue/60 to-purple-200 dark:to-purple-900/60 blur -z-10"></div>

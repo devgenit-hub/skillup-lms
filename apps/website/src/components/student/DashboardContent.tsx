@@ -12,6 +12,8 @@ import MobileSidebar from '@/components/student/MobileSidebar';
 import MobileRightPanel from '@/components/student/MobileRightPanel';
 import { CalendarDays } from 'lucide-react';
 import { useAuthStore } from '@/lib/zustand/auth-store';
+import { clearAuthCookies } from '@/app/(auth)/actions';
+import { createClient } from '@/lib/supabase/client';
 
 interface DashboardContentProps {
   children: React.ReactNode;
@@ -27,7 +29,13 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
   useEffect(() => {
     if (isVerified && !user) {
-      router.push('/auth/login');
+      // Clear all auth state and cookies before redirecting
+      const supabase = createClient();
+      supabase.auth.signOut().then(() => {
+        clearAuthCookies().then(() => {
+          router.push('/auth/login');
+        });
+      });
     }
   }, [user, isVerified, router]);
 

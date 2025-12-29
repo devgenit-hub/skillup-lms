@@ -97,11 +97,9 @@ export default function ManageCoursesPage() {
         // Handle paginated response structure
         const paginatedData = response.data as PaginatedApiResponse<Course[]>;
         if (paginatedData.data && Array.isArray(paginatedData.data)) {
-          console.log('Courses data:', paginatedData.data[0]); // Debug log
           setCourses(paginatedData.data);
         } else if (Array.isArray(response.data)) {
           // Fallback for non-paginated response
-          console.log('Courses data (fallback):', response.data[0]); // Debug log
           setCourses(response.data as Course[]);
         }
       }

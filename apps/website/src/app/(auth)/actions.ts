@@ -6,8 +6,6 @@ export async function setAuthCookies(accessToken: string, refreshToken: string) 
   const cookieStore = await cookies();
   const isProduction = process.env.NODE_ENV === 'production';
 
-  // Store tokens in httpOnly cookies on frontend domain (Vercel)
-  // These are only accessible server-side, providing security
   cookieStore.set('access_token', accessToken, {
     httpOnly: true,
     secure: isProduction,
@@ -37,11 +35,18 @@ export async function getRefreshToken(): Promise<string | null> {
 
 export async function clearAuthCookies() {
   const cookieStore = await cookies();
+
   cookieStore.delete('access_token');
   cookieStore.delete('refresh_token');
+
+  const allCookies = cookieStore.getAll();
+  allCookies.forEach((cookie) => {
+    if (cookie.name.startsWith('sb-') || cookie.name.includes('auth')) {
+      cookieStore.delete(cookie.name);
+    }
+  });
 }
 
-// Server-side API call helper - use this for server components/actions
 export async function serverFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const accessToken = await getAccessToken();
 

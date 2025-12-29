@@ -71,3 +71,36 @@ export async function serverFetch<T>(endpoint: string, options: RequestInit = {}
 
   return response.json();
 }
+
+export async function syncUserWithBackend(supabaseUser: {
+  id: string;
+  email: string;
+  user_metadata?: {
+    full_name?: string;
+    avatar_url?: string;
+  };
+  email_confirmed_at?: string;
+  app_metadata?: {
+    provider?: string;
+  };
+}) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      supabaseId: supabaseUser.id,
+      email: supabaseUser.email,
+      name: supabaseUser.user_metadata?.full_name,
+      avatarUrl: supabaseUser.user_metadata?.avatar_url,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Sync failed' }));
+    throw new Error(error.message || 'Failed to sync user');
+  }
+
+  return response.json();
+}

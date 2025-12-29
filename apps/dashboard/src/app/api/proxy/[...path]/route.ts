@@ -48,9 +48,17 @@ async function handler(request: NextRequest, { params }: { params: Promise<{ pat
       body,
     });
 
+    // Handle 204 No Content responses (empty body)
+    if (response.status === 204) {
+      return new NextResponse(null, {
+        status: 204,
+        statusText: 'No Content',
+      });
+    }
+
     const data = await response.text();
 
-    return new NextResponse(data, {
+    return new NextResponse(data || null, {
       status: response.status,
       statusText: response.statusText,
       headers: {

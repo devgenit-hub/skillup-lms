@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createClient } from '@/lib/supabase/client';
-import { setAuthCookies, clearAuthCookies } from '@/app/(auth)/actions';
+import { setAuthCookies, clearAuthCookies, syncUserWithBackend } from '@/app/(auth)/actions';
 import { apiClient } from '@/lib/api-client';
 import { UserRole } from '@repo/shared';
 
@@ -41,15 +41,39 @@ export const useAuthStore = create<AuthStore>((set) => ({
       if (session?.user && session.user.email) {
         await setAuthCookies(session.access_token, session.refresh_token!);
 
-        const backendData = await apiClient.getMe();
-        const userData = backendData.data as AuthUser;
+        try {
+          await syncUserWithBackend({
+            id: session.user.id,
+            email: session.user.email,
+            user_metadata: session.user.user_metadata,
+            email_confirmed_at: session.user.email_confirmed_at,
+            app_metadata: session.user.app_metadata,
+          });
+        } catch {
+          // Ignore sync errors
+        }
 
-        if (userData.role === UserRole.STUDENT) {
-          set({ user: userData, isVerified: true });
-        } else {
-          await supabase.auth.signOut();
-          await clearAuthCookies();
-          set({ user: null, isVerified: true });
+        try {
+          const backendData = await apiClient.getMe();
+          const userData = backendData.data as AuthUser;
+
+          if (userData.role === UserRole.STUDENT) {
+            set({ user: userData, isVerified: true });
+          } else {
+            await supabase.auth.signOut();
+            await clearAuthCookies();
+            set({ user: null, isVerified: true });
+          }
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '';
+
+          if (errorMessage.includes('User not found') || errorMessage.includes('USER_NOT_SYNCED')) {
+            await supabase.auth.signOut();
+            await clearAuthCookies();
+            set({ user: null, isVerified: true });
+          } else {
+            set({ user: null, isVerified: true });
+          }
         }
       } else {
         set({ user: null, isVerified: true });
@@ -60,6 +84,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
     }
   },
   logout: async () => {
+    try {
+      await apiClient.logout().catch(() => {});
+    } catch {
+      // Ignore logout errors
+    }
+
     const supabase = createClient();
     await supabase.auth.signOut();
     await clearAuthCookies();

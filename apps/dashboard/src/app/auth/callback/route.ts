@@ -6,8 +6,6 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const type = requestUrl.searchParams.get('type');
-  const redirect = requestUrl.searchParams.get('redirect');
   const origin = requestUrl.origin;
 
   if (code) {
@@ -36,9 +34,9 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data.session) {
+      // Store tokens in our custom httpOnly cookies for BFF proxy
       const isProduction = process.env.NODE_ENV === 'production';
 
-      // Store tokens in our custom httpOnly cookies for BFF proxy
       cookieStore.set('access_token', data.session.access_token, {
         httpOnly: true,
         secure: isProduction,
@@ -55,8 +53,9 @@ export async function GET(request: NextRequest) {
         path: '/',
       });
 
+      // Sync user with backend
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
+        const syncResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -66,27 +65,28 @@ export async function GET(request: NextRequest) {
             email: data.session.user.email,
             name: data.session.user.user_metadata?.full_name,
             avatarUrl: data.session.user.user_metadata?.avatar_url,
-            emailVerified: !!data.session.user.email_confirmed_at,
-            provider: data.session.user.app_metadata?.provider?.toUpperCase() || 'EMAIL',
           }),
         });
+
+        if (syncResponse.ok) {
+          const syncData = await syncResponse.json();
+          const userRole = syncData.data?.role;
+
+          // Redirect based on role
+          if (userRole === 'ADMIN') {
+            return NextResponse.redirect(`${origin}/superuser`);
+          } else if (userRole === 'INSTRUCTOR') {
+            return NextResponse.redirect(`${origin}/teacher`);
+          }
+        }
       } catch (syncError) {
         console.error('User sync error:', syncError);
       }
 
-      if (type === 'signup') {
-        return NextResponse.redirect(`${origin}/auth/login?confirmed=true`);
-      }
-
-      // Handle redirect parameter for post-login redirect
-      if (redirect) {
-        return NextResponse.redirect(`${origin}${redirect}`);
-      }
-
-      // Default: redirect to student dashboard
-      return NextResponse.redirect(`${origin}/student/dashboard`);
+      // Default redirect to login if role not authorized
+      return NextResponse.redirect(`${origin}/login?error=unauthorized`);
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/login?error=callback_failed`);
+  return NextResponse.redirect(`${origin}/login?error=callback_failed`);
 }

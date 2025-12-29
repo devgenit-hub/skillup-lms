@@ -44,12 +44,16 @@ class ApiClient {
     endpoint: string,
     config: AxiosRequestConfig = {}
   ): Promise<ApiResponse<T>> {
-    // Remove /api prefix since it's already in the base URL
     const cleanEndpoint = endpoint.replace(/^\/api/, '');
     const response = await this.client.request<ApiResponse<T>>({
       url: cleanEndpoint,
       ...config,
     });
+
+    if (response.status === 204 || !response.data) {
+      return { success: true, data: null as T };
+    }
+
     return response.data;
   }
 

@@ -9,36 +9,69 @@ export class AuthController {
   static sync = asyncHandler(async (req: Request, res: Response) => {
     const data = syncUserSchema.parse(req.body);
 
-    const user = await prisma.user.upsert({
-      where: { supabaseId: data.supabaseId },
-      update: {
-        email: data.email,
-        emailVerified: data.emailVerified ?? false,
-        lastLoginAt: new Date(),
-      },
-      create: {
-        supabaseId: data.supabaseId,
-        email: data.email,
-        name: data.name,
-        avatarUrl: data.avatarUrl,
-        emailVerified: data.emailVerified ?? false,
-        provider: data.provider ?? 'EMAIL',
-        role: UserRole.STUDENT,
-        lastLoginAt: new Date(),
-      },
-      select: {
-        id: true,
-        supabaseId: true,
-        email: true,
-        name: true,
-        avatarUrl: true,
-        phone: true,
-        role: true,
-        emailVerified: true,
-        provider: true,
-        createdAt: true,
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email },
     });
+
+    let user;
+
+    if (existingUser && existingUser.supabaseId !== data.supabaseId) {
+      user = await prisma.user.update({
+        where: { email: data.email },
+        data: {
+          supabaseId: data.supabaseId,
+          email: data.email,
+          name: data.name,
+          avatarUrl: data.avatarUrl,
+          emailVerified: data.emailVerified ?? false,
+          provider: data.provider ?? 'EMAIL',
+          lastLoginAt: new Date(),
+        },
+        select: {
+          id: true,
+          supabaseId: true,
+          email: true,
+          name: true,
+          avatarUrl: true,
+          phone: true,
+          role: true,
+          emailVerified: true,
+          provider: true,
+          createdAt: true,
+        },
+      });
+    } else {
+      user = await prisma.user.upsert({
+        where: { supabaseId: data.supabaseId },
+        update: {
+          email: data.email,
+          emailVerified: data.emailVerified ?? false,
+          lastLoginAt: new Date(),
+        },
+        create: {
+          supabaseId: data.supabaseId,
+          email: data.email,
+          name: data.name,
+          avatarUrl: data.avatarUrl,
+          emailVerified: data.emailVerified ?? false,
+          provider: data.provider ?? 'EMAIL',
+          role: UserRole.STUDENT,
+          lastLoginAt: new Date(),
+        },
+        select: {
+          id: true,
+          supabaseId: true,
+          email: true,
+          name: true,
+          avatarUrl: true,
+          phone: true,
+          role: true,
+          emailVerified: true,
+          provider: true,
+          createdAt: true,
+        },
+      });
+    }
 
     ApiResponse.success(res, user, 'User synced successfully');
   });

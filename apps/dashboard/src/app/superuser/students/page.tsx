@@ -8,7 +8,12 @@ import Image from 'next/image';
 import { PlusCircle, Loader2, Users, UserCheck, UserX, UserPlus, Search } from 'lucide-react';
 import { useLocale } from '@/providers/locale-provider';
 import { toast } from 'sonner';
-import { PaginationControls, StatusBadge, SuspendModal } from '@/components/utils';
+import {
+  PaginationControls,
+  StatusBadge,
+  SuspendModal,
+  DeleteConfirmModal,
+} from '@/components/utils';
 import { Button } from '@/components/ui/button';
 import { useCourseStore } from '@/lib/zustand/course-store';
 import {
@@ -72,6 +77,7 @@ export default function StudentsPage() {
   });
 
   const [suspendModalOpen, setSuspendModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -181,25 +187,22 @@ export default function StudentsPage() {
   };
 
   const handleDelete = async (student: Student) => {
-    const confirmId = prompt(
-      `${pageText.delete_warning}\n\n${pageText.delete_confirm_label}: ${student.id}`
-    );
+    setSelectedStudent(student);
+    setDeleteModalOpen(true);
+  };
 
-    if (confirmId !== student.id) {
-      if (confirmId !== null) {
-        toast.error('Student ID does not match. Deletion cancelled.');
-      }
-      return;
-    }
+  const handleConfirmDelete = async () => {
+    if (!selectedStudent) return;
 
     try {
-      setActionLoading(student.id);
-      await apiClient.deleteStudent(student.id, student.id);
-      toast.success(`${student.name || student.email} deleted successfully`);
+      setActionLoading(selectedStudent.id);
+      await apiClient.deleteStudent(selectedStudent.id, selectedStudent.id);
+      toast.success(`${selectedStudent.name || selectedStudent.email} deleted successfully`);
       fetchStudents();
       fetchStats();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to delete student');
+      throw err;
     } finally {
       setActionLoading(null);
     }
@@ -472,6 +475,23 @@ export default function StudentsPage() {
           studentName={selectedStudent.name || selectedStudent.email}
           title={pageText.suspend_modal_title}
           description={pageText.suspend_modal_desc}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {selectedStudent && (
+        <DeleteConfirmModal
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setSelectedStudent(null);
+          }}
+          onConfirm={handleConfirmDelete}
+          itemId={selectedStudent.id}
+          itemName={selectedStudent.name || selectedStudent.email}
+          itemType="Student"
+          warningText={pageText.delete_warning}
+          confirmLabel={pageText.delete_confirm_label}
         />
       )}
     </div>
