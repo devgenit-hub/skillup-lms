@@ -6,23 +6,33 @@ export async function setAuthCookies(accessToken: string, refreshToken: string) 
   const cookieStore = await cookies();
   const isProduction = process.env.NODE_ENV === 'production';
 
-  // Use 'none' for cross-origin requests in production (API on different domain)
-  // 'none' requires 'secure: true' (HTTPS)
+  // Store tokens in httpOnly cookies on frontend domain (Vercel)
+  // These are only accessible server-side, providing security
   cookieStore.set('access_token', accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 60 * 60 * 24 * 7,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });
 
   cookieStore.set('refresh_token', refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
     path: '/',
   });
+}
+
+export async function getAccessToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get('access_token')?.value || null;
+}
+
+export async function getRefreshToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get('refresh_token')?.value || null;
 }
 
 export async function clearAuthCookies() {
@@ -39,4 +49,25 @@ export async function clearAuthCookies() {
       cookieStore.delete(cookie.name);
     }
   });
+}
+
+// Server-side API call helper - use this for server components/actions
+export async function serverFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const accessToken = await getAccessToken();
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+      ...options.headers,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    throw new Error(error.message || error.error || 'Request failed');
+  }
+
+  return response.json();
 }
