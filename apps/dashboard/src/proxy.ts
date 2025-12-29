@@ -45,10 +45,9 @@ export async function proxy(request: NextRequest) {
       const meResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
         method: 'GET',
         headers: {
-          Cookie: `access_token=${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
       });
 
       if (meResponse.ok) {
@@ -79,10 +78,9 @@ export async function proxy(request: NextRequest) {
       const meResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
         method: 'GET',
         headers: {
-          Cookie: `access_token=${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
       });
 
       if (!meResponse.ok) {

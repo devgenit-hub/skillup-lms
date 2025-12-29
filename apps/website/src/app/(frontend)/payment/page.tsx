@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Loader2, Tag, X, Check } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
 
 interface Coupon {
   id: string;
@@ -139,18 +140,8 @@ export default function Page() {
         couponCode: selectedCoupon?.code || null,
       };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/init`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(paymentData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Payment initialization failed');
-      }
-
-      const result = await response.json();
+      // Use apiClient which automatically handles auth via the BFF proxy
+      const result = await apiClient.initPayment(paymentData);
 
       // Redirect to Uddokta Pay checkout
       if (result.paymentUrl) {

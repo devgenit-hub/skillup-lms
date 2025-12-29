@@ -1,6 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+// Use local proxy in production to handle auth headers server-side
+// This is the BFF (Backend-for-Frontend) pattern
+const API_BASE_URL =
+  typeof window !== 'undefined'
+    ? '/api/proxy' // Browser: use local proxy route
+    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000') + '/api'; // Server: direct call
 
 export interface ApiResponse<T = unknown> {
   status: 'success';
@@ -17,10 +22,9 @@ export interface ApiResponse<T = unknown> {
 class ApiClient {
   private client: AxiosInstance;
 
-  constructor(baseUrl: string = API_BASE_URL) {
+  constructor() {
     this.client = axios.create({
-      baseURL: baseUrl,
-      withCredentials: true,
+      baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -32,32 +36,36 @@ class ApiClient {
     config: AxiosRequestConfig = {}
   ): Promise<ApiResponse<T>> {
     try {
+      // Remove /api prefix since it's already in the base URL
+      const cleanEndpoint = endpoint.replace(/^\/api/, '');
       const response = await this.client.request<ApiResponse<T>>({
-        url: endpoint,
+        url: cleanEndpoint,
         ...config,
       });
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || error.message);
+        throw new Error(
+          error.response?.data?.message || error.response?.data?.error || error.message
+        );
       }
       throw error;
     }
   }
 
   async getMe() {
-    return this.request('/api/auth/me', { method: 'GET' });
+    return this.request('/auth/me', { method: 'GET' });
   }
 
   async updateProfile(data: { name?: string; avatarUrl?: string; phone?: string }) {
-    return this.request<unknown>('/api/auth/profile', {
+    return this.request<unknown>('/auth/profile', {
       method: 'PATCH',
       data,
     });
   }
 
   async logout() {
-    return this.request('/api/auth/logout', {
+    return this.request('/auth/logout', {
       method: 'POST',
     });
   }
@@ -83,15 +91,15 @@ class ApiClient {
     if (params?.feeType) query.append('feeType', params.feeType);
     if (params?.published !== undefined) query.append('published', params.published.toString());
 
-    return this.request(`/api/courses/public?${query.toString()}`, { method: 'GET' });
+    return this.request(`/courses/public?${query.toString()}`, { method: 'GET' });
   }
 
   async getPublicCourse(id: string) {
-    return this.request(`/api/courses/public/${id}`, { method: 'GET' });
+    return this.request(`/courses/public/${id}`, { method: 'GET' });
   }
 
   async getInitialData() {
-    return this.request('/api/public/initial', { method: 'GET' });
+    return this.request('/public/initial', { method: 'GET' });
   }
 
   // Public Webinar endpoints (no auth required)
@@ -111,63 +119,63 @@ class ApiClient {
     if (params?.status) query.append('status', params.status);
     if (params?.feeType) query.append('feeType', params.feeType);
 
-    return this.request(`/api/webinars/public?${query.toString()}`, { method: 'GET' });
+    return this.request(`/webinars/public?${query.toString()}`, { method: 'GET' });
   }
 
   async getPublicWebinar(id: string) {
-    return this.request(`/api/webinars/public/${id}`, { method: 'GET' });
+    return this.request(`/webinars/public/${id}`, { method: 'GET' });
   }
 
   // Course endpoints
   async getCourses(params?: { category?: string; search?: string }) {
     const query = new URLSearchParams(params as Record<string, string>).toString();
-    return this.request(`/api/courses${query ? `?${query}` : ''}`, { method: 'GET' });
+    return this.request(`/courses${query ? `?${query}` : ''}`, { method: 'GET' });
   }
 
   async getCourse(id: string) {
-    return this.request(`/api/courses/${id}`, { method: 'GET' });
+    return this.request(`/courses/${id}`, { method: 'GET' });
   }
 
   async createCourse(data: Record<string, unknown>) {
-    return this.request('/api/courses', {
+    return this.request('/courses', {
       method: 'POST',
       data,
     });
   }
 
   async updateCourse(id: string, data: Record<string, unknown>) {
-    return this.request(`/api/courses/${id}`, {
+    return this.request(`/courses/${id}`, {
       method: 'PUT',
       data,
     });
   }
 
   async deleteCourse(id: string) {
-    return this.request(`/api/courses/${id}`, {
+    return this.request(`/courses/${id}`, {
       method: 'DELETE',
     });
   }
 
   // Enrollment endpoints
   async getEnrollments() {
-    return this.request('/api/enrollments', { method: 'GET' });
+    return this.request('/enrollments', { method: 'GET' });
   }
 
   async enrollInCourse(courseId: string) {
-    return this.request('/api/enrollments', {
+    return this.request('/enrollments', {
       method: 'POST',
       data: { courseId },
     });
   }
 
   async unenrollFromCourse(courseId: string) {
-    return this.request(`/api/enrollments/${courseId}`, {
+    return this.request(`/enrollments/${courseId}`, {
       method: 'DELETE',
     });
   }
 
   async updateProgress(courseId: string, progress: number) {
-    return this.request(`/api/enrollments/${courseId}/progress`, {
+    return this.request(`/enrollments/${courseId}/progress`, {
       method: 'PUT',
       data: { progress },
     });
@@ -176,24 +184,45 @@ class ApiClient {
   // User endpoints (admin only)
   async getUsers(params?: { role?: string; page?: number; limit?: number }) {
     const query = new URLSearchParams(params as Record<string, string>).toString();
-    return this.request(`/api/users${query ? `?${query}` : ''}`, { method: 'GET' });
+    return this.request(`/users${query ? `?${query}` : ''}`, { method: 'GET' });
   }
 
   async getUser(id: string) {
-    return this.request(`/api/users/${id}`, { method: 'GET' });
+    return this.request(`/users/${id}`, { method: 'GET' });
   }
 
   async updateUser(id: string, data: Record<string, unknown>) {
-    return this.request(`/api/users/${id}`, {
+    return this.request(`/users/${id}`, {
       method: 'PUT',
       data,
     });
   }
 
   async deleteUser(id: string) {
-    return this.request(`/api/users/${id}`, {
+    return this.request(`/users/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  // Payment endpoints
+  async initPayment(data: {
+    amount: number;
+    itemType: 'course' | 'webinar';
+    itemId: string;
+    couponCode?: string | null;
+  }): Promise<{ success: boolean; paymentId: string; paymentUrl: string }> {
+    // Payment API returns { success, paymentId, paymentUrl } directly, not wrapped in data
+    const cleanEndpoint = '/payment/init';
+    const response = await this.client.request<{
+      success: boolean;
+      paymentId: string;
+      paymentUrl: string;
+    }>({
+      url: cleanEndpoint,
+      method: 'POST',
+      data,
+    });
+    return response.data;
   }
 }
 
