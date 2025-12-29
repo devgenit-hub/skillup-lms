@@ -95,7 +95,7 @@ export default function WebinarsPage() {
     fetchWebinars();
   };
 
-  const handleWebinarDeleted = (_webinarId: string) => {
+  const handleWebinarDeleted = () => {
     setIsModalOpen(false);
     setSelectedWebinar(null);
     fetchWebinars();

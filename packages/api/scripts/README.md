@@ -172,7 +172,98 @@ Available regions: `us-central1`, `asia-southeast1`, `europe-west1`, etc.
 
 ---
 
-## 🐛 Troubleshooting
+## � Updating Environment Variables
+
+### When You Add/Change Environment Variables
+
+#### For Local Development:
+
+1. **Update `.env` file** in project root
+2. **Restart Docker container:**
+   ```bash
+   pnpm docker:api:rebuild
+   ```
+
+#### For Cloud Run Deployment:
+
+**Option 1: Update Existing Secret (recommended for changes)**
+
+```bash
+# Update a single secret
+echo "new-value" | gcloud secrets versions add SECRET_NAME --data-file=-
+
+# Example: Update ALLOWED_ORIGINS
+echo "http://localhost:3000,https://newdomain.com" | gcloud secrets versions add skillup-allowed-origins --data-file=-
+```
+
+**Option 2: Re-run Setup Script (for multiple changes or new variables)**
+
+```bash
+# 1. Update your .env file with new/changed values
+# 2. Re-run setup (safely updates existing secrets, creates new ones)
+cd packages/api
+./scripts/setup-secrets.sh
+
+# 3. If you added NEW secrets, update cloudbuild.yaml
+# Add new secret to --set-secrets line in deploy step
+```
+
+**After updating secrets, redeploy:**
+
+```bash
+pnpm deploy:api
+```
+
+### Adding a New Secret to Cloud Run
+
+1. **Add to `.env` file:**
+
+   ```env
+   NEW_SECRET_VAR="your-value"
+   ```
+
+2. **Create the secret:**
+
+   ```bash
+   echo "your-value" | gcloud secrets create skillup-new-secret-var --data-file=- --replication-policy=automatic
+   ```
+
+3. **Update `cloudbuild.yaml`** - Add to `--set-secrets` line:
+
+   ```yaml
+   --set-secrets="...,NEW_SECRET_VAR=skillup-new-secret-var:latest"
+   ```
+
+4. **Deploy:**
+   ```bash
+   pnpm deploy:api
+   ```
+
+### Adding a New Environment Variable (non-secret)
+
+For non-sensitive values like `ADMIN_EMAILS`:
+
+1. **Update `cloudbuild.yaml`** - Add to `--set-env-vars` line:
+
+   ```yaml
+   --set-env-vars="NODE_ENV=production,ADMIN_EMAILS=${_ADMIN_EMAILS},NEW_VAR=${_NEW_VAR}"
+   ```
+
+2. **Add to substitutions section:**
+
+   ```yaml
+   substitutions:
+     _NEW_VAR: 'default-value'
+   ```
+
+3. **Deploy:**
+   ```bash
+   pnpm deploy:api
+   ```
+
+---
+
+## �🐛 Troubleshooting
 
 ### Docker build fails locally
 

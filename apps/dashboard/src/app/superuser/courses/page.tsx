@@ -184,6 +184,7 @@ export default function ManageCoursesPage() {
         })) || [],
       classRoutinePdf: metadata?.classRoutinePdf || '',
       facebookGroupLink: metadata?.facebookGroupLink || '',
+      introVideoLink: course.introVideoLink || '',
       numOfStudents: course._count.enrollments,
     };
 

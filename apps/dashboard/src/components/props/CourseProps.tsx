@@ -60,5 +60,6 @@ export interface CourseProps {
   curriculum: Curriculum[];
   classRoutinePdf?: string;
   facebookGroupLink?: string;
+  introVideoLink?: string | null;
   numOfStudents?: number | null;
 }

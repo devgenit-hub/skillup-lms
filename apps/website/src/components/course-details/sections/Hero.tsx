@@ -134,12 +134,12 @@ export default function Hero({
                 {/* Foreground Content */}
                 <div className="relative z-10">
                   {/* Video Thumbnail */}
-                  <div className="relative w-full h-auto rounded-xl overflow-hidden shadow-md">
+                  <div className="relative w-full max-w-80 mx-auto h-auto rounded-xl overflow-hidden shadow-md">
                     <Image
                       src={videoThumbnail}
                       alt="Course video"
-                      width={180}
-                      height={180}
+                      width={340}
+                      height={360}
                       className="object-cover rounded-xl w-full h-auto aspect-video"
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -153,9 +153,7 @@ export default function Hero({
                           ▶
                         </a>
                       ) : (
-                        <button className="w-14 h-14 aspect-square bg-white/40 backdrop-blur-lg text-white rounded-full flex items-center justify-center text-2xl font-bold">
-                          ▶
-                        </button>
+                        ''
                       )}
                     </div>
                   </div>
