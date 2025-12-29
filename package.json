@@ -10,6 +10,7 @@
     "dev:frontend": "turbo run dev --filter=website --filter=dashboard",
     "docker:api": "cd packages/api && ./scripts/run-local.sh",
     "docker:api:rebuild": "cd packages/api && ./scripts/run-local.sh --rebuild",
+    "deploy:api": "cd packages/api && ./scripts/deploy.sh",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
