@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import '../globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import NavBar from '@/components/shared/NavBar/NavBar';
@@ -10,10 +10,65 @@ import { QueryProvider } from '@/providers/query-provider';
 import { Toaster } from 'sonner';
 import { cookies } from 'next/headers';
 import type { Locale } from '@repo/locales';
+import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, META_BANNER } from '@/lib/seo';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
+};
 
 export const metadata: Metadata = {
-  title: 'Skill Up',
-  description: 'A Learning Platform, developed By devgenit',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    'Skillশিখো',
+    'স্কিল শিখো',
+    'অনলাইন কোর্স',
+    'বাংলা কোর্স',
+    'অনলাইন লার্নিং',
+    'skill development',
+  ],
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'bn_BD',
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [{ url: META_BANNER, width: 1200, height: 630, alt: SITE_NAME }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [META_BANNER],
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
 };
 
 export default async function RootLayout({

@@ -356,6 +356,7 @@ export default function CourseDetailsModal({
         price: updatedCourse.feeType === 'paid' ? updatedCourse.price || null : null,
         categoryId: formCategoryId || undefined,
         categoryTitle: !formCategoryId && categoryTitle ? categoryTitle : undefined,
+        introVideoLink: updatedCourse.introVideoLink || '',
         metadata,
       });
 

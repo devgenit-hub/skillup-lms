@@ -14,13 +14,12 @@ export default function Footer() {
           <div className="space-y-6 col-span-2 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3">
               <Image
-                src="/globe.svg"
+                src="/logodark.png"
                 alt="Skill Up Logo"
-                width={50}
-                height={50}
+                width={100}
+                height={100}
                 className="brightness-0 invert"
               />
-              <span className="text-2xl font-bold text-white">Skill Up</span>
             </div>
             <p className="text-gray-400 leading-relaxed max-w-xs">
               জ্ঞানই আমাদের জীবনকে আলোকিত করে। শিখুন, বাড়ুন এবং সফল হন।

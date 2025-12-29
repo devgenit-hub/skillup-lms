@@ -9,11 +9,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'SkillUp Admin - Learning Management System',
-    template: '%s | SkillUp Admin',
+    default: 'Skillশিখো Dashboard - Learning Management System',
+    template: '%s | Skillশিখো Dashboard',
   },
   description:
-    'Comprehensive learning management system for students, teachers, and administrators. Manage courses, track progress, and enhance learning experiences.',
+    'Skillশিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম। কোর্স পরিচালনা করুন, অগ্রগতি ট্র্যাক করুন এবং শিক্ষার অভিজ্ঞতা বাড়ান।',
   keywords: [
     'learning management system',
     'LMS',
@@ -21,28 +21,39 @@ export const metadata: Metadata = {
     'education platform',
     'skill development',
     'e-learning',
+    'স্কিল শিখো',
+    'অনলাইন কোর্স',
+    'শিক্ষা প্ল্যাটফর্ম',
   ],
-  authors: [{ name: 'SkillUp Team' }],
-  creator: 'SkillUp',
-  publisher: 'SkillUp',
+  authors: [{ name: 'Skillশিখো Team' }],
+  creator: 'Skillশিখো',
+  publisher: 'Skillশিখো',
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
   openGraph: {
     type: 'website',
     locale: 'bn_BD',
-    url: 'https://skillup-admin.com',
-    title: 'SkillUp Admin - Learning Management System',
+    url: 'https://manage.skillshikho.com',
+    title: 'Skillশিখো Dashboard - Learning Management System',
     description:
-      'Comprehensive learning management system for students, teachers, and administrators.',
-    siteName: 'SkillUp Admin',
+      'Skillশিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম।',
+    siteName: 'Skillশিখো Dashboard',
+    images: [
+      {
+        url: 'https://www.skillshikho.com/metaBanner.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SkillUp Admin - Learning Management System',
+    title: 'Skillশিখো Dashboard - Learning Management System',
     description:
-      'Comprehensive learning management system for students, teachers, and administrators.',
+      'Skillশিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম।',
+    images: ['https://www.skillshikho.com/metaBanner.png'],
   },
   icons: {
     icon: '/icons/favicon.ico',

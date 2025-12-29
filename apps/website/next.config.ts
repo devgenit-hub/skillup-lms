@@ -6,19 +6,27 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        pathname: '/storage/v1/object/public/**',
-      },
-      {
-        protocol: 'https',
+        pathname: '/**',
         hostname: 't4.ftcdn.net',
+        port: '',
+      },
+      {
+        pathname: '/**',
+        hostname: '*.googleusercontent.com',
+        protocol: 'https',
+      },
+      {
+        pathname: '/**',
+        hostname: 'mwmjxqubxaribfvqdjmn.supabase.co',
+        protocol: 'https',
+      },
+      {
+        pathname: '/**',
+        hostname: '*.supabase.co',
+        protocol: 'https',
       },
     ],
+    unoptimized: true,
   },
 };
 

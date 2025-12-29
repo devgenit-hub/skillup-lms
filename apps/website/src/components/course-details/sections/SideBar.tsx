@@ -68,7 +68,7 @@ export default function SideBar({ AboutCourse }: AboutCourseProps) {
       <div className="hidden lg:block w-full">
         <div className="bg-[#1E3A8A] dark:bg-chart-1/10 border border-dark-blue rounded-xl p-6 px-10 lg:px-16s top-6">
           <h3 className="text-xl font-bold mb-6 text-white">কোর্স বিষয়বস্তু</h3>
-          {AboutCourse.details && <RichTextDisplay content={AboutCourse.details} />}
+          {AboutCourse.details && <RichTextDisplay content={AboutCourse.about} />}
         </div>
       </div>
     </>

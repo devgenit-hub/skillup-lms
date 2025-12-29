@@ -22,6 +22,7 @@ interface Course {
   feeType: 'FREE' | 'PAID';
   price: number | null;
   metadata: Record<string, unknown> | null;
+  introVideoLink: string | null;
   createdAt: string;
   updatedAt: string;
   category?: {
@@ -184,6 +185,7 @@ export default function ManageCoursesPage() {
         })) || [],
       classRoutinePdf: metadata?.classRoutinePdf || '',
       facebookGroupLink: metadata?.facebookGroupLink || '',
+      introVideoLink: course.introVideoLink || '',
       numOfStudents: course._count.enrollments,
     };
 

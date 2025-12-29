@@ -11,6 +11,15 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# GCP
+.gcloudignore
+.gcp-credentials.json
 
 # Testing
 coverage

@@ -38,6 +38,7 @@ export default function EditCourseForm({
     aboutCourseAbout: course.aboutCourse?.about || '',
     aboutCourseDetails: course.aboutCourse?.details || '',
     classRoutinePdf: course.classRoutinePdf || '',
+    introVideoLink: course.introVideoLink || '',
   });
 
   const [isPdfDragging, setIsPdfDragging] = useState(false);
@@ -106,6 +107,7 @@ export default function EditCourseForm({
       assignedTeachers: formData.assignedTeachers,
       numClasses: parseInt(formData.numClasses),
       classRoutinePdf: formData.classRoutinePdf,
+      introVideoLink: formData.introVideoLink || null,
       courseInstructors: course.courseInstructors || [],
       aboutCourse: {
         about: formData.aboutCourseAbout,
@@ -289,6 +291,20 @@ export default function EditCourseForm({
         </h3>
 
         <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Intro Video Link
+            </label>
+            <input
+              type="url"
+              name="introVideoLink"
+              value={formData.introVideoLink}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vibrant-blue focus:border-transparent"
+              placeholder="https://youtube.com/watch?v=..."
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               বিবরণ (Markdown) *
