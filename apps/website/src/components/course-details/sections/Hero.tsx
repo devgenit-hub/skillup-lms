@@ -25,7 +25,6 @@ export default function Hero({
   videoThumbnail,
   bgImage = bg,
   coupons = [],
-  couponCount: _couponCount = 0,
   introVideoLink,
 }: HeroProps) {
   const { course_id } = useParams();

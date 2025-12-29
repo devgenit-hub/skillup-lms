@@ -115,7 +115,7 @@ export default function Hero({
                   </div>
                 </div>
               )}
-              <div className="relative z-10 p-2 rounded-2xl shadow-2xl w-full min-w-xs">
+              <div className="relative z-10 p-2 rounded-2xl shadow-2xl w-full max-w-xs">
                 {/* Background Image with Blur */}
                 <div className="absolute inset-0">
                   <Image

@@ -19,12 +19,18 @@ export default function StudentNav() {
   const name = user.name || user.email.split('@')[0] || 'User';
   return (
     <div className="h-full bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border py-4 px-5 lg:px-8 flex justify-between items-center transition-all duration-300 hover:shadow-xl">
-      <a
+      <Link
         href="/"
         className="px-3 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform cursor-pointer bg-linear-to-br from-vibrant-blue to-indigo-600"
       >
-        <h1 className="text-sm lg:text-base font-bold text-white">Skill Up</h1>
-      </a>
+        <Image
+          src="/logodark.png"
+          alt="Skill Up Logo"
+          width={70}
+          height={40}
+          className="brightness-0 invert"
+        />
+      </Link>
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2 lg:gap-3">

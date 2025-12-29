@@ -171,7 +171,9 @@ export default function OurCourses() {
               studentsEnrolled={course._count.enrollments.toString()}
               totalSessions={course._count.curriculumModules.toString()}
               route="/course/"
+              feeType={course.feeType as 'FREE' | 'PAID'}
               price={course.price}
+              maxDiscount={course.maxDiscount}
             />
           ))
         )}

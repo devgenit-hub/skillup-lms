@@ -81,6 +81,7 @@ export default function WebinarSection() {
                       endDate={webinar.scheduleDateTime}
                       feeType={webinar.feeType}
                       price={webinar.price}
+                      maxDiscount={webinar.maxDiscount}
                       showShadow={selectedIndex === idx}
                     />
                   </div>

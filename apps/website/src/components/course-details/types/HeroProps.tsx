@@ -13,6 +13,5 @@ export interface HeroProps {
   videoThumbnail: string;
   bgImage?: string | StaticImageData;
   coupons?: Array<{ code: string; discount: string; title: string }>;
-  couponCount?: number;
   introVideoLink?: string | null;
 }

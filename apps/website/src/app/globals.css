@@ -220,12 +220,19 @@ body {
   /* Rich Text Display - Full support for all HTML formatting */
   .rich-text-display {
     @apply text-foreground;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   /* Typography */
   .rich-text-display p {
     margin-bottom: 1em;
     line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .rich-text-display h1 {
@@ -234,6 +241,8 @@ body {
     margin-top: 0.67em;
     margin-bottom: 0.67em;
     line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .rich-text-display h2 {
@@ -242,6 +251,8 @@ body {
     margin-top: 0.83em;
     margin-bottom: 0.83em;
     line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .rich-text-display h3 {
@@ -250,6 +261,8 @@ body {
     margin-top: 1em;
     margin-bottom: 1em;
     line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .rich-text-display h4 {
@@ -257,6 +270,8 @@ body {
     font-weight: bold;
     margin-top: 1em;
     margin-bottom: 1em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .rich-text-display h5,
@@ -265,6 +280,8 @@ body {
     font-weight: bold;
     margin-top: 1em;
     margin-bottom: 1em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   /* Text formatting */
@@ -292,6 +309,9 @@ body {
     color: var(--vibrant-blue);
     text-decoration: underline;
     transition: opacity 0.2s;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-all;
   }
 
   .rich-text-display a:hover {
@@ -304,6 +324,8 @@ body {
     margin-bottom: 1em;
     margin-top: 0.5em;
     padding-left: 1rem !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .rich-text-display ul {
@@ -318,6 +340,8 @@ body {
     display: list-item !important;
     list-style-position: outside !important;
     margin-bottom: 0.5em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .rich-text-display ul > li {
@@ -353,6 +377,8 @@ body {
     margin: 1em 0;
     font-style: italic;
     opacity: 0.9;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   /* Code blocks */
@@ -362,6 +388,9 @@ body {
     border-radius: 3px;
     font-family: monospace;
     font-size: 0.9em;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
   }
 
   .dark .rich-text-display code {

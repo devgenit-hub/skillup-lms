@@ -17,7 +17,7 @@ export default function WebinarCardHeader({
         <div className="absolute top-2 left-2 z-20">
           <div className="bg-linear-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-full shadow-lg font-bold text-xs flex items-center gap-1">
             <span className="text-sm">🔥</span>
-            <span>{maxDiscount} ছাড়</span>
+            <span>{maxDiscount}% ছাড়</span>
           </div>
         </div>
       )}
