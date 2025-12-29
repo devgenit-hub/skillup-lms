@@ -26,6 +26,10 @@ dotenv.config({ path: resolve(process.cwd(), '../../.env') });
 const app: Express = express();
 const PORT = process.env.PORT || 4000;
 
+// Trust proxy - required for Cloud Run (and other reverse proxies)
+// This ensures req.protocol, req.secure, and req.ip work correctly
+app.set('trust proxy', true);
+
 // Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

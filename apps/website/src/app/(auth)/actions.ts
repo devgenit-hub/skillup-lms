@@ -7,10 +7,12 @@ export async function setAuthCookies(accessToken: string, refreshToken: string) 
   const cookieStore = await cookies();
   const isProduction = process.env.NODE_ENV === 'production';
 
+  // Use 'none' for cross-origin requests in production (API on different domain)
+  // 'none' requires 'secure: true' (HTTPS)
   cookieStore.set('access_token', accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'strict' : 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 60 * 60 * 24 * 7,
     path: '/',
   });
@@ -18,7 +20,7 @@ export async function setAuthCookies(accessToken: string, refreshToken: string) 
   cookieStore.set('refresh_token', refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'strict' : 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 60 * 60 * 24 * 7,
     path: '/',
   });
