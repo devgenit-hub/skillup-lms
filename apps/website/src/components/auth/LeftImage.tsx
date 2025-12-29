@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default function LeftImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="w-auto h-auto relative not-md:hidden">
+    <div className="w-auto max-w-lg h-auto relative not-md:hidden">
       <div className="absolute right-3 top-3 p-1">
         <Link href="/">
           <Button

@@ -23,7 +23,7 @@ export default function Resources({ resources }: ResourcesProps) {
       <div className="relative rounded-3xl overflow-hidden shadow-md border bg-vibrant-blue/10 border-vibrant-blue/20 dark:bg-chart-1/10 dark:border-chart-1/20 p-6">
         <div className="relative w-full aspect-2/1">
           <Image
-            src="/CourseDetails/Resources.png"
+            src="/CourseDetails/resources.png"
             alt="Webinar Resources & Materials"
             fill
             className="object-cover rounded-2xl"
