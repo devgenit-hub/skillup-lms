@@ -59,8 +59,8 @@ export default function WebinarSection() {
           {pageText['webinar_heading']}
         </h3>
         <div className="relative">
-          {/* <div className="absolute top-0 bottom-0 z-10 h-full w-1/3 from-background to-transparent left-0 bg-gradient-to-r pointer-events-none"></div>
-          <div className="absolute top-0 bottom-0 z-10 h-full w-1/3 from-background to-transparent right-0 bg-gradient-to-l pointer-events-none"></div> */}
+          {/* <div className="absolute top-0 bottom-0 z-10 h-full w-1/3 from-background to-transparent left-0 bg-linear-to-r pointer-events-none"></div>
+          <div className="absolute top-0 bottom-0 z-10 h-full w-1/3 from-background to-transparent right-0 bg-linear-to-l pointer-events-none"></div> */}
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex gap-6 px-10 py-14">
               {webinars.length > 0 ? (

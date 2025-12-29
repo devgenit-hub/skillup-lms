@@ -13,13 +13,13 @@ export default function MobileRightPanel({ isOpen, onClose }: MobileRightPanelPr
 
   // Prevent body scroll when panel is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    // if (isOpen) {
+    //   document.body.style.overflow = 'hidden';
+    // } else {
+    //   document.body.style.overflow = '';
+    // }
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = 'hidden';
     };
   }, [isOpen]);
 
@@ -38,7 +38,7 @@ export default function MobileRightPanel({ isOpen, onClose }: MobileRightPanelPr
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={onClose}
@@ -47,7 +47,7 @@ export default function MobileRightPanel({ isOpen, onClose }: MobileRightPanelPr
 
       {/* Right Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 z-50 lg:hidden transform transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 h-full w-80 z-50 transform transition-transform duration-300 ease-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
