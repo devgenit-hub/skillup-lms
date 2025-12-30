@@ -1,0 +1,132 @@
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 1280px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background-color: #010101;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: 1em;
+  /* gap: 2em; */
+}
+
+.customHeader {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: fit-content;
+  padding: 5pt;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #3f3f3f;
+  color: white;
+  font-weight: bold;
+  pointer-events: all;
+  border-radius: 1em;
+  filter: blur(12px);
+}
+
+iframe {
+  position: absolute;
+  /* margin: 0 auto; */
+  width: 100%;
+  height: auto;
+  max-width: 1280px;
+  margin: 10px auto;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  display: block;
+  border-radius: 1em;
+
+
+}
+
+.custom-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3em;
+  background-color: #0b1130;
+  box-sizing: border-box;
+  color: #fff;
+  font-size: medium;
+}
+
+.video-container button {
+  background: #0872fd;
+  border: none;
+  border-radius: 5pt;
+  padding: 5pt;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #232323;
+  cursor: pointer;
+  transition: color 100ms ease-in;
+  font-weight: 600;
+}
+
+.video-container button:hover {
+  color: #fff;
+}
+
+.centerController {
+  position: absolute;
+  width: fit-content;
+  height: fit-content;
+  scale: 2.5;
+  border-radius: 500pt;
+  background: #0872fd;
+  top: 50%;
+  left: 50%;
+  transform: translate(-25%, -25%);
+  transition: opacity 300ms ease-in;
+}
+
+.centerController.hide {
+  transition-delay: 300ms;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-container ul {
+  position: absolute;
+  bottom: 110%;
+  right: 0;
+  display: grid;
+  gap: 2pt;
+  transform: translateX(-15%);
+  list-style: none;
+}
+
+.video-container li.speed {
+  width: 100%;
+  text-align: center;
+  font-size: small;
+  margin-bottom: 2pt;
+
+  background: white;
+  border-radius: 5px;
+  transition: all 100ms ease;
+  color: #232323;
+}
+
+.video-container li.speed:hover {
+  background: #0872fd;
+  color: aliceblue;
+  cursor: pointer;
+}
+
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}

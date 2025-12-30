@@ -101,6 +101,10 @@ DATABASE_DIRECT_URL="postgresql://postgres:password@db.xxxxx.supabase.co:5432/po
 SUPABASE_URL="https://xxxxx.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOi..."
 
+# Application URLs
+NEXT_PUBLIC_BACKEND_URL="https://api.skillshikho.com"
+NEXT_PUBLIC_FRONTEND_URL="https://skillshikho.com"
+
 # API
 NODE_ENV="production"
 PORT="8080"

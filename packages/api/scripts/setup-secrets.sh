@@ -57,6 +57,9 @@ read -sp "UDDOKTA_PAY_API_KEY: " UDDOKTA_PAY_API_KEY
 echo ""
 read -p "ALLOWED_ORIGINS (comma-separated): " ALLOWED_ORIGINS
 echo ""
+read -p "NEXT_PUBLIC_BACKEND_URL (e.g., https://api.skillshikho.com): " NEXT_PUBLIC_BACKEND_URL
+read -p "NEXT_PUBLIC_FRONTEND_URL (e.g., https://skillshikho.com): " NEXT_PUBLIC_FRONTEND_URL
+echo ""
 
 echo ""
 echo -e "${YELLOW}Creating secrets...${NC}"
@@ -69,6 +72,8 @@ create_secret "skillup-supabase-anon-key" "${SUPABASE_ANON_KEY}"
 create_secret "skillup-supabase-jwt-secret" "${SUPABASE_JWT_SECRET}"
 create_secret "skillup-admin-passwords" "${ADMIN_PASSWORDS}"
 create_secret "skillup-uddokta-pay-api-key" "${UDDOKTA_PAY_API_KEY}"
+create_secret "skillup-backend-url" "${NEXT_PUBLIC_BACKEND_URL}"
+create_secret "skillup-frontend-url" "${NEXT_PUBLIC_FRONTEND_URL}"
 
 echo ""
 echo -e "${YELLOW}🔑 Granting Cloud Run access...${NC}"
@@ -84,6 +89,8 @@ SECRETS=(
     "skillup-supabase-jwt-secret"
     "skillup-admin-passwords"
     "skillup-uddokta-pay-api-key"
+    "skillup-backend-url"
+    "skillup-frontend-url"
 )
 
 for SECRET in "${SECRETS[@]}"; do
@@ -100,5 +107,7 @@ echo -e "${YELLOW}📋 Environment variables for deploy.sh:${NC}"
 echo "export ADMIN_EMAILS='${ADMIN_EMAILS}'"
 echo "export UDDOKTA_PAY_API_URL='${UDDOKTA_PAY_API_URL}'"
 echo "export ALLOWED_ORIGINS='${ALLOWED_ORIGINS}'"
+echo "export NEXT_PUBLIC_BACKEND_URL='${NEXT_PUBLIC_BACKEND_URL}'"
+echo "export NEXT_PUBLIC_FRONTEND_URL='${NEXT_PUBLIC_FRONTEND_URL}'"
 echo ""
 echo -e "${YELLOW}Next: Run ./scripts/deploy.sh${NC}"

@@ -95,6 +95,12 @@ export class AuthController {
         provider: true,
         lastLoginAt: true,
         createdAt: true,
+        enrollments: {
+          select: { courseId: true },
+        },
+        webinarRegistrations: {
+          select: { webinarId: true },
+        },
         _count: {
           select: {
             enrollments: true,
@@ -107,7 +113,14 @@ export class AuthController {
       throw new NotFoundError('User not found');
     }
 
-    ApiResponse.success(res, user);
+    const enrolledCourseIds = user.enrollments.map((e) => e.courseId);
+    const enrolledWebinarIds = user.webinarRegistrations.map((w) => w.webinarId);
+
+    ApiResponse.success(res, {
+      ...user,
+      enrolledCourseIds,
+      enrolledWebinarIds,
+    });
   });
 
   static updateProfile = asyncHandler(async (req: Request, res: Response) => {

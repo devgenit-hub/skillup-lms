@@ -165,6 +165,150 @@ class ApiClient {
     return this.request('/enrollments', { method: 'GET' });
   }
 
+  // Student enrollment endpoints
+  async getMyEnrollments() {
+    return this.request<{
+      enrollments: Array<{
+        id: string;
+        userId: string;
+        courseId: string;
+        status: string;
+        progress: number;
+        enrolledAt: string;
+        completedAt: string | null;
+        course: {
+          id: string;
+          title: string;
+          description: string | null;
+          introVideoLink: string | null;
+          category: { id: string; title: string } | null;
+          feeType: string;
+          price: number | null;
+          _count: { lessons: number; enrollments: number };
+        };
+      }>;
+      stats: {
+        total: number;
+        completed: number;
+        inProgress: number;
+        remaining: number;
+      };
+    }>('/enrollments/my', { method: 'GET' });
+  }
+
+  async getMyCourseDetails(courseId: string) {
+    return this.request<{
+      id: string;
+      userId: string;
+      courseId: string;
+      status: string;
+      progress: number;
+      enrolledAt: string;
+      completedAt: string | null;
+      course: {
+        id: string;
+        title: string;
+        description: string | null;
+        introVideoLink: string | null;
+        category: { id: string; title: string } | null;
+        lessons: Array<{
+          id: string;
+          title: string;
+          content: string | null;
+          order: number;
+        }>;
+        curriculumModules: Array<{
+          id: string;
+          title: string;
+          details: string | null;
+          order: number;
+          classes: Array<{
+            id: string;
+            title: string;
+            videoUrl: string | null;
+            duration: number | null;
+            order: number;
+          }>;
+          materials: Array<{
+            id: string;
+            title: string;
+            fileUrl: string | null;
+            fileType: string | null;
+            fileSize: number | null;
+            order: number;
+          }>;
+        }>;
+        _count: { lessons: number; enrollments: number };
+      };
+    }>(`/enrollments/my/course/${courseId}`, { method: 'GET' });
+  }
+
+  async updateLessonProgress(courseId: string, lessonId: string, completed: boolean) {
+    return this.request(`/enrollments/my/course/${courseId}/lesson/${lessonId}/progress`, {
+      method: 'POST',
+      data: { completed },
+    });
+  }
+
+  // Webinar registration endpoints
+  async getMyWebinarRegistrations() {
+    return this.request<{
+      registrations: Array<{
+        id: string;
+        webinarId: string;
+        userId: string;
+        registeredAt: string;
+        webinar: {
+          id: string;
+          title: string;
+          image: string | null;
+          scheduleDateTime: string;
+          duration: number;
+          platform: string;
+          status: string;
+          feeType: string;
+          price: number | null;
+          liveLink: string | null;
+          category: { id: string; title: string } | null;
+          _count: { registrations: number };
+        };
+      }>;
+      stats: {
+        total: number;
+        upcoming: number;
+        completed: number;
+      };
+    }>('/enrollments/my/webinars', { method: 'GET' });
+  }
+
+  async getMyWebinarDetails(webinarId: string) {
+    return this.request<{
+      id: string;
+      webinarId: string;
+      userId: string;
+      registeredAt: string;
+      webinar: {
+        id: string;
+        title: string;
+        image: string | null;
+        scheduleDateTime: string;
+        duration: number;
+        platform: string;
+        status: string;
+        feeType: string;
+        price: number | null;
+        liveLink: string | null;
+        sessionHighlights: string | null;
+        aboutWebinar: string | null;
+        speakers: unknown;
+        sessionAgenda: unknown;
+        resources: unknown;
+        category: { id: string; title: string } | null;
+        _count: { registrations: number };
+      };
+    }>(`/enrollments/my/webinar/${webinarId}`, { method: 'GET' });
+  }
+
   async enrollInCourse(courseId: string) {
     return this.request('/enrollments', {
       method: 'POST',
@@ -215,7 +359,6 @@ class ApiClient {
     itemId: string;
     couponCode?: string | null;
   }): Promise<{ success: boolean; paymentId: string; paymentUrl: string }> {
-    // Payment API returns { success, paymentId, paymentUrl } directly, not wrapped in data
     const cleanEndpoint = '/payment/init';
     const response = await this.client.request<{
       success: boolean;
@@ -228,10 +371,43 @@ class ApiClient {
     });
     return response.data;
   }
+
+  async enrollFree(data: {
+    itemType: 'course' | 'webinar';
+    itemId: string;
+  }): Promise<{ success: boolean; message: string; enrollment?: unknown; registration?: unknown }> {
+    const cleanEndpoint = '/payment/enroll-free';
+    const response = await this.client.request<{
+      success: boolean;
+      message: string;
+      enrollment?: unknown;
+      registration?: unknown;
+    }>({
+      url: cleanEndpoint,
+      method: 'POST',
+      data,
+    });
+    return response.data;
+  }
+
+  async checkEnrollmentStatus(
+    itemType: 'course' | 'webinar',
+    itemId: string
+  ): Promise<{ enrolled: boolean; enrollment?: unknown; registration?: unknown }> {
+    const cleanEndpoint = `/payment/enrollment-status?itemType=${itemType}&itemId=${itemId}`;
+    const response = await this.client.request<{
+      enrolled: boolean;
+      enrollment?: unknown;
+      registration?: unknown;
+    }>({
+      url: cleanEndpoint,
+      method: 'GET',
+    });
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();
 
-// Export individual methods for convenience
 export const updateProfile = (data: { name?: string; avatarUrl?: string; phone?: string }) =>
   apiClient.updateProfile(data);

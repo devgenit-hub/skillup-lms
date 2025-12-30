@@ -10,7 +10,9 @@ import BatchBadge from '@/components/shared/BatchBadge';
 import Count from '@/components/Count';
 import { useRouter, useParams } from 'next/navigation';
 import { IoClose } from 'react-icons/io5';
-import { useAuthStore } from '@/lib/zustand/auth-store';
+import { useAuthStore, AuthUser } from '@/lib/zustand/auth-store';
+import { apiClient } from '@/lib/api-client';
+import { Loader2 } from 'lucide-react';
 
 export default function Hero({
   title,
@@ -26,26 +28,62 @@ export default function Hero({
   bgImage = bg,
   coupons = [],
   introVideoLink,
+  isFree = false,
 }: HeroProps) {
   const { course_id } = useParams();
   const router = useRouter();
-  const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state: { user: AuthUser | null }) => state.user);
+  const isEnrolled = useAuthStore(
+    (state: { isEnrolled: (itemId: string, itemType: 'course' | 'webinar') => boolean }) =>
+      state.isEnrolled
+  );
   const [showCouponPopup, setShowCouponPopup] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
 
-  const handleEnrollClick = () => {
+  const courseId = course_id as string;
+  const userIsEnrolled = isEnrolled(courseId, 'course');
+
+  const handleEnrollClick = async () => {
+    const courseId = course_id as string;
+
     if (!user) {
-      // Store the payment page URL to redirect after login
-      const paymentPath = `/payment?courseId=${course_id}`;
-      router.push(`/auth/login?redirect=${encodeURIComponent(paymentPath)}`);
+      const redirectPath = isFree
+        ? `/enroll/free?type=course&id=${courseId}`
+        : `/payment?courseId=${courseId}`;
+      router.push(`/auth/login?redirect=${encodeURIComponent(redirectPath)}`);
+
       return;
     }
-    router.push(`/payment?courseId=${course_id}`);
+
+    // If already enrolled, redirect to student class page
+    if (userIsEnrolled) {
+      router.push(`/student/class/${courseId}`);
+      return;
+    }
+
+    if (isFree) {
+      setEnrolling(true);
+      try {
+        const result = await apiClient.enrollFree({ itemType: 'course', itemId: courseId });
+        if (result.success) {
+          router.push(
+            `/payment/success?itemType=course&itemId=${courseId}&message=Enrolled successfully`
+          );
+        }
+      } catch (error) {
+        console.error('Enrollment error:', error);
+        alert('এনরোলমেন্ট ব্যর্থ হয়েছে। আবার চেষ্টা করুন।');
+      } finally {
+        setEnrolling(false);
+      }
+    } else {
+      router.push(`/payment?courseId=${courseId}`);
+    }
   };
 
   return (
     <div className="py-4">
       <div className="relative w-full min-h-125 overflow-hidden rounded-2xl">
-        {/* Background with Blur */}
         <div className="absolute inset-0 w-full">
           <Image
             src={bgImage}
@@ -56,10 +94,8 @@ export default function Hero({
           />
         </div>
 
-        {/* Foreground content */}
         <div className="relative z-10 min-h-125 p-6 px-5 w-full max-w-7xl mx-auto flex items-center justify-center">
           <div className="container mx-auto flex flex-col gap-10 md:flex-row items-center justify-between w-full bg-linear-to-r py-6 md:py-8 rounded-2xl">
-            {/* Left side - course info */}
             <div className="text-white space-y-4 w-full md:w-2/3">
               <div>
                 <h1 className="text-4xl md:text-3xl font-bold leading-snug">{title}</h1>
@@ -108,7 +144,6 @@ export default function Hero({
               </div>
             </div>
 
-            {/* Right side - course video card */}
             <div className="grid relative border-2 border-white/10 rounded-3xl">
               {/* Discount Badge */}
               {coupons && coupons.length > 0 && coupons[0]?.discount && (
@@ -120,7 +155,6 @@ export default function Hero({
                 </div>
               )}
               <div className="relative z-10 p-2 rounded-2xl shadow-2xl w-full min-w-xs">
-                {/* Background Image with Blur */}
                 <div className="absolute inset-0">
                   <Image
                     src="/Card/card-bg.jpg"
@@ -130,9 +164,7 @@ export default function Hero({
                   />
                 </div>
 
-                {/* Foreground Content */}
                 <div className="relative z-10">
-                  {/* Video Thumbnail */}
                   <div className="relative w-full max-w-80 mx-auto h-auto rounded-xl overflow-hidden shadow-md">
                     <Image
                       src={videoThumbnail}
@@ -157,18 +189,21 @@ export default function Hero({
                     </div>
                   </div>
 
-                  {/* Price and Enroll Section */}
                   <div className="text-center mt-6">
                     <div className="pb-10 flex justify-between items-center">
-                      <p className="text-white text-xl font-bold">
-                        {price}
-                        {deletedPrice && (
-                          <span className="line-through text-sm text-white/60 ml-2">
-                            {deletedPrice}
-                          </span>
-                        )}
-                      </p>
-                      {coupons.length > 0 && (
+                      {isFree ? (
+                        <p className="text-green-400 text-xl font-bold">ফ্রি</p>
+                      ) : (
+                        <p className="text-white text-xl font-bold">
+                          {price}
+                          {deletedPrice && (
+                            <span className="line-through text-sm text-white/60 ml-2">
+                              {deletedPrice}
+                            </span>
+                          )}
+                        </p>
+                      )}
+                      {!isFree && coupons.length > 0 && (
                         <button
                           onClick={() => setShowCouponPopup(true)}
                           className="border border-white font-bold rounded-full px-6 py-1 hover:bg-white/5 text-sm text-white"
@@ -179,10 +214,22 @@ export default function Hero({
                     </div>
 
                     <button
-                      className="mt-4 w-11/12 mx-auto bg-vibrant-blue hover:bg-dark-blue cursor-pointer text-white py-3 rounded-full text-lg font-semibold shadow-lg transition absolute -bottom-8 left-0 right-0"
+                      className="mt-4 w-11/12 mx-auto bg-vibrant-blue hover:bg-dark-blue cursor-pointer text-white py-3 rounded-full text-lg font-semibold shadow-lg transition absolute -bottom-8 left-0 right-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       onClick={handleEnrollClick}
+                      disabled={enrolling}
                     >
-                      Enroll Now
+                      {enrolling ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Processing...</span>
+                        </>
+                      ) : userIsEnrolled ? (
+                        'Go to Course'
+                      ) : isFree ? (
+                        'ফ্রি এনরোল করুন'
+                      ) : (
+                        'Enroll Now'
+                      )}
                     </button>
                   </div>
                 </div>
@@ -192,7 +239,6 @@ export default function Hero({
         </div>
       </div>
 
-      {/* Coupon Popup */}
       {showCouponPopup && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"

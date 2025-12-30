@@ -1,15 +1,41 @@
 'use client';
 import { Calendar, Award, BookOpen, CheckCircle2, Clock } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NumberCardProps } from './types/NumberCardProps';
 import { useLocale } from '@/providers/locale-provider';
 import { useAuthStore } from '@/lib/zustand/auth-store';
+import { apiClient } from '@/lib/api-client';
+
+interface EnrollmentStats {
+  total: number;
+  completed: number;
+  inProgress: number;
+  remaining: number;
+}
 
 export default function NameCard() {
   const user = useAuthStore((state) => state.user);
   const { t } = useLocale();
   const pageText = t('student');
   const date = new Date();
+  const [stats, setStats] = useState<EnrollmentStats | null>(null);
+  const [, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await apiClient.getMyEnrollments();
+        if (response.data?.stats) {
+          setStats(response.data.stats);
+        }
+      } catch (error) {
+        console.error('Failed to fetch enrollment stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const formattedDate = date.toLocaleDateString('en-US', {
     month: 'long',
@@ -26,17 +52,17 @@ export default function NameCard() {
 
   const numberCardData: NumberCardProps[] = [
     {
-      numb: 12,
+      numb: stats?.total ?? 0,
       chipText: pageText['stats_owned'],
       style: 'bg-[#FFA800]/20 text-[#FFA800]',
     },
     {
-      numb: 7,
+      numb: stats?.completed ?? 0,
       chipText: pageText['stats_completed'],
       style: 'bg-[#04C56C]/20 text-[#04C56C]',
     },
     {
-      numb: 5,
+      numb: stats?.remaining ?? 0,
       chipText: pageText['stats_remaining'],
       style: 'bg-[#FF3F34]/20 text-[#FF3F34]',
     },

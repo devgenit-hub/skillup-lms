@@ -3,7 +3,15 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BarChart3, BookOpen, Users, Settings, Video, GraduationCap } from 'lucide-react';
+import {
+  BarChart3,
+  BookOpen,
+  Users,
+  Settings,
+  Video,
+  GraduationCap,
+  CreditCard,
+} from 'lucide-react';
 import { useAuthStore } from '@/lib/zustand/auth-store';
 
 const sidebarItems = [
@@ -12,6 +20,7 @@ const sidebarItems = [
   { label: 'Teachers', href: '/superuser/teachers', icon: Users },
   { label: 'Students', href: '/superuser/students', icon: GraduationCap },
   { label: 'Webinars', href: '/superuser/webinars', icon: Video },
+  { label: 'Payments', href: '/superuser/payments', icon: CreditCard },
   { label: 'Settings', href: '/superuser/settings', icon: Settings },
 ];
 

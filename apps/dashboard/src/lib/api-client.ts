@@ -607,7 +607,6 @@ class ApiClient {
     });
   }
 
-  // Category methods
   async getCategories() {
     return this.request('/categories', { method: 'GET' });
   }
@@ -623,6 +622,55 @@ class ApiClient {
       method: 'POST',
       data,
     });
+  }
+
+  async getAdminPayments(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: 'all' | 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'FREE';
+    courseId?: string;
+    webinarId?: string;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.status) query.append('status', params.status);
+    if (params?.courseId) query.append('courseId', params.courseId);
+    if (params?.webinarId) query.append('webinarId', params.webinarId);
+    return this.request(`/payment/admin/payments?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getAdminEnrollments(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    courseId?: string;
+  }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.append('page', params.page.toString());
+    if (params?.limit) query.append('limit', params.limit.toString());
+    if (params?.search) query.append('search', params.search);
+    if (params?.courseId) query.append('courseId', params.courseId);
+    return this.request(`/payment/admin/enrollments?${query.toString()}`, { method: 'GET' });
+  }
+
+  async adminRefundPayment(data: {
+    paymentId: string;
+    reason: string;
+    adminPassword: string;
+    refundAmount?: number;
+  }) {
+    return this.request('/payment/admin/refund', { method: 'POST', data });
+  }
+
+  async adminDeletePayment(data: { paymentId: string; reason: string; adminPassword: string }) {
+    return this.request('/payment/admin/payment', { method: 'DELETE', data });
+  }
+
+  async getPaymentStats() {
+    return this.request('/payment/admin/stats', { method: 'GET' });
   }
 }
 

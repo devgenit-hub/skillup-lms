@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import StudentNav from '@/components/student/StudentNav';
 import SearchBar from '@/components/student/SearchBar';
 import SideBar from '@/components/student/SideBar';
-import { Calendar } from '@/components/ui/calendar';
-import UpcomingLive from '@/components/student/UpcomingLive';
 import MobileMenuButton from '@/components/student/MobileMenuButton';
 import MobileSidebar from '@/components/student/MobileSidebar';
 import MobileRightPanel from '@/components/student/MobileRightPanel';
@@ -20,7 +18,6 @@ interface DashboardContentProps {
 }
 
 export default function DashboardContent({ children }: DashboardContentProps) {
-  const date = new Date();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
@@ -72,7 +69,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
               {/* Mobile Menu Button - Right Panel */}
               <button
                 onClick={() => setIsRightPanelOpen(!isRightPanelOpen)}
-                className="lg:hidden p-2 rounded-xl bg-card/80 backdrop-blur-xl shadow-md border border-border hover:bg-card transition-all duration-300 active:scale-95"
+                className="p-2 rounded-xl bg-card/80 backdrop-blur-xl shadow-md border border-border hover:bg-card transition-all duration-300 active:scale-95"
                 aria-label="Toggle calendar and events"
                 aria-expanded={isRightPanelOpen}
               >
@@ -100,12 +97,12 @@ export default function DashboardContent({ children }: DashboardContentProps) {
           </aside>
 
           {/* Main Content - Full width on mobile */}
-          <main className="lg:col-span-7 h-full overflow-hidden">
+          <main className="lg:col-span-10 h-full overflow-hidden">
             <div className="h-full overflow-y-auto scrollbar-thin pr-2">{children}</div>
           </main>
 
           {/* Desktop Right Sidebar - Hidden on mobile */}
-          <aside className="hidden lg:block lg:col-span-3 h-full overflow-hidden">
+          {/* <aside className="hidden lg:col-span-3 h-full overflow-hidden">
             <div className="h-full overflow-y-auto space-y-5 scrollbar-thin">
               <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-4">
                 <Calendar
@@ -117,7 +114,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
               </div>
               <UpcomingLive />
             </div>
-          </aside>
+          </aside> */}
         </div>
       </div>
 
