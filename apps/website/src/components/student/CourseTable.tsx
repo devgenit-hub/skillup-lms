@@ -10,40 +10,17 @@ import {
 } from '@/components/ui/table';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { apiClient } from '@/lib/api-client';
+import { Loader2 } from 'lucide-react';
 
 type Course = {
+  id: string;
   name: string;
   type: string;
   totalVideo: number;
   progress: number;
 };
-
-const data: Course[] = [
-  {
-    name: 'React Fundamentals',
-    type: 'Frontend',
-    totalVideo: 25,
-    progress: 75,
-  },
-  {
-    name: 'Node.js Basics',
-    type: 'Backend',
-    totalVideo: 30,
-    progress: 40,
-  },
-  {
-    name: 'React Fundamentals',
-    type: 'Frontend',
-    totalVideo: 25,
-    progress: 75,
-  },
-  {
-    name: 'Node.js Basics',
-    type: 'Backend',
-    totalVideo: 30,
-    progress: 40,
-  },
-];
 
 const columns: ColumnDef<Course>[] = [
   {
@@ -56,7 +33,7 @@ const columns: ColumnDef<Course>[] = [
   },
   {
     accessorKey: 'totalVideo',
-    header: 'Total Video',
+    header: 'Total Lessons',
   },
   {
     accessorKey: 'progress',
@@ -78,12 +55,46 @@ const columns: ColumnDef<Course>[] = [
 ];
 
 export function CourseTable() {
-  const route = useRouter();
+  const router = useRouter();
+  const [data, setData] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      try {
+        const response = await apiClient.getMyEnrollments();
+        if (response.data?.enrollments) {
+          const courses = response.data.enrollments.map((enrollment) => ({
+            id: enrollment.courseId,
+            name: enrollment.course.title,
+            type: enrollment.course.category?.title || 'General',
+            totalVideo: enrollment.course._count?.lessons || 0,
+            progress: enrollment.progress,
+          }));
+          setData(courses);
+        }
+      } catch (error) {
+        console.error('Failed to fetch enrollments:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEnrollments();
+  }, []);
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-10">
+        <Loader2 className="w-6 h-6 animate-spin text-vibrant-blue" />
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-md h-full">
@@ -111,7 +122,7 @@ export function CourseTable() {
                 data-state={row.getIsSelected() && 'selected'}
                 className="cursor-pointer"
                 onClick={() => {
-                  route.push(`/student/class/${row.id}`);
+                  router.push(`/student/class/${row.original.id}`);
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -124,7 +135,7 @@ export function CourseTable() {
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No courses found.
+                No courses found. Enroll in a course to get started!
               </TableCell>
             </TableRow>
           )}

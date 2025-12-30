@@ -1,5 +1,3 @@
-// Prisma schema for Skill Up LMS
-
 generator client {
  provider = "prisma-client-js"
 }
@@ -8,7 +6,6 @@ datasource db {
  provider = "postgresql"
 }
 
-// User model for authentication
 model User {
  id               String       @id @default(cuid())
  supabaseId       String       @unique
@@ -27,8 +24,9 @@ model User {
  createdAt        DateTime     @default(now())
  updatedAt        DateTime     @updatedAt
 
- enrollments Enrollment[]
- payments    Payment[]
+ enrollments          Enrollment[]
+ payments             Payment[]
+ webinarRegistrations WebinarRegistration[]
 
  @@index([supabaseId])
  @@index([email])
@@ -38,7 +36,6 @@ model User {
  @@map("users")
 }
 
-// Teacher model - completely separate table, no relation to User
 model Teacher {
  id             String    @id @default(cuid())
  supabaseId     String    @unique
@@ -73,13 +70,11 @@ enum AuthProvider {
  GOOGLE
 }
 
-// Course fee type enum
 enum FeeType {
  FREE
  PAID
 }
 
-// Category model for courses and webinars
 model Category {
  id           String   @id @default(cuid())
  title        String   @unique
@@ -96,7 +91,6 @@ model Category {
  @@map("categories")
 }
 
-// Course model
 model Course {
  id             String   @id @default(cuid())
  title          String
@@ -123,7 +117,6 @@ model Course {
  @@map("courses")
 }
 
-// Lesson model
 model Lesson {
  id        String   @id @default(cuid())
  title     String
@@ -134,14 +127,12 @@ model Lesson {
  createdAt DateTime @default(now())
  updatedAt DateTime @updatedAt
 
- // Relations
  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
  @@index([courseId])
  @@map("lessons")
 }
 
-// Enrollment model
 model Enrollment {
  id          String           @id @default(cuid())
  userId      String
@@ -152,7 +143,6 @@ model Enrollment {
  completedAt DateTime?
  updatedAt   DateTime         @updatedAt
 
- // Relations
  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
@@ -174,11 +164,19 @@ model Payment {
  courseId             String?
  webinarId            String?
  amount               Float
+ chargedAmount        Float?
+ fee                  Float?
  status               PaymentStatus @default(PENDING)
  transactionId        String?       @unique
+ invoiceId            String?       @unique
+ gatewayTransactionId String?       @unique
  paymentMethod        String        @default("uddoktapay")
- gatewayTransactionId String?
+ senderNumber         String?
  couponCode           String?
+ paidAt               DateTime?
+ refundedAt           DateTime?
+ refundAmount         Float?
+ refundReason         String?
  metadata             Json?
  createdAt            DateTime      @default(now())
  updatedAt            DateTime      @updatedAt
@@ -190,7 +188,9 @@ model Payment {
  @@index([courseId])
  @@index([webinarId])
  @@index([transactionId])
+ @@index([invoiceId])
  @@index([gatewayTransactionId])
+ @@index([status])
  @@map("payments")
 }
 
@@ -239,6 +239,7 @@ model WebinarRegistration {
  userId       String
  registeredAt DateTime @default(now())
 
+ user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
  webinar Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
 
  @@unique([webinarId, userId])
@@ -262,17 +263,16 @@ model CourseTeacher {
  @@map("course_teachers")
 }
 
-// Coupon model for course/webinar discounts
 model Coupon {
  id         String   @id @default(cuid())
  code       String   @unique
- title      String? // Coupon title/description
+ title      String?
  courseId   String?
  webinarId  String?
- discount   Int // Percentage discount (1-100)
+ discount   Int
  expiresAt  DateTime
  usageCount Int      @default(0)
- maxUsage   Int? // Null means unlimited
+ maxUsage   Int?
  active     Boolean  @default(true)
  createdAt  DateTime @default(now())
  updatedAt  DateTime @updatedAt
@@ -287,7 +287,6 @@ model Coupon {
  @@map("coupons")
 }
 
-// Curriculum Module model for course curriculum
 model CurriculumModule {
  id        String   @id @default(cuid())
  title     String
@@ -306,12 +305,11 @@ model CurriculumModule {
  @@map("curriculum_modules")
 }
 
-// Curriculum Class (video lessons within a module)
 model CurriculumClass {
  id        String   @id @default(cuid())
  title     String
  videoUrl  String?
- duration  Int? // Duration in minutes
+ duration  Int?
  order     Int      @default(0)
  moduleId  String
  createdAt DateTime @default(now())
@@ -324,13 +322,12 @@ model CurriculumClass {
  @@map("curriculum_classes")
 }
 
-// Curriculum Material (downloadable resources within a module)
 model CurriculumMaterial {
  id        String   @id @default(cuid())
  title     String
  fileUrl   String?
- fileType  String? // pdf, doc, zip, etc.
- fileSize  Int? // Size in bytes
+ fileType  String?
+ fileSize  Int?
  order     Int      @default(0)
  moduleId  String
  createdAt DateTime @default(now())

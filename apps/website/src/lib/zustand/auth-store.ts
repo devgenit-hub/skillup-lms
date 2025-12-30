@@ -13,6 +13,8 @@ export interface AuthUser {
   role: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN';
   emailVerified: boolean;
   provider: 'EMAIL' | 'GOOGLE';
+  enrolledCourseIds?: string[];
+  enrolledWebinarIds?: string[];
 }
 
 interface AuthStore {
@@ -23,6 +25,7 @@ interface AuthStore {
   setLoading: (loading: boolean) => void;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
+  isEnrolled: (itemId: string, itemType: 'course' | 'webinar') => boolean;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -94,5 +97,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
     await supabase.auth.signOut();
     await clearAuthCookies();
     set({ user: null, isVerified: true });
+  },
+  isEnrolled: (itemId: string, itemType: 'course' | 'webinar'): boolean => {
+    const user = useAuthStore.getState().user;
+    if (!user) return false;
+    if (itemType === 'course') {
+      return user.enrolledCourseIds?.includes(itemId) || false;
+    }
+    return user.enrolledWebinarIds?.includes(itemId) || false;
   },
 }));

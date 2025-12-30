@@ -135,6 +135,7 @@ export default function Page() {
       coupons: course.coupons || [],
       couponCount: course.coupons?.length || 0,
       introVideoLink: course.introVideoLink,
+      isFree: course.feeType === FeeType.FREE,
     };
   }, [course]);
 

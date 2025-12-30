@@ -39,6 +39,10 @@ ADMIN_PASSWORDS="your-password"
 # Payment (Uddokta Pay)
 UDDOKTA_PAY_API_URL="https://sandbox.uddoktapay.com/api"
 UDDOKTA_PAY_API_KEY="your-api-key"
+
+# Application URLs
+NEXT_PUBLIC_BACKEND_URL="http://localhost:4000"
+NEXT_PUBLIC_FRONTEND_URL="http://localhost:3000"
 ```
 
 ### 2. Run Locally with Docker

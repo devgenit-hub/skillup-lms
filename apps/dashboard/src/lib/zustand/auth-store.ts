@@ -9,6 +9,8 @@ export interface AuthUser {
   email: string;
   name: string | null;
   role: typeof UserRole.INSTRUCTOR | typeof UserRole.ADMIN;
+  enrolledCourseIds?: string[];
+  enrolledWebinarIds?: string[];
 }
 
 interface AuthStore {

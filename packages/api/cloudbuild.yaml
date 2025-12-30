@@ -53,7 +53,7 @@ steps:
       - '--set-env-vars'
       - 'NODE_ENV=production,ADMIN_EMAILS=${_ADMIN_EMAILS}'
       - '--set-secrets'
-      - 'DATABASE_URL=skillup-database-url:latest,DATABASE_DIRECT_URL=skillup-database-direct-url:latest,SUPABASE_URL=skillup-supabase-url:latest,SUPABASE_SERVICE_ROLE_KEY=skillup-supabase-service-key:latest,SUPABASE_ANON_KEY=skillup-supabase-anon-key:latest,SUPABASE_JWT_SECRET=skillup-supabase-jwt-secret:latest,ADMIN_PASSWORDS=skillup-admin-passwords:latest,UDDOKTA_PAY_API_KEY=skillup-uddokta-pay-api-key:latest,UDDOKTA_PAY_API_URL=skillup-uddokta-pay-api-url:latest,ALLOWED_ORIGINS=skillup-allowed-origins:latest'
+      - 'DATABASE_URL=skillup-database-url:latest,DATABASE_DIRECT_URL=skillup-database-direct-url:latest,SUPABASE_URL=skillup-supabase-url:latest,SUPABASE_SERVICE_ROLE_KEY=skillup-supabase-service-key:latest,SUPABASE_ANON_KEY=skillup-supabase-anon-key:latest,SUPABASE_JWT_SECRET=skillup-supabase-jwt-secret:latest,ADMIN_PASSWORDS=skillup-admin-passwords:latest,UDDOKTA_PAY_API_KEY=skillup-uddokta-pay-api-key:latest,UDDOKTA_PAY_API_URL=skillup-uddokta-pay-api-url:latest,ALLOWED_ORIGINS=skillup-allowed-origins:latest,NEXT_PUBLIC_BACKEND_URL=skillup-backend-url:latest,NEXT_PUBLIC_FRONTEND_URL=skillup-frontend-url:latest'
 
 # Substitution variables with defaults
 substitutions:

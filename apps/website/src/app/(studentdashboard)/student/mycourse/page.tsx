@@ -1,98 +1,59 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CourseCard from '@/components/course/CourseCard/CourseCard';
-import { CourseCardProps } from '@/components/course/types/CourseCardProps/CourseCardProps';
-import { BookOpen, CircleUser, Filter, LayoutGrid, List } from 'lucide-react';
+import { BookOpen, CircleUser, Filter, LayoutGrid, List, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-const starFill = '/CourseDetails/starfill.svg';
-const starEmpty = '/CourseDetails/starnofill.svg';
+import { apiClient } from '@/lib/api-client';
 
-const courseData: CourseCardProps[] = [
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ১',
-    rating: 4,
-    category: 'UI/UX ডিজাইন',
-    title: 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস',
-    studentsEnrolled: '৫২৪',
-    totalSessions: '১৬',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ২',
-    rating: 4.5,
-    category: 'গ্রাফিক ডিজাইন',
-    title: 'গ্রাফিক ডিজাইন প্রফেশনাল কোর্স',
-    studentsEnrolled: '৬০০',
-    totalSessions: '২০',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ২',
-    rating: 4.5,
-    category: 'গ্রাফিক ডিজাইন',
-    title: 'গ্রাফিক ডিজাইন প্রফেশনাল কোর্স',
-    studentsEnrolled: '৬০০',
-    totalSessions: '২০',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ১',
-    rating: 4,
-    category: 'UI/UX ডিজাইন',
-    title: 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস',
-    studentsEnrolled: '৫২৪',
-    totalSessions: '১৬',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ২',
-    rating: 4.5,
-    category: 'গ্রাফিক ডিজাইন',
-    title: 'গ্রাফিক ডিজাইন প্রফেশনাল কোর্স',
-    studentsEnrolled: '৬০০',
-    totalSessions: '২০',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ২',
-    rating: 4.5,
-    category: 'গ্রাফিক ডিজাইন',
-    title: 'গ্রাফিক ডিজাইন প্রফেশনাল কোর্স',
-    studentsEnrolled: '৬০০',
-    totalSessions: '২০',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ১',
-    rating: 4,
-    category: 'UI/UX ডিজাইন',
-    title: 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস',
-    studentsEnrolled: '৫২৪',
-    totalSessions: '১৬',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ২',
-    rating: 4.5,
-    category: 'গ্রাফিক ডিজাইন',
-    title: 'গ্রাফিক ডিজাইন প্রফেশনাল কোর্স',
-    studentsEnrolled: '৬০০',
-    totalSessions: '২০',
-  },
-  {
-    imageUrl: '/Card/cover.png',
-    batchNo: 'ব্যাচ ২',
-    rating: 4.5,
-    category: 'গ্রাফিক ডিজাইন',
-    title: 'গ্রাফিক ডিজাইন প্রফেশনাল কোর্স',
-    studentsEnrolled: '৬০০',
-    totalSessions: '২০',
-  },
-];
+interface EnrolledCourse {
+  id: string;
+  courseId: string;
+  status: string;
+  progress: number;
+  enrolledAt: string;
+  course: {
+    id: string;
+    title: string;
+    description: string | null;
+    introVideoLink: string | null;
+    category: { id: string; title: string } | null;
+    feeType: string;
+    price: number | null;
+    _count: { lessons: number; enrollments: number };
+  };
+}
 
 function Page() {
   const [isGrid, setIsGrid] = useState<boolean>(true);
+  const [enrollments, setEnrollments] = useState<EnrolledCourse[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      try {
+        const response = await apiClient.getMyEnrollments();
+        if (response.data?.enrollments) {
+          setEnrollments(response.data.enrollments);
+        }
+      } catch (error) {
+        console.error('Failed to fetch enrollments:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEnrollments();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-full pb-4 flex items-center justify-center min-h-100">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-vibrant-blue mx-auto mb-2" />
+          <p className="text-slate-600">Loading your courses...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full pb-4">
@@ -105,7 +66,7 @@ function Page() {
             </div>
             <div>
               <h1 className="font-bold text-sm lg:text-lg text-gray-800">My Courses</h1>
-              <p className="text-xs text-gray-500 mt-0.5">{courseData.length} enrolled courses</p>
+              <p className="text-xs text-gray-500 mt-0.5">{enrollments.length} enrolled courses</p>
             </div>
           </div>
 
@@ -144,105 +105,130 @@ function Page() {
       {/* Divider */}
       <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent my-3 lg:my-4"></div>
 
-      {/* Course Grid */}
-      {isGrid ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 gap-y-6 pb-10">
-          {courseData.map((course, idx) => (
-            <div
-              key={idx}
-              className="animate-slide-up"
-              style={{ animationDelay: `${idx * 0.05}s` }}
-            >
-              <CourseCard {...course} courseId={idx} route="/student/class/" />
-            </div>
-          ))}
+      {/* No Courses Message */}
+      {enrollments.length === 0 ? (
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/50 p-8 text-center">
+          <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Courses Yet</h3>
+          <p className="text-gray-500 mb-4">You haven&apos;t enrolled in any courses yet.</p>
+          <a
+            href="/courses"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-vibrant-blue text-white rounded-xl hover:bg-dark-blue transition-colors"
+          >
+            Browse Courses
+          </a>
         </div>
       ) : (
-        <div className="space-y-3 lg:space-y-4">
-          {courseData.map((course, idx) => (
-            <div
-              key={idx}
-              className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 p-3 lg:p-4 hover:shadow-xl transition-all duration-300 cursor-pointer animate-slide-up"
-              style={{ animationDelay: `${idx * 0.05}s` }}
-              onClick={() => (window.location.href = `/student/class/${idx}`)}
-            >
-              <div className="flex gap-3 lg:gap-4">
-                {/* Course Image */}
-                <div className="shrink-0">
-                  <Image
-                    src={course.imageUrl}
-                    width={192}
-                    height={192}
-                    alt={course.title + ' image'}
-                    className="w-24 h-24 lg:w-32 lg:h-32 rounded-xl object-cover"
+        <>
+          {/* Course Grid */}
+          {isGrid ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 gap-y-6 pb-10">
+              {enrollments.map((enrollment, idx) => (
+                <div
+                  key={enrollment.id}
+                  className="animate-slide-up"
+                  style={{ animationDelay: `${idx * 0.05}s` }}
+                >
+                  <CourseCard
+                    imageUrl={'/Card/cover.png'}
+                    category={enrollment.course.category?.title || 'General'}
+                    title={enrollment.course.title}
+                    studentsEnrolled={String(enrollment.course._count?.enrollments || 0)}
+                    totalSessions={String(enrollment.course._count?.lessons || 0)}
+                    courseId={enrollment.courseId}
+                    route="/student/class/"
                   />
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3 lg:space-y-4">
+              {enrollments.map((enrollment, idx) => (
+                <div
+                  key={enrollment.id}
+                  className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/50 p-3 lg:p-4 hover:shadow-xl transition-all duration-300 cursor-pointer animate-slide-up"
+                  style={{ animationDelay: `${idx * 0.05}s` }}
+                  onClick={() => (window.location.href = `/student/class/${enrollment.courseId}`)}
+                >
+                  <div className="flex gap-3 lg:gap-4">
+                    {/* Course Image */}
+                    <div className="shrink-0">
+                      <Image
+                        src={'/Card/cover.png'}
+                        width={192}
+                        height={192}
+                        alt={enrollment.course.title + ' image'}
+                        className="w-24 h-24 lg:w-32 lg:h-32 rounded-xl object-cover"
+                      />
+                    </div>
 
-                {/* Course Details */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-2">
+                    {/* Course Details */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs lg:text-sm font-medium text-vibrant-blue bg-blue-50 px-2 py-0.5 rounded-md">
-                          {course.batchNo}
-                        </span>
-                        <span className="text-xs lg:text-sm text-gray-500">{course.category}</span>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs lg:text-sm font-medium text-vibrant-blue bg-blue-50 px-2 py-0.5 rounded-md">
+                              {enrollment.course.category?.title || 'General'}
+                            </span>
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded-md ${
+                                enrollment.status === 'COMPLETED'
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-yellow-100 text-yellow-700'
+                              }`}
+                            >
+                              {enrollment.status === 'COMPLETED' ? 'Completed' : 'In Progress'}
+                            </span>
+                          </div>
+                          <h3 className="font-bold text-sm lg:text-base text-gray-800 line-clamp-2">
+                            {enrollment.course.title}
+                          </h3>
+                        </div>
+
+                        {/* Progress */}
+                        <div className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-lg shrink-0">
+                          <span className="text-sm font-semibold text-vibrant-blue">
+                            {enrollment.progress}%
+                          </span>
+                        </div>
                       </div>
-                      <h3 className="font-bold text-sm lg:text-base text-gray-800 line-clamp-2">
-                        {course.title}
-                      </h3>
-                    </div>
 
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-lg shrink-0">
-                      <span className="flex gap-px">
-                        {Array.from({ length: 5 }, (_, index) => {
-                          if (index < (course.rating ?? 0)) {
-                            return (
-                              <Image
-                                key={index}
-                                src={starFill}
-                                width={20}
-                                height={20}
-                                alt="course-batch-icon"
-                              />
-                            );
-                          } else {
-                            return (
-                              <Image
-                                key={index}
-                                src={starEmpty}
-                                width={20}
-                                height={20}
-                                alt="course-batch-icon"
-                              />
-                            );
-                          }
-                        })}
-                      </span>
-                    </div>
-                  </div>
+                      {/* Progress Bar */}
+                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
+                        <div
+                          className="h-full bg-vibrant-blue rounded-full transition-all duration-300"
+                          style={{ width: `${enrollment.progress}%` }}
+                        />
+                      </div>
 
-                  {/* Stats */}
-                  <div className="flex items-center gap-3 lg:gap-4 text-xs lg:text-sm text-gray-600 mt-auto">
-                    <div className="flex items-center gap-1">
-                      <span className="flex items-center gap-1">
-                        <CircleUser className="size-4" />
-                        <span className="font-bold">{course.studentsEnrolled}</span> জন ভর্তি
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="inline-flex items-center">
-                        <BookOpen className="size-4" />
-                        <span className="font-bold">{course.totalSessions}</span>টি সেশন
-                      </span>
+                      {/* Stats */}
+                      <div className="flex items-center gap-3 lg:gap-4 text-xs lg:text-sm text-gray-600 mt-auto">
+                        <div className="flex items-center gap-1">
+                          <span className="flex items-center gap-1">
+                            <CircleUser className="size-4" />
+                            <span className="font-bold">
+                              {enrollment.course._count?.enrollments || 0}
+                            </span>{' '}
+                            Students
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="inline-flex items-center">
+                            <BookOpen className="size-4" />
+                            <span className="font-bold ml-1">
+                              {enrollment.course._count?.lessons || 0}
+                            </span>{' '}
+                            Lessons
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -14,4 +14,6 @@ export interface HeroProps {
   bgImage?: string | StaticImageData;
   coupons?: Array<{ code: string; discount: string; title: string }>;
   introVideoLink?: string | null;
+  isFree?: boolean;
+  courseId?: string;
 }

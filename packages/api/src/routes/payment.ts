@@ -5,20 +5,30 @@ import {
   handlePaymentCallback,
   handlePaymentWebhook,
   getPaymentStatus,
+  refundPayment,
+  enrollFree,
+  checkEnrollmentStatus,
+  getAdminPayments,
+  getAdminEnrollments,
+  adminRefundPayment,
+  adminDeletePayment,
+  getPaymentStats,
 } from '../controllers/payment.controller';
 
 const router: RouterType = Router();
 
-// Initiate payment (protected)
 router.post('/init', authenticate, initiatePayment);
-
-// Payment callback (after user redirected from payment gateway)
 router.get('/callback', handlePaymentCallback);
-
-// Payment webhook (server-to-server notification from payment gateway)
 router.post('/webhook', handlePaymentWebhook);
-
-// Get payment status (protected)
 router.get('/status/:transactionId', authenticate, getPaymentStatus);
+router.post('/refund', authenticate, refundPayment);
+router.post('/enroll-free', authenticate, enrollFree);
+router.get('/enrollment-status', authenticate, checkEnrollmentStatus);
+
+router.get('/admin/payments', authenticate, getAdminPayments);
+router.get('/admin/enrollments', authenticate, getAdminEnrollments);
+router.post('/admin/refund', authenticate, adminRefundPayment);
+router.delete('/admin/payment', authenticate, adminDeletePayment);
+router.get('/admin/stats', authenticate, getPaymentStats);
 
 export default router;
