@@ -40,11 +40,13 @@ interface UddoktaVerifyResponse {
   status?: string;
 }
 
-const UDDOKTA_PAY_API_KEY = process.env.UDDOKTA_PAY_API_KEY || '';
-const UDDOKTA_PAY_API_URL = process.env.UDDOKTA_PAY_API_URL || 'https://sandbox.uddoktapay.com/api';
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000';
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-const PAYMENT_CALLBACK_PROXY_URL = process.env.PAYMENT_CALLBACK_PROXY_URL || '';
+const UDDOKTA_PAY_API_KEY = (process.env.UDDOKTA_PAY_API_KEY || '').trim();
+const UDDOKTA_PAY_API_URL = (
+  process.env.UDDOKTA_PAY_API_URL || 'https://sandbox.uddoktapay.com/api'
+).trim();
+const FRONTEND_URL = (process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000').trim();
+const BACKEND_URL = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000').trim();
+const PAYMENT_CALLBACK_PROXY_URL = (process.env.PAYMENT_CALLBACK_PROXY_URL || '').trim();
 
 const initiatePaymentSchema = z.object({
   itemType: z.enum(['course', 'webinar']),
