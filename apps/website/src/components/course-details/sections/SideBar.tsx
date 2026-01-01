@@ -47,7 +47,7 @@ export default function SideBar({ AboutCourse }: AboutCourseProps) {
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="absolute bottom-0 left-0 right-0 bg-[#1E3A8A] dark:bg-chart-1/10 rounded-t-3xl p-6 max-h-[80vh] overflow-y-auto animate-slide-up"
+            className="absolute bottom-0 left-0 right-0 bg-dark-blue/30 not-dark:bg-vibrant-blue/50 border border-vibrant-blue rounded-t-3xl p-6 max-h-[50vh] overflow-y-auto animate-slide-up "
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -59,15 +59,17 @@ export default function SideBar({ AboutCourse }: AboutCourseProps) {
             </button>
 
             <h3 className="text-xl font-bold mb-6 text-white pr-10">কোর্স বিষয়বস্তু</h3>
-            {AboutCourse.details && <RichTextDisplay content={AboutCourse.details} />}
+            {AboutCourse.details && (
+              <RichTextDisplay className="text-red-500" content={AboutCourse.about} />
+            )}
           </div>
         </div>
       )}
 
       {/* Desktop Sidebar - Only visible on large screens */}
       <div className="hidden lg:block w-full">
-        <div className="bg-[#1E3A8A] dark:bg-chart-1/10 border border-dark-blue rounded-xl p-6 px-10 lg:px-16s top-6">
-          <h3 className="text-xl font-bold mb-6 text-white">কোর্স বিষয়বস্তু</h3>
+        <div className="bg-dark-blue/30 not-dark:bg-vibrant-blue/40 border border-dark-blue rounded-xl p-6 px-5 top-6">
+          <h3 className="text-xl font-bold mb-6 text-foreground">কোর্স বিষয়বস্তু</h3>
           {AboutCourse.details && <RichTextDisplay content={AboutCourse.about} />}
         </div>
       </div>

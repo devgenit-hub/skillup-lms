@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
-import './style.css';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { FaForward, FaBackward, FaPlayCircle, FaPauseCircle } from 'react-icons/fa';
+import './style.css';
 
 // YouTube Player API types
 interface YTPlayer {
@@ -13,6 +13,7 @@ interface YTPlayer {
   setPlaybackQuality: (suggestedQuality: string) => void;
   addEventListener: (event: string, listener: (e: Event) => void) => void;
   removeEventListener: (event: string, listener: (e: Event) => void) => void;
+  destroy: () => void;
 }
 
 interface YTPlayerEvent {
@@ -98,8 +99,6 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
   const [lockProgressBar] = useState<boolean>(true);
 
   const [showControl, setShowControl] = useState<boolean>(true);
-  const speeds: number[] = [0.5, 1, 1.5, 2];
-  const qualities: string[] = ['hd720', 'large', 'medium'];
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
@@ -232,54 +231,80 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
   }, [duration, currentTime, lastSavedDuration, lockedTimeDuration]);
 
   useEffect(() => {
-    // Load the YouTube API script
-    const script = document.createElement('script');
-    script.src = 'https://www.youtube.com/iframe_api';
-    document.body.appendChild(script);
+    console.log('VIDEO: ', videoId);
+    // Store ref value at the start of effect
+    const playerElement = playerDivRef.current;
 
-    // Define functions for YouTube API callbacks
-    window.onYouTubeIframeAPIReady = initializeYouTubePlayer;
+    const initializeYouTubePlayer = (): void => {
+      // Create a new YouTube player
+      const player = new window.YT.Player(playerDivRef.current, {
+        videoId: videoId,
+        playerVars: {
+          fs: 0,
+          controls: 0,
+          rel: 0, // Don't show related videos
+          modestbranding: 1,
+          iv_load_policy: 3, // Hide annotations
+          showinfo: 0, // Hide video info
+          disablekb: 1, // Disable keyboard controls to prevent issues
+          cc_load_policy: 0, // Don't show captions by default
+        },
+        events: {
+          onReady: onPlayerReady,
+          onStateChange: onPlayerStateChange,
+          onpause: togglePlay,
+          onplay: togglePlay,
+        },
+      });
+
+      // Expose the player instance if needed
+      // You can use this reference to control the player (play, pause, seek, etc.)
+      playerRef.current = player;
+
+      // Add event listener to disable right-click context menu
+      playerElement?.addEventListener('contextmenu', handlecontext);
+      window.addEventListener('contextmenu', handlecontext);
+      window.addEventListener('keydown', handlecontext);
+    };
+
+    // Check if YouTube API is already loaded
+    if (window.YT && window.YT.Player) {
+      // API is already loaded, initialize immediately
+      initializeYouTubePlayer();
+    } else {
+      // Check if script is already in document
+      const existingScript = document.querySelector(
+        'script[src="https://www.youtube.com/iframe_api"]'
+      );
+
+      if (!existingScript) {
+        // Load the YouTube API script
+        const script = document.createElement('script');
+        script.src = 'https://www.youtube.com/iframe_api';
+        document.body.appendChild(script);
+      }
+
+      // Define functions for YouTube API callbacks
+      window.onYouTubeIframeAPIReady = initializeYouTubePlayer;
+    }
 
     // Cleanup on component unmount
     return () => {
-      document.body.removeChild(script);
-      delete window.onYouTubeIframeAPIReady;
-      playerDivRef.current?.removeEventListener('contextmenu', handlecontext);
+      // Store player ref value for cleanup
+      const player = playerRef.current;
+
+      // Destroy the player instance
+      if (player && typeof player.destroy === 'function') {
+        player.destroy();
+      }
+      playerRef.current = null;
+
+      playerElement?.removeEventListener('contextmenu', handlecontext);
       window.removeEventListener('contextmenu', handlecontext);
       window.removeEventListener('keydown', handlecontext);
     };
   }, [videoId]);
 
-  const initializeYouTubePlayer = (): void => {
-    // Create a new YouTube player
-    const player = new window.YT.Player(playerDivRef.current, {
-      videoId: videoId,
-      playerVars: {
-        fs: 0,
-        controls: 0,
-        rel: 0, // Don't show related videos
-        modestbranding: 1,
-        iv_load_policy: 3, // Hide annotations
-        showinfo: 0, // Hide video info
-        disablekb: 1, // Disable keyboard controls to prevent issues
-        cc_load_policy: 0, // Don't show captions by default
-      },
-      events: {
-        onReady: onPlayerReady,
-        onStateChange: onPlayerStateChange,
-        onpause: togglePlay,
-        onplay: togglePlay,
-      },
-    });
-
-    // Expose the player instance if needed
-    // You can use this reference to control the player (play, pause, seek, etc.)
-    playerRef.current = player;
-    // Add event listener to disable right-click context menu
-    playerDivRef.current?.addEventListener('contextmenu', handlecontext);
-    window.addEventListener('contextmenu', handlecontext);
-    window.addEventListener('keydown', handlecontext);
-  };
   const handlecontext = (e: Event): void => {
     e.preventDefault();
     return;
@@ -316,38 +341,48 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
     playerRef.current?.seekTo(newTime, true);
   };
 
-  const handleSeekChange = (e: number | string): void => {
-    // Handle changes in the seek input range
-    const newTime: number = parseFloat(e.toString());
-    setCurrentTime(newTime);
-    if (playerRef.current) {
-      playerRef.current?.seekTo(newTime, true);
-      if (!isPlaying) {
-        pauseVideo();
-        setIsPlaying(false);
+  const handleSeekChange = useCallback(
+    (e: number | string): void => {
+      // Handle changes in the seek input range
+      const newTime: number = parseFloat(e.toString());
+      setCurrentTime(newTime);
+      if (playerRef.current) {
+        playerRef.current?.seekTo(newTime, true);
+        if (!isPlaying) {
+          playerRef.current?.pauseVideo();
+          setIsPlaying(false);
+        }
       }
-    }
-  };
-  const handleSpeedChange = (newSpeed: number): void => {
-    setSpeed(newSpeed);
-    if (playerRef.current) {
-      playerRef.current?.setPlaybackRate(newSpeed, true);
-    }
-    showSpeed();
-  };
-  const handleQualityChange = (newQuality: string): void => {
+    },
+    [isPlaying]
+  );
+  const showSpeed = useCallback((): void => {
+    setsspeed((pre) => !pre);
+  }, []);
+
+  const handleSpeedChange = useCallback(
+    (newSpeed: number): void => {
+      setSpeed(newSpeed);
+      if (playerRef.current) {
+        playerRef.current?.setPlaybackRate(newSpeed, true);
+      }
+      showSpeed();
+    },
+    [showSpeed]
+  );
+  const handleQualityChange = useCallback((newQuality: string): void => {
     if (playerRef.current) {
       playerRef.current?.setPlaybackQuality(newQuality);
     }
-  };
-  const showSpeed = (): void => {
-    setsspeed((pre) => !pre);
-  };
-  const showQuality = (): void => {
+  }, []);
+  const showQuality = useCallback((): void => {
     setsquality((pre) => !pre);
-  };
+  }, []);
 
   const controller = useMemo(() => {
+    const speeds: number[] = [0.5, 0.75, 1, 1.25, 1.5, 2];
+    const qualities: string[] = ['hd720', 'large', 'medium'];
+
     return (
       <div
         className={`custom-controls p-4 flex justify-between items-center transition-transform md:hover:opacity-100 md:opacity-50 ${
@@ -453,12 +488,16 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
     showControl,
     duration,
     currentTime,
-    convertTime,
-    togglePlay,
     isPlaying,
     handleSeekChange,
     lastSavedDuration,
     lockProgressBar,
+    handleSpeedChange,
+    sspeed,
+    squality,
+    showSpeed,
+    showQuality,
+    handleQualityChange,
   ]);
 
   return (
@@ -542,19 +581,19 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
 
 export { YTPlayer };
 
-const PPButton: React.FC<PPButtonProps> = ({ isPlaying, Click, playVideo, pauseVideo }) => {
+function PPButton({ isPlaying, Click, playVideo, pauseVideo }: PPButtonProps) {
   return (
     <PPIcon isPlaying={isPlaying} playVideo={playVideo} pauseVideo={pauseVideo} Click={Click} />
   );
-};
+}
 
-const ProgessBar: React.FC<ProgressBarProps> = ({
+function ProgessBar({
   currentTime = 0,
   duration = 1,
   handleSeekChange,
   lockedStartTime,
   lockProgressBar,
-}) => {
+}: ProgressBarProps) {
   const handleClick = (e: React.MouseEvent<HTMLLabelElement | HTMLInputElement>): void => {
     const progressBar = e.target as HTMLElement;
     const { left, width } = progressBar.getBoundingClientRect();
@@ -618,9 +657,9 @@ const ProgessBar: React.FC<ProgressBarProps> = ({
       )}
     </>
   );
-};
+}
 
-const PPIcon: React.FC<PPIconProps> = ({ isPlaying, playVideo, pauseVideo, Click }) => {
+function PPIcon({ isPlaying, playVideo, pauseVideo, Click }: PPIconProps) {
   if (!isPlaying)
     return (
       <button
@@ -643,7 +682,7 @@ const PPIcon: React.FC<PPIconProps> = ({ isPlaying, playVideo, pauseVideo, Click
         <FaPauseCircle />
       </button>
     );
-};
+}
 function convertTime(timeInSecond: number = 0): TimeObject {
   const m: string | number = addPrefix(Math.floor(timeInSecond / 60));
   const s: string | number = addPrefix(Math.floor(timeInSecond - Number(m) * 60));

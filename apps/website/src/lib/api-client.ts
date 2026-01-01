@@ -211,6 +211,24 @@ class ApiClient {
         description: string | null;
         introVideoLink: string | null;
         category: { id: string; title: string } | null;
+        metadata: {
+          level?: string;
+          batchNo?: string;
+          heroImage?: string | null;
+          courseType: string;
+          numClasses: number;
+          aboutCourse: {
+            about: string;
+            details: string;
+          };
+          classRoutinePdf: string;
+          courseInstructors?: Array<{
+            name: string;
+            designation: string;
+            profileImage: string | null;
+          }>;
+          facebookGroupLink?: string | null;
+        };
         lessons: Array<{
           id: string;
           title: string;
