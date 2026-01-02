@@ -8,6 +8,7 @@ import CardButton from '@/components/shared/CardButton';
 export default function CourseCard(props: CourseCardProps) {
   const router = useRouter();
   const pn = usePathname();
+  console.log(props);
   return (
     <div className="flex flex-col h-full relative rounded-3xl pb-10 bg-card border-black/10 dark:border-white/10 border-2 text-card-foreground shadow-md shadow-black/25">
       <div className="overflow-hidden w-full flex-1 flex flex-col justify-between gap-2 rounded-3xl">
@@ -22,8 +23,8 @@ export default function CourseCard(props: CourseCardProps) {
         <CourseCardBody
           category={props.category || 'UI/UX ডিজাইন'}
           title={props.title || 'ইউজার এক্সপেরিয়েন্স ডিজাইন ফান্ডামেন্টালস'}
-          studentsEnrolled={props.studentsEnrolled || '৬৫০'}
-          totalSessions={props.totalSessions || '২০'}
+          studentsEnrolled={props.studentsEnrolled || '০'}
+          totalSessions={props.totalSessions || '০'}
         />
       </div>
       <div className="absolute left-0 bottom-0 translate-y-1/2 w-full flex justify-center">

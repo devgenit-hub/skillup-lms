@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
 import type { Locale } from '@repo/locales';
 import DashboardContent from '@/components/student/DashboardContent';
 import { Toaster } from 'sonner';
+import ProgressLoader from '@/components/ProgressLoader';
 
 export default async function DashboardLayout({
   children,
@@ -24,7 +25,10 @@ export default async function DashboardLayout({
           <AppContextProvider>
             <LocaleProvider initialLocale={locale}>
               <ThemeProvider>
-                <DashboardContent>{children}</DashboardContent>
+                <DashboardContent>
+                  <ProgressLoader />
+                  {children}
+                </DashboardContent>
                 <Toaster position="top-right" richColors />
               </ThemeProvider>
             </LocaleProvider>

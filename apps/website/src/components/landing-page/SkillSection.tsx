@@ -20,7 +20,7 @@ export default function SkillSection() {
         </Button>
       </div>
       <div className="min-w-1/2 relative">
-        <div className="min-h-[300px] bg-vibrant-blue/10 border border-vibrant-blue/20 rounded-3xl w-full"></div>
+        <div className="min-h-75 bg-vibrant-blue/10 border border-vibrant-blue/20 rounded-3xl w-full"></div>
         <div className="absolute left-1/2 top-1/2 p-3 bg-white/10 rounded-full">
           <Play />
         </div>

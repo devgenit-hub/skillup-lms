@@ -12,7 +12,7 @@ export default function MobileMenuButton({ isOpen, onClick, ariaLabel }: MobileM
   return (
     <button
       onClick={onClick}
-      className="lg:hidden p-2 rounded-xl bg-card backdrop-blur-xl shadow-md border border-border hover:bg-muted transition-all duration-300 active:scale-95"
+      className="xl:hidden p-2 rounded-xl bg-card backdrop-blur-xl shadow-md border border-border hover:bg-muted transition-all duration-300 active:scale-95"
       aria-label={ariaLabel}
       aria-expanded={isOpen}
     >

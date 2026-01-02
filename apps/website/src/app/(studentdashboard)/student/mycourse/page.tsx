@@ -1,9 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import CourseCard from '@/components/course/CourseCard/CourseCard';
-import { BookOpen, CircleUser, Filter, LayoutGrid, List, Loader2 } from 'lucide-react';
+import { BookOpen, BookText, CircleUser, LayoutGrid, List, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { apiClient } from '@/lib/api-client';
+import Link from 'next/link';
 
 interface EnrolledCourse {
   id: string;
@@ -72,10 +73,17 @@ function Page() {
 
           {/* Filter and View Options */}
           <div className="flex items-center gap-2 justify-between lg:justify-end w-full lg:w-auto">
-            <button className="flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl bg-linear-to-r from-gray-100 to-slate-100 hover:from-vibrant-blue hover:to-indigo-600 text-gray-700 hover:text-white transition-all duration-300 text-xs lg:text-sm font-medium group flex-1 lg:flex-none justify-center">
+            <Link
+              href="/allcourse"
+              className="flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl bg-linear-to-r from-gray-100 to-slate-100 hover:from-vibrant-blue hover:to-indigo-600 text-gray-700 hover:text-white transition-all duration-300 text-xs lg:text-sm font-medium flex-1 lg:flex-none justify-center cursor-pointer"
+            >
+              <BookText className="w-3 h-3 lg:w-4 lg:h-4" />
+              <span>All Course</span>
+            </Link>
+            {/* <button className="flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl bg-linear-to-r from-gray-100 to-slate-100 hover:from-vibrant-blue hover:to-indigo-600 text-gray-700 hover:text-white transition-all duration-300 text-xs lg:text-sm font-medium group flex-1 lg:flex-none justify-center cursor-pointer">
               <Filter className="w-3 h-3 lg:w-4 lg:h-4 group-hover:rotate-180 transition-transform duration-300" />
               <span>Filter</span>
-            </button>
+            </button> */}
             <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
               <button
                 onClick={() => setIsGrid(true)}
@@ -112,7 +120,7 @@ function Page() {
           <h3 className="text-lg font-semibold text-gray-700 mb-2">No Courses Yet</h3>
           <p className="text-gray-500 mb-4">You haven&apos;t enrolled in any courses yet.</p>
           <a
-            href="/courses"
+            href="/allcourse"
             className="inline-flex items-center gap-2 px-6 py-3 bg-vibrant-blue text-white rounded-xl hover:bg-dark-blue transition-colors"
           >
             Browse Courses
@@ -137,6 +145,7 @@ function Page() {
                     totalSessions={String(enrollment.course._count?.lessons || 0)}
                     courseId={enrollment.courseId}
                     route="/student/class/"
+                    price={enrollment.course.price}
                   />
                 </div>
               ))}
