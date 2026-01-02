@@ -46,7 +46,11 @@ export default function UpcomingLive() {
         </span>
       </div>
 
-      <ul className="flex flex-col gap-3">
+      <div className="w-fit justify-center flex mx-auto">
+        <p>Will be available soon!</p>
+      </div>
+
+      <ul className="flex-col gap-3 hidden">
         {liveList.map((live, idx) => (
           <li
             className={`group relative overflow-hidden rounded-2xl bg-linear-to-br transition-all duration-300 cursor-pointer

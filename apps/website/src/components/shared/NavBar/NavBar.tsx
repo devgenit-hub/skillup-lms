@@ -27,23 +27,9 @@ export default function NavBar() {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4" onClick={() => router.push('/')}>
             {mounted && resolvedTheme === 'dark' ? (
-              <Image
-                width={96}
-                height={(96 * 9) / 16}
-                fill={false}
-                src={'/logodark.png'}
-                alt="skillশিখো logo"
-                priority
-              />
+              <Image width={96} height={24} src={'/logodark.png'} alt="skillশিখো logo" priority />
             ) : (
-              <Image
-                width={96}
-                height={(96 * 9) / 16}
-                fill={false}
-                src={'/logolight.png'}
-                alt="skillশিখো logo"
-                priority
-              />
+              <Image width={96} height={24} src={'/logolight.png'} alt="skillশিখো logo" priority />
             )}
           </div>
 

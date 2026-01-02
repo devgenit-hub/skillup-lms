@@ -1,5 +1,5 @@
 'use client';
-import { LayoutDashboard, LogOut, NotebookPen, BookText, UserPen, Video } from 'lucide-react';
+import { LayoutDashboard, LogOut, NotebookPen, UserPen, Video } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
@@ -33,11 +33,11 @@ export default function SideBar() {
       icon: Video,
       label: 'My Webinars',
     },
-    {
-      path: '/student/allcourse',
-      icon: BookText,
-      label: 'All Course',
-    },
+    // {
+    //   path: '/student/allcourse',
+    //   icon: BookText,
+    //   label: 'All Course',
+    // },
     {
       path: '/student/profile',
       icon: UserPen,

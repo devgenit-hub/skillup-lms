@@ -9,196 +9,85 @@ import {
   FileText,
   Video,
   Clock,
+  Loader2,
+  GripVertical,
+  OctagonX,
 } from 'lucide-react';
 import { ModuleData } from '@/components/student/types/ModuleDataProps';
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { FaSquareFacebook } from 'react-icons/fa6';
 import { cn } from '@/lib/utils';
+import { apiClient } from '@/lib/api-client';
+import { useParams, useRouter } from 'next/navigation';
+import { YTPlayer } from '@/components/YTPlayer/YTPlayer';
 
-// Mock module data with curriculum structure
-const modulesData: ModuleData[] = [
-  {
-    id: '1',
-    title: 'Module 1: React Fundamentals',
-    details: 'Learn the basics of React including components, JSX, and props',
-    order: 0,
-    progress: 75,
-    classes: [
-      {
-        id: 'c1-1',
-        title: 'Introduction to React',
-        videoUrl: 'https://youtu.be/5LYy31dCZoQ',
-        duration: 60,
-        order: 0,
-        isCompleted: true,
-      },
-      {
-        id: 'c1-2',
-        title: 'JSX and Components',
-        videoUrl: 'https://youtu.be/24L7r7SoK_Y',
-        duration: 45,
-        order: 1,
-        isCompleted: true,
-      },
-      {
-        id: 'c1-3',
-        title: 'Props and State Basics',
-        videoUrl: 'https://youtu.be/HLVzEHGLF7Y',
-        duration: 50,
-        order: 2,
-        isCompleted: false,
-      },
-    ],
-    materials: [
-      {
-        id: 'm1-1',
-        title: 'React Basics Slides',
-        fileUrl: 'https://example.com/download',
-        fileType: 'PDF',
-        fileSize: 2621440, // 2.5 MB in bytes
-        order: 0,
-      },
-      {
-        id: 'm1-2',
-        title: 'Exercise Solutions',
-        fileUrl: 'https://example.com/download',
-        fileType: 'ZIP',
-        fileSize: 1258291, // 1.2 MB in bytes
-        order: 1,
-      },
-    ],
-  },
-  {
-    id: '2',
-    title: 'Module 2: State Management',
-    details: 'Deep dive into state management with useState, useReducer, and Context API',
-    order: 1,
-    progress: 50,
-    classes: [
-      {
-        id: 'c2-1',
-        title: 'useState Hook',
-        videoUrl: 'https://youtu.be/O6P86uwfdR0',
-        duration: 55,
-        order: 0,
-        isCompleted: true,
-      },
-      {
-        id: 'c2-2',
-        title: 'useReducer Pattern',
-        videoUrl: 'https://youtu.be/kK_Wqx3RnHk',
-        duration: 65,
-        order: 1,
-        isCompleted: false,
-      },
-      {
-        id: 'c2-3',
-        title: 'Context API',
-        duration: 70,
-        order: 2,
-        isCompleted: false,
-        isLocked: true,
-      },
-    ],
-    materials: [
-      {
-        id: 'm2-1',
-        title: 'State Management Guide',
-        fileUrl: 'https://example.com/download',
-        fileType: 'PDF',
-        fileSize: 3145728, // 3 MB in bytes
-        order: 0,
-      },
-    ],
-  },
-  {
-    id: '3',
-    title: 'Module 3: Advanced Hooks',
-    details: 'Master advanced hooks like useEffect, useMemo, useCallback, and custom hooks',
-    order: 2,
-    progress: 0,
-    classes: [
-      {
-        id: 'c3-1',
-        title: 'useEffect Deep Dive',
-        duration: 75,
-        order: 0,
-        isCompleted: false,
-        isLocked: true,
-      },
-      {
-        id: 'c3-2',
-        title: 'Performance Optimization',
-        duration: 60,
-        order: 1,
-        isCompleted: false,
-        isLocked: true,
-      },
-      {
-        id: 'c3-3',
-        title: 'Custom Hooks',
-        duration: 80,
-        order: 2,
-        isCompleted: false,
-        isLocked: true,
-      },
-    ],
-    materials: [
-      {
-        id: 'm3-1',
-        title: 'Advanced Hooks Cheatsheet',
-        fileType: 'PDF',
-        fileSize: 1048576, // 1 MB in bytes
-        order: 0,
-      },
-      {
-        id: 'm3-2',
-        title: 'Code Examples',
-        fileType: 'ZIP',
-        fileSize: 5242880, // 5 MB in bytes
-        order: 1,
-      },
-    ],
-  },
-  {
-    id: '4',
-    title: 'Module 4: React Router & Navigation',
-    details: 'Learn client-side routing and navigation in React applications',
-    order: 3,
-    progress: 0,
-    classes: [
-      {
-        id: 'c4-1',
-        title: 'React Router Setup',
-        duration: 45,
-        order: 0,
-        isCompleted: false,
-        isLocked: true,
-      },
-      {
-        id: 'c4-2',
-        title: 'Dynamic Routes',
-        duration: 55,
-        order: 1,
-        isCompleted: false,
-        isLocked: true,
-      },
-    ],
-    materials: [],
-  },
-];
+interface CourseEnrollment {
+  id: string;
+  userId: string;
+  courseId: string;
+  status: string;
+  progress: number;
+  enrolledAt: string;
+  completedAt: string | null;
+  course: {
+    id: string;
+    title: string;
+    description: string | null;
+    introVideoLink: string | null;
+    category: { id: string; title: string } | null;
+    metadata: {
+      level?: string;
+      batchNo?: string;
+      heroImage?: string | null;
+      courseType: string;
+      numClasses: number;
+      aboutCourse: {
+        about: string;
+        details: string;
+      };
+      classRoutinePdf: string;
+      courseInstructors?: Array<{
+        name: string;
+        designation: string;
+        profileImage: string | null;
+      }>;
+      facebookGroupLink?: string | null;
+    };
+    curriculumModules: Array<{
+      id: string;
+      title: string;
+      details: string | null;
+      order: number;
+      classes: Array<{
+        id: string;
+        title: string;
+        videoUrl: string | null;
+        duration: number | null;
+        order: number;
+      }>;
+      materials: Array<{
+        id: string;
+        title: string;
+        fileUrl: string | null;
+        fileType: string | null;
+        fileSize: number | null;
+        order: number;
+      }>;
+    }>;
+  };
+}
 
 // Helper function to format file size
 const formatFileSize = (bytes?: number): string => {
-  if (!bytes) return 'N/A';
+  if (!bytes) return '--';
   const mb = bytes / (1024 * 1024);
   return mb >= 1 ? `${mb.toFixed(1)} MB` : `${(bytes / 1024).toFixed(1)} KB`;
 };
 
 // Helper function to format duration
 const formatDuration = (minutes?: number): string => {
-  if (!minutes) return 'N/A';
+  if (!minutes) return '--';
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   if (hours > 0) {
@@ -208,7 +97,92 @@ const formatDuration = (minutes?: number): string => {
 };
 
 export default function Page() {
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set(['1'])); // First module expanded by default
+  const params = useParams();
+  const router = useRouter();
+  const courseId = params?.id as string;
+  const [currentVideoId, setCurrentVideoId] = useState<string>('');
+
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+  const [enrollment, setEnrollment] = useState<CourseEnrollment | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'production') {
+      window.oncontextmenu = function () {
+        return false;
+      };
+      document.oncontextmenu = function () {
+        return false;
+      };
+    }
+
+    return () => {};
+  });
+
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      if (!courseId) return;
+
+      try {
+        setLoading(true);
+        const response = await apiClient.getMyCourseDetails(courseId);
+        setEnrollment(response.data);
+
+        // Expand first module by default if available
+        if (response.data.course.curriculumModules.length > 0) {
+          const firstModuleId = response.data.course.curriculumModules[0]?.id;
+          if (firstModuleId) {
+            setExpandedModules(new Set([firstModuleId]));
+          }
+        }
+      } catch (err: unknown) {
+        console.error('Error fetching course data:', err);
+        const errorMessage =
+          err && typeof err === 'object' && 'response' in err
+            ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+            : 'Failed to load course data';
+        setError(errorMessage || 'Failed to load course data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourseData();
+  }, [courseId]);
+
+  const modulesData: ModuleData[] =
+    enrollment?.course.curriculumModules.map((module) => {
+      // Calculate module progress based on completed classes
+      const completedClasses = module.classes.filter((c) => c.videoUrl).length;
+      const totalClasses = module.classes.length;
+      const progress = totalClasses > 0 ? Math.round((completedClasses / totalClasses) * 100) : 0;
+
+      return {
+        id: module.id,
+        title: module.title,
+        details: module.details || undefined,
+        order: module.order,
+        progress,
+        classes: module.classes.map((classItem) => ({
+          id: classItem.id,
+          title: classItem.title,
+          videoUrl: classItem.videoUrl || undefined,
+          duration: classItem.duration || undefined,
+          order: classItem.order,
+          isCompleted: false, // TODO: Track completion from backend
+          isLocked: !classItem.videoUrl, // Lock if no video URL
+        })),
+        materials: module.materials.map((material) => ({
+          id: material.id,
+          title: material.title,
+          fileUrl: material.fileUrl || undefined,
+          fileType: material.fileType || undefined,
+          fileSize: material.fileSize || undefined,
+          order: material.order,
+        })),
+      };
+    }) || [];
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules((prev) => {
@@ -225,40 +199,84 @@ export default function Page() {
   const handlePlayVideo = (videoUrl?: string, isLocked?: boolean) => {
     if (isLocked) return;
     if (videoUrl) {
-      const curPath = window.location.pathname;
+      // const curPath = window.location.pathname;
       const vidIdArray = videoUrl?.split('/');
 
       const x = vidIdArray ? vidIdArray[vidIdArray.length - 1] || '' : '';
-      window.location.assign(curPath + `/classroom/${x}`);
+      setCurrentVideoId(x);
+      // window.location.assign(curPath + `/classroom/${x}`);
     }
   };
 
-  const handleDownloadMaterial = (fileUrl?: string) => {
-    if (fileUrl) {
-      window.open(fileUrl, '_blank');
+  // memo for video player
+  const memoPlayer = useMemo(() => {
+    if (currentVideoId.length > 0) {
+      return (
+        <div className="z-20 fixed top-0 left-0 right-0 bottom-0 bg-black/90 flex items-center justify-center">
+          <Button
+            aria-label="Close Video Player"
+            className="z-500 bg-dark-blue/90 absolute top-10 left-10 ring-1 ring-vibrant-blue"
+            size="icon"
+            onClick={() => setCurrentVideoId('')}
+          >
+            <OctagonX color="#fef3fe" size={26} />
+          </Button>
+          {currentVideoId && <YTPlayer key={currentVideoId} videoId={currentVideoId} />}
+        </div>
+      );
     }
-  };
+    return <></>;
+  }, [currentVideoId]);
 
   // Calculate overall course progress
-  const overallProgress = Math.round(
-    modulesData.reduce((acc, module) => acc + (module.progress || 0), 0) / modulesData.length
-  );
+  const _overallProgress = enrollment?.progress || 0;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto" />
+          <p className="text-gray-600">Loading course details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !enrollment) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="text-red-600 text-5xl">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900">Failed to Load Course</h2>
+          <p className="text-gray-600">{error || 'Course not found or you are not enrolled.'}</p>
+          <Button onClick={() => router.push('/student/courses')} className="mt-4">
+            Back to My Courses
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-4">
+      {currentVideoId && memoPlayer}
       <div className="max-w-7xl mx-auto space-y-4 lg:space-y-6">
         {/* Course Header */}
         <div className="relative">
           <div className="bg-linear-to-br from-blue-500 via-blue-600 to-indigo-800 rounded-2xl lg:rounded-3xl p-6 lg:p-8 w-full shadow-xl">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="space-y-2 flex-1">
-                <h1 className="font-bold text-2xl lg:text-4xl text-white">React Mastery Course</h1>
+                <h1 className="font-bold text-2xl lg:text-4xl text-white">
+                  {enrollment.course.title}
+                </h1>
                 <p className="text-blue-100 text-sm lg:text-base">
-                  Master React from fundamentals to advanced concepts
+                  {enrollment.course.description || 'Master the concepts and build your skills'}
                 </p>
 
-                {/* Progress Bar */}
-                <div className="pt-2">
+                {/* Progress Bar - Hidden for future implementation */}
+                {/* <div className="pt-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs lg:text-sm font-medium text-white">
                       Course Progress
@@ -273,16 +291,16 @@ export default function Page() {
                       style={{ width: `${overallProgress}%` }}
                     ></div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* Facebook Group Card */}
               <div className="bg-white p-4 rounded-xl shadow-2xl hover:shadow-vibrant-blue hover:scale-105 transition-all duration-300 lg:w-72">
                 <div className="flex items-center gap-3">
-                  <FaSquareFacebook className="text-vibrant-blue flex-shrink-0" size={40} />
+                  <FaSquareFacebook className="text-vibrant-blue shrink-0" size={40} />
                   <div className="flex-1 min-w-0">
                     <a
-                      href="#"
+                      href={enrollment.course?.metadata?.facebookGroupLink || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block text-sm lg:text-base font-semibold text-vibrant-blue hover:underline truncate"
@@ -299,7 +317,14 @@ export default function Page() {
             <div className="mt-4 pt-4 border-t border-blue-400/30 text-right">
               <p className="text-xs lg:text-sm text-blue-100">
                 Enrolled on{' '}
-                <span className="font-semibold text-white">Tuesday, 14 October 2025</span>
+                <span className="font-semibold text-white">
+                  {new Date(enrollment.enrolledAt).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
               </p>
             </div>
           </div>
@@ -308,8 +333,10 @@ export default function Page() {
         {/* Course Curriculum - Module System */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Course Curriculum</h2>
-            <div className="text-sm text-gray-600">{modulesData.length} Modules</div>
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-200">
+              Course Curriculum
+            </h2>
+            <div className="text-sm text-gray-500">{modulesData.length} Modules</div>
           </div>
 
           {/* Modules Accordion */}
@@ -327,19 +354,19 @@ export default function Page() {
                   {/* Module Header */}
                   <button
                     onClick={() => toggleModule(module.id)}
-                    className="w-full p-4 lg:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-start gap-3 lg:gap-4 flex-1 text-left">
                       {/* Module Number Badge */}
-                      <div className="flex-shrink-0 w-10 h-10 lg:w-12 lg:h-12 bg-linear-to-br from-blue-500 to-indigo-600 rounded-lg lg:rounded-xl flex items-center justify-center shadow-md">
-                        <span className="text-white font-bold text-base lg:text-lg">
-                          {moduleIndex + 1}
-                        </span>
+                      <div>
+                        <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                          <GripVertical size={20} />
+                        </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-base lg:text-lg font-bold text-gray-900 mb-1">
-                          {module.title}
+                        <h3 className="text-base font-bold text-gray-900 mb-1">
+                          Module {moduleIndex + 1} : {module.title}
                         </h3>
                         {module.details && (
                           <p className="text-xs lg:text-sm text-gray-600 mb-2 line-clamp-1">
@@ -358,14 +385,14 @@ export default function Page() {
                             {module.materials.length}{' '}
                             {module.materials.length === 1 ? 'Material' : 'Materials'}
                           </span>
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1" hidden>
                             <CheckCircle2 className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                             {completedClasses}/{totalClasses} Completed
                           </span>
                         </div>
 
                         {/* Progress Bar */}
-                        <div className="mt-3 w-full bg-gray-200 rounded-full h-1.5 lg:h-2">
+                        <div className="mt-3 w-full bg-gray-200 rounded-full h-1.5 lg:h-2" hidden>
                           <div
                             className={cn(
                               'h-1.5 lg:h-2 rounded-full transition-all duration-500',
@@ -382,7 +409,7 @@ export default function Page() {
                     </div>
 
                     {/* Expand/Collapse Icon */}
-                    <div className="flex-shrink-0 ml-2">
+                    <div className="shrink-0 ml-2">
                       {isExpanded ? (
                         <ChevronUp className="w-5 h-5 lg:w-6 lg:h-6 text-gray-400" />
                       ) : (
@@ -396,9 +423,9 @@ export default function Page() {
                     <div className="border-t border-gray-200 bg-gray-50/50">
                       {/* Classes Section */}
                       {module.classes.length > 0 && (
-                        <div className="p-4 lg:p-6 space-y-2">
+                        <div className="p-4 lg:p-5 space-y-2">
                           <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                            <Video className="w-4 h-4 lg:w-5 lg:h-5 text-blue-600" />
+                            <Video className="w-4 h-4 text-blue-600" />
                             Video Lessons
                           </h4>
                           <div className="space-y-2">
@@ -406,7 +433,7 @@ export default function Page() {
                               <div
                                 key={classItem.id}
                                 className={cn(
-                                  'flex items-center justify-between p-3 lg:p-4 rounded-lg lg:rounded-xl transition-all',
+                                  'flex items-center justify-between p-3  rounded-lg lg:rounded-xl transition-all',
                                   classItem.isLocked
                                     ? 'bg-gray-100 opacity-60 cursor-not-allowed'
                                     : classItem.isCompleted
@@ -416,7 +443,7 @@ export default function Page() {
                               >
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                   {/* Status Icon */}
-                                  <div className="flex-shrink-0">
+                                  <div className="shrink-0">
                                     {classItem.isLocked ? (
                                       <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gray-300 rounded-full flex items-center justify-center">
                                         <Lock className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600" />
@@ -439,7 +466,10 @@ export default function Page() {
                                     <h5 className="text-sm lg:text-base font-medium text-gray-900 truncate">
                                       {classItem.title}
                                     </h5>
-                                    <div className="flex items-center gap-2 text-xs lg:text-sm text-gray-500 mt-0.5">
+                                    <div
+                                      className="flex items-center gap-2 text-xs lg:text-sm text-gray-500 mt-0.5"
+                                      hidden
+                                    >
                                       <Clock className="w-3 h-3 lg:w-3.5 lg:h-3.5" />
                                       <span>{formatDuration(classItem.duration)}</span>
                                       {classItem.isLocked && (
@@ -459,7 +489,7 @@ export default function Page() {
                                     onClick={() =>
                                       handlePlayVideo(classItem.videoUrl, classItem.isLocked)
                                     }
-                                    className="shrink-0 h-9 w-9 lg:h-10 lg:w-10 p-0 hover:bg-blue-100 hover:text-blue-600 rounded-full"
+                                    className="shrink-0 h-9 w-9 lg:h-10 lg:w-10 p-0 hover:bg-blue-100 hover:text-blue-600 rounded-full cursor-pointer"
                                   >
                                     <Play className="h-4 w-4 lg:h-5 lg:w-5" color="black" />
                                     <span className="sr-only">Play video</span>
@@ -473,7 +503,7 @@ export default function Page() {
 
                       {/* Materials Section */}
                       {module.materials.length > 0 && (
-                        <div className="p-4 lg:p-6 border-t border-gray-200 space-y-2">
+                        <div className="p-4 lg:p-5 border-t border-gray-200 space-y-2">
                           <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
                             <FileText className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
                             Course Materials
@@ -482,7 +512,10 @@ export default function Page() {
                             {module.materials.map((material) => (
                               <div
                                 key={material.id}
-                                className="flex items-center justify-between p-3 lg:p-4 bg-white rounded-lg lg:rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all"
+                                className="flex items-center justify-between p-3  bg-white rounded-lg lg:rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all cursor-pointer"
+                                onClick={() =>
+                                  material.fileUrl && window.open(material.fileUrl, '_blank')
+                                }
                               >
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                   {/* File Type Icon */}
@@ -495,7 +528,10 @@ export default function Page() {
                                     <h5 className="text-sm lg:text-base font-medium text-gray-900 truncate">
                                       {material.title}
                                     </h5>
-                                    <div className="flex items-center gap-2 text-xs lg:text-sm text-gray-500 mt-0.5">
+                                    <div
+                                      className="flex items-center gap-2 text-xs lg:text-sm text-gray-500 mt-0.5"
+                                      hidden
+                                    >
                                       <span className="bg-gray-100 px-2 py-0.5 rounded">
                                         {material.fileType || 'File'}
                                       </span>
@@ -509,11 +545,15 @@ export default function Page() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleDownloadMaterial(material.fileUrl)}
-                                    className="flex-shrink-0 h-9 w-9 lg:h-10 lg:w-10 p-0 hover:bg-purple-100 hover:text-purple-600 rounded-full"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      window.open(material.fileUrl, '_blank');
+                                    }}
+                                    className="shrink-0 h-9 w-9 lg:h-10 lg:w-10 p-0 hover:bg-purple-100 hover:text-purple-600 rounded-full cursor-pointer text-purple-600 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                                    title="Open in new tab"
                                   >
                                     <Download className="h-4 w-4 lg:h-5 lg:w-5" />
-                                    <span className="sr-only">Download file</span>
+                                    <span className="sr-only">Open file in new tab</span>
                                   </Button>
                                 )}
                               </div>

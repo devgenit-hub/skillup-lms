@@ -35,8 +35,8 @@ interface AgendaItem {
 }
 
 interface Resource {
-  title: string;
-  url: string;
+  fileName: string;
+  fileUrl: string;
   type?: string;
 }
 
@@ -391,7 +391,7 @@ export default function WebinarDetailPage() {
             {resources.map((resource, index) => (
               <a
                 key={index}
-                href={resource.url}
+                href={resource.fileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl border border-border hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all group"
@@ -400,7 +400,9 @@ export default function WebinarDetailPage() {
                   <ExternalLink className="w-4 h-4 text-purple-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-foreground truncate">{resource.title}</p>
+                  {resource?.fileName && (
+                    <p className="font-medium text-foreground truncate">{resource.fileName}</p>
+                  )}
                   {resource.type && (
                     <p className="text-xs text-muted-foreground uppercase">{resource.type}</p>
                   )}

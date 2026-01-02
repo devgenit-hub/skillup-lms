@@ -11,6 +11,7 @@ import { Toaster } from 'sonner';
 import { cookies } from 'next/headers';
 import type { Locale } from '@repo/locales';
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, META_BANNER } from '@/lib/seo';
+import ProgressLoader from '@/components/ProgressLoader';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -102,7 +103,10 @@ export default async function RootLayout({
                 <AppContextProvider>
                   <Toaster position="top-right" richColors />
                   <NavBar />
-                  <main className="px-4 pb-40 w-full">{children}</main>
+                  <main className="px-4 pb-40 w-full">
+                    <ProgressLoader />
+                    {children}
+                  </main>
                   <Footer />
                 </AppContextProvider>
               </AuthProvider>

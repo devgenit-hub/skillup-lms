@@ -26,8 +26,8 @@ export default function StudentNav() {
         <Image
           src="/logodark.png"
           alt="Skill Up Logo"
-          width={70}
-          height={40}
+          width={96}
+          height={24}
           className="brightness-0 invert"
         />
       </Link>

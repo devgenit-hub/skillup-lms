@@ -52,7 +52,7 @@ const initiatePaymentSchema = z.object({
   itemType: z.enum(['course', 'webinar']),
   itemId: z.string().min(1),
   amount: z.number().positive(),
-  couponCode: z.string().optional(),
+  couponCode: z.string().nullable().optional(),
 });
 
 const refundPaymentSchema = z.object({
@@ -185,7 +185,7 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       itemId,
       userId,
       originalAmount: amount,
-      couponCode,
+      couponCode: couponCode || undefined,
     };
 
     const payment = await prisma.payment.create({

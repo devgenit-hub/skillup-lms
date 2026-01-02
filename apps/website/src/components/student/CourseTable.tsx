@@ -35,23 +35,24 @@ const columns: ColumnDef<Course>[] = [
     accessorKey: 'totalVideo',
     header: 'Total Lessons',
   },
-  {
-    accessorKey: 'progress',
-    header: 'Progress',
-    cell: ({ row }) => {
-      const progress = row.getValue('progress') as number;
-      return (
-        <div className="w-full">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-full bg-gray-200 rounded-full">
-              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }} />
-            </div>
-            <span className="text-sm text-gray-600">{progress}%</span>
-          </div>
-        </div>
-      );
-    },
-  },
+  // Progress column - Hidden for future implementation
+  // {
+  //   accessorKey: 'progress',
+  //   header: 'Progress',
+  //   cell: ({ row }) => {
+  //     const progress = row.getValue('progress') as number;
+  //     return (
+  //       <div className="w-full">
+  //         <div className="flex items-center gap-2">
+  //           <div className="h-2 w-full bg-gray-200 rounded-full">
+  //             <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }} />
+  //           </div>
+  //           <span className="text-sm text-gray-600">{progress}%</span>
+  //         </div>
+  //       </div>
+  //     );
+  //   },
+  // },
 ];
 
 export function CourseTable() {
@@ -64,13 +65,22 @@ export function CourseTable() {
       try {
         const response = await apiClient.getMyEnrollments();
         if (response.data?.enrollments) {
-          const courses = response.data.enrollments.map((enrollment) => ({
-            id: enrollment.courseId,
-            name: enrollment.course.title,
-            type: enrollment.course.category?.title || 'General',
-            totalVideo: enrollment.course._count?.lessons || 0,
-            progress: enrollment.progress,
-          }));
+          const courses = response.data.enrollments.map((enrollment) => {
+            // Calculate total lessons from curriculum modules
+            const totalLessons =
+              enrollment.course.curriculumModules?.reduce(
+                (sum, module) => sum + (module._count?.classes || 0),
+                0
+              ) || 0;
+
+            return {
+              id: enrollment.courseId,
+              name: enrollment.course.title,
+              type: enrollment.course.category?.title || 'General',
+              totalVideo: totalLessons,
+              progress: enrollment.progress,
+            };
+          });
           setData(courses);
         }
       } catch (error) {

@@ -45,7 +45,7 @@ export default function JoiningProcess() {
         {steps.map((step, idx) => (
           <React.Fragment key={idx}>
             <div
-              className={`bg-vibrant-blue/10 p-5 rounded-3xl border border-white/10 flex flex-col gap-10 w-full md:w-1/4 min-h-[300px] ${
+              className={`bg-vibrant-blue/10 p-5 rounded-3xl border border-white/10 flex flex-col gap-10 w-full md:w-1/4 min-h-75 ${
                 idx % 2 !== 0 ? 'md:flex-col-reverse mt-10 md:mt-0' : ''
               } ${idx > 0 ? 'mt-8 md:mt-0' : ''}`}
             >
