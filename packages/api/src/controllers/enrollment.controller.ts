@@ -185,7 +185,18 @@ export class EnrollmentController {
             feeType: true,
             price: true,
             _count: {
-              select: { lessons: true, enrollments: true },
+              select: {
+                lessons: true,
+                enrollments: true,
+                curriculumModules: true,
+              },
+            },
+            curriculumModules: {
+              select: {
+                _count: {
+                  select: { classes: true },
+                },
+              },
             },
           },
         },

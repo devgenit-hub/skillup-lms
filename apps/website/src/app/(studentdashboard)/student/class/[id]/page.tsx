@@ -208,12 +208,6 @@ export default function Page() {
     }
   };
 
-  const handleDownloadMaterial = (fileUrl?: string) => {
-    if (fileUrl) {
-      window.open(fileUrl, '_blank');
-    }
-  };
-
   // memo for video player
   const memoPlayer = useMemo(() => {
     if (currentVideoId.length > 0) {
@@ -235,7 +229,7 @@ export default function Page() {
   }, [currentVideoId]);
 
   // Calculate overall course progress
-  const overallProgress = enrollment?.progress || 0;
+  const _overallProgress = enrollment?.progress || 0;
 
   // Loading state
   if (loading) {
@@ -281,8 +275,8 @@ export default function Page() {
                   {enrollment.course.description || 'Master the concepts and build your skills'}
                 </p>
 
-                {/* Progress Bar */}
-                <div className="pt-2">
+                {/* Progress Bar - Hidden for future implementation */}
+                {/* <div className="pt-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs lg:text-sm font-medium text-white">
                       Course Progress
@@ -297,7 +291,7 @@ export default function Page() {
                       style={{ width: `${overallProgress}%` }}
                     ></div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* Facebook Group Card */}
@@ -339,8 +333,10 @@ export default function Page() {
         {/* Course Curriculum - Module System */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl lg:text-2xl font-bold text-gray-900">Course Curriculum</h2>
-            <div className="text-sm text-gray-600">{modulesData.length} Modules</div>
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-200">
+              Course Curriculum
+            </h2>
+            <div className="text-sm text-gray-500">{modulesData.length} Modules</div>
           </div>
 
           {/* Modules Accordion */}
@@ -516,7 +512,10 @@ export default function Page() {
                             {module.materials.map((material) => (
                               <div
                                 key={material.id}
-                                className="flex items-center justify-between p-3  bg-white rounded-lg lg:rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all"
+                                className="flex items-center justify-between p-3  bg-white rounded-lg lg:rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all cursor-pointer"
+                                onClick={() =>
+                                  material.fileUrl && window.open(material.fileUrl, '_blank')
+                                }
                               >
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                   {/* File Type Icon */}
@@ -546,11 +545,15 @@ export default function Page() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleDownloadMaterial(material.fileUrl)}
-                                    className="shrink-0 h-9 w-9 lg:h-10 lg:w-10 p-0 hover:bg-purple-100 hover:text-purple-600 rounded-full cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      window.open(material.fileUrl, '_blank');
+                                    }}
+                                    className="shrink-0 h-9 w-9 lg:h-10 lg:w-10 p-0 hover:bg-purple-100 hover:text-purple-600 rounded-full cursor-pointer text-purple-600 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                                    title="Open in new tab"
                                   >
                                     <Download className="h-4 w-4 lg:h-5 lg:w-5" />
-                                    <span className="sr-only">Download file</span>
+                                    <span className="sr-only">Open file in new tab</span>
                                   </Button>
                                 )}
                               </div>

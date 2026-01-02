@@ -184,7 +184,10 @@ class ApiClient {
           category: { id: string; title: string } | null;
           feeType: string;
           price: number | null;
-          _count: { lessons: number; enrollments: number };
+          _count: { lessons: number; enrollments: number; curriculumModules: number };
+          curriculumModules: Array<{
+            _count: { classes: number };
+          }>;
         };
       }>;
       stats: {
