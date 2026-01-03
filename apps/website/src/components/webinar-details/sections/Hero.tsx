@@ -10,7 +10,7 @@ import Count from '@/components/Count';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuthStore, AuthUser } from '@/lib/zustand/auth-store';
 import { apiClient } from '@/lib/api-client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Video } from 'lucide-react';
 
 export default function Hero({
   title,
@@ -126,14 +126,15 @@ export default function Hero({
 
               <div className="flex items-center gap-4 mt-2">
                 <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                  <FaRegCircleUser />
+                  <FaRegCircleUser className="size-4" />
                   <span>
                     <Count num={totalRegistered.toString()} /> জন নিবন্ধিত
                   </span>
                 </span>
 
-                <span className="bg-vibrant-blue/80 px-4 py-2 rounded-full font-semibold">
-                  প্ল্যাটফর্ম: {platform}
+                <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full font-semibold">
+                  <Video className="size-4" />
+                  {platform}
                 </span>
               </div>
             </div>

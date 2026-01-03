@@ -14,6 +14,7 @@ import Image from 'next/image';
 import { apiClient } from '@/lib/api-client';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface WebinarRegistration {
   id: string;
@@ -41,6 +42,7 @@ function Page() {
   const [registrations, setRegistrations] = useState<WebinarRegistration[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, upcoming: 0, completed: 0 });
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRegistrations = async () => {
@@ -238,9 +240,9 @@ function Page() {
                         ) : (
                           <button
                             onClick={() =>
-                              (window.location.href = `/student/webinar/${registration.webinarId}`)
+                              router.push(`/student/webinar/${registration.webinarId}`)
                             }
-                            className="w-full px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all"
+                            className="w-full px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-vibrant-blue/90 transition-colors cursor-pointer"
                           >
                             View Details
                           </button>
@@ -260,9 +262,7 @@ function Page() {
                     key={registration.id}
                     className="bg-card backdrop-blur-xl rounded-2xl shadow-lg border border-border p-3 lg:p-4 hover:shadow-xl transition-all duration-300 cursor-pointer animate-slide-up"
                     style={{ animationDelay: `${idx * 0.05}s` }}
-                    onClick={() =>
-                      (window.location.href = `/student/webinar/${registration.webinarId}`)
-                    }
+                    onClick={() => router.push(`/student/webinar/${registration.webinarId}`)}
                   >
                     <div className="flex gap-3 lg:gap-4">
                       {/* Webinar Image */}

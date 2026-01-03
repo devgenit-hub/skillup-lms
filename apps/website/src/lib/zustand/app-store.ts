@@ -33,6 +33,7 @@ export interface WebinarCard {
   scheduleDateTime: string;
   duration: number;
   feeType: string;
+  platform: string | null;
   price: number | null;
   status: string;
   maxDiscount?: string | null;

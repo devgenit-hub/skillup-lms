@@ -101,6 +101,7 @@ export default function Page() {
   const router = useRouter();
   const courseId = params?.id as string;
   const [currentVideoId, setCurrentVideoId] = useState<string>('');
+  const [ct, setCt] = useState<string | null>(null);
 
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [enrollment, setEnrollment] = useState<CourseEnrollment | null>(null);
@@ -196,15 +197,14 @@ export default function Page() {
     });
   };
 
-  const handlePlayVideo = (videoUrl?: string, isLocked?: boolean) => {
+  const handlePlayVideo = (videoUrl?: string, isLocked?: boolean, title?: string) => {
     if (isLocked) return;
     if (videoUrl) {
-      // const curPath = window.location.pathname;
       const vidIdArray = videoUrl?.split('/');
 
       const x = vidIdArray ? vidIdArray[vidIdArray.length - 1] || '' : '';
       setCurrentVideoId(x);
-      // window.location.assign(curPath + `/classroom/${x}`);
+      setCt(title || null);
     }
   };
 
@@ -221,12 +221,12 @@ export default function Page() {
           >
             <OctagonX color="#fef3fe" size={26} />
           </Button>
-          {currentVideoId && <YTPlayer key={currentVideoId} videoId={currentVideoId} />}
+          {currentVideoId && <YTPlayer key={currentVideoId} videoId={currentVideoId} ct={ct} />}
         </div>
       );
     }
     return <></>;
-  }, [currentVideoId]);
+  }, [currentVideoId, ct]);
 
   // Calculate overall course progress
   const _overallProgress = enrollment?.progress || 0;
@@ -349,7 +349,7 @@ export default function Page() {
               return (
                 <div
                   key={module.id}
-                  className="bg-white rounded-xl lg:rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                  className="bg-white dark:bg-dark-blue/10 rounded-xl lg:rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
                 >
                   {/* Module Header */}
                   <button
@@ -365,7 +365,7 @@ export default function Page() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-base font-bold text-gray-900 mb-1">
+                        <h3 className="text-base font-bold mb-1">
                           Module {moduleIndex + 1} : {module.title}
                         </h3>
                         {module.details && (
@@ -420,11 +420,11 @@ export default function Page() {
 
                   {/* Module Content */}
                   {isExpanded && (
-                    <div className="border-t border-gray-200 bg-gray-50/50">
+                    <div className="border-t border-gray-200 bg-gray-50/50 dark:bg-white/20">
                       {/* Classes Section */}
                       {module.classes.length > 0 && (
                         <div className="p-4 lg:p-5 space-y-2">
-                          <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <h4 className="text-sm lg:text-base font-semibold text-gray-400 mb-3 flex items-center gap-2">
                             <Video className="w-4 h-4 text-blue-600" />
                             Video Lessons
                           </h4>
@@ -487,7 +487,11 @@ export default function Page() {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() =>
-                                      handlePlayVideo(classItem.videoUrl, classItem.isLocked)
+                                      handlePlayVideo(
+                                        classItem.videoUrl,
+                                        classItem.isLocked,
+                                        classItem.title
+                                      )
                                     }
                                     className="shrink-0 h-9 w-9 lg:h-10 lg:w-10 p-0 hover:bg-blue-100 hover:text-blue-600 rounded-full cursor-pointer"
                                   >
@@ -504,7 +508,7 @@ export default function Page() {
                       {/* Materials Section */}
                       {module.materials.length > 0 && (
                         <div className="p-4 lg:p-5 border-t border-gray-200 space-y-2">
-                          <h4 className="text-sm lg:text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                          <h4 className="text-sm lg:text-base font-semibold text-gray-400 mb-3 flex items-center gap-2">
                             <FileText className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
                             Course Materials
                           </h4>

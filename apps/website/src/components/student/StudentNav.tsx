@@ -20,15 +20,17 @@ export default function StudentNav() {
   return (
     <div className="h-full bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border py-4 px-5 lg:px-8 flex justify-between items-center transition-all duration-300 hover:shadow-xl">
       <Link
-        href="/"
+        href="/student"
         className="px-3 py-2 rounded-xl shadow-lg hover:scale-105 transition-transform cursor-pointer bg-linear-to-br from-vibrant-blue to-indigo-600"
       >
         <Image
+          className="brightness-0 invert w-auto h-auto max-w-20"
           src="/logodark.png"
           alt="Skill Up Logo"
           width={96}
-          height={24}
-          className="brightness-0 invert"
+          height={22}
+          loading="eager"
+          priority={true}
         />
       </Link>
 
@@ -61,6 +63,8 @@ export default function StudentNav() {
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 32px, 36px"
+                loading="eager"
+                priority={true}
               />
             </div>
           </div>

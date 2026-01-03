@@ -47,6 +47,7 @@ export class PublicController {
           scheduleDateTime: true,
           duration: true,
           feeType: true,
+          platform: true,
           price: true,
           status: true,
           coupons: {

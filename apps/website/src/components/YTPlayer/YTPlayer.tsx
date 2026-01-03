@@ -58,6 +58,7 @@ interface YTPlayerConfig {
 }
 
 interface PPButtonProps {
+  size?: number;
   isPlaying: boolean;
   Click: () => void;
   playVideo: () => void;
@@ -77,13 +78,14 @@ interface PPIconProps {
   playVideo: () => void;
   pauseVideo: () => void;
   Click: () => void;
+  size?: number;
 }
 
 interface TimeObject {
   m: string | number;
   s: string | number;
 }
-const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
+const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | null }) => {
   const playerRef = useRef<YTPlayer | null>(null);
   const playerDivRef = useRef<HTMLDivElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -303,7 +305,7 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
       window.removeEventListener('contextmenu', handlecontext);
       window.removeEventListener('keydown', handlecontext);
     };
-  }, [videoId]);
+  }, [videoId, ct]);
 
   const handlecontext = (e: Event): void => {
     e.preventDefault();
@@ -321,7 +323,7 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
     // You can perform actions when the player is ready
     // For example, you can play the video:
     const dur: number = event.target.getDuration();
-    const customTitle: string | null = localStorage.getItem('customTitle');
+    const customTitle: string | null = ct;
     setTitle(customTitle ? customTitle : 'Record Class');
     setDuration(dur);
   };
@@ -394,7 +396,7 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
       >
         {/* duration shower */}
         <div
-          className="text-sm select-none p-2 flex items-center justify-center rounded-md gap-3"
+          className="text-sm select-none px-2 flex items-center justify-center rounded-md gap-2"
           style={{
             backgroundColor: '#0872fd',
           }}
@@ -546,7 +548,7 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          zIndex: '20',
+          zIndex: '100',
         }}
       >
         <PPButton
@@ -554,6 +556,7 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
           isPlaying={isPlaying}
           pauseVideo={pauseVideo}
           playVideo={playVideo}
+          size={48}
         />
       </div>
       <div
@@ -567,7 +570,7 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
         }}
       >
         <p
-          className={`transition-colors pl-3 duration-300 delay-500 ${
+          className={`transition-colors text-2xl font-bold underline duration-300 delay-500 ${
             isPlaying ? 'text-transparent' : ''
           }`}
         >
@@ -581,9 +584,15 @@ const YTPlayer = ({ videoId }: { videoId: string | undefined }) => {
 
 export { YTPlayer };
 
-function PPButton({ isPlaying, Click, playVideo, pauseVideo }: PPButtonProps) {
+function PPButton({ isPlaying, Click, playVideo, pauseVideo, size }: PPButtonProps) {
   return (
-    <PPIcon isPlaying={isPlaying} playVideo={playVideo} pauseVideo={pauseVideo} Click={Click} />
+    <PPIcon
+      isPlaying={isPlaying}
+      playVideo={playVideo}
+      pauseVideo={pauseVideo}
+      Click={Click}
+      size={size}
+    />
   );
 }
 
@@ -614,7 +623,6 @@ function ProgessBar({
       handleSeekChange(newTime);
     }
   };
-  return null;
   return (
     <>
       <label
@@ -630,7 +638,7 @@ function ProgessBar({
         ></span>
       </label>
       <input
-        className="w-full h-1 rounded-full bg-blue-500/50 -z-10 hover:bg-blue-400/60 transition-colors absolute cursor-pointer -top-1 left-0"
+        className="w-full h-1 rounded-full bg-rose-500/20 -z-10 hover:bg-rose-400/80 transition-colors absolute cursor-pointer -top-1 left-0"
         type="range"
         name="vidRange"
         min={0}
@@ -639,7 +647,7 @@ function ProgessBar({
         value={currentTime}
         onClick={handleClick}
         onChange={(e) => {
-          // if (currentTime < lockedStartTime) handleSeekChange(e.target.value);
+          if (currentTime < lockedStartTime) handleSeekChange(Number(e.target.value));
           handleContinuousChange(e);
         }}
       />
@@ -659,7 +667,7 @@ function ProgessBar({
   );
 }
 
-function PPIcon({ isPlaying, playVideo, pauseVideo, Click }: PPIconProps) {
+function PPIcon({ isPlaying, playVideo, pauseVideo, Click, size = 20 }: PPIconProps) {
   if (!isPlaying)
     return (
       <button
@@ -668,7 +676,7 @@ function PPIcon({ isPlaying, playVideo, pauseVideo, Click }: PPIconProps) {
           Click();
         }}
       >
-        <FaPlayCircle />
+        <FaPlayCircle size={size} />
       </button>
     );
   else
@@ -679,7 +687,7 @@ function PPIcon({ isPlaying, playVideo, pauseVideo, Click }: PPIconProps) {
           pauseVideo();
         }}
       >
-        <FaPauseCircle />
+        <FaPauseCircle size={size} />
       </button>
     );
 }
