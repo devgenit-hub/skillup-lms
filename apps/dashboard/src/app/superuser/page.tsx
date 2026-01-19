@@ -9,6 +9,14 @@ import { useLocale } from '@/providers/locale-provider';
 import { useApp } from '@/context/app-context';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { PurchaseGraph } from '@/components/superuser/PurchaseGraphs';
+import { StudentEnrollmentGraph } from '@/components/superuser/StudentEnrollmentGraph';
+import {
+  coursePurchaseData,
+  webinarPurchaseData,
+  dummyCourses,
+  dummyWebinars,
+} from '@/components/superuser/utils/dummyGraphData';
 
 interface DashboardStats {
   students: {
@@ -170,6 +178,36 @@ export default function SuperuserDashboard() {
             </div>
           </button>
         </Link>
+      </div>
+
+      <h2 className="text-xl font-bold text-slate-900 mb-4 mt-8">Purchase Analytics</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PurchaseGraph
+          title="Course Purchases (Last 12 Months)"
+          data={coursePurchaseData}
+          barColor="#3b82f6"
+        />
+        <PurchaseGraph
+          title="Webinar Purchases (Last 12 Months)"
+          data={webinarPurchaseData}
+          barColor="#8b5cf6"
+        />
+      </div>
+
+      <h2 className="text-xl font-bold text-slate-900 mb-4 mt-8">Student Enrollment Analytics</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <StudentEnrollmentGraph
+          title="Course Student Enrollment"
+          options={dummyCourses}
+          barColor="#10b981"
+          placeholder="Select a course"
+        />
+        <StudentEnrollmentGraph
+          title="Webinar Student Enrollment"
+          options={dummyWebinars}
+          barColor="#f59e0b"
+          placeholder="Select a webinar"
+        />
       </div>
     </div>
   );

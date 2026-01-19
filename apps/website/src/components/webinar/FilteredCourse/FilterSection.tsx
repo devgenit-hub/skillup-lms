@@ -1,9 +1,16 @@
 'use client';
 
-import { FaChevronDown } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
 import { useAppStore } from '@/lib/zustand/app-store';
 import { WebinarFeeType, FeeBanglaLabels } from '@/lib/constants/enums';
+import { CircleCheck } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface FilterSectionProps {
   isOpen?: boolean;
@@ -22,13 +29,6 @@ export default function FilterSection({
   currentFilters,
 }: FilterSectionProps) {
   const { categories } = useAppStore();
-
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({
-      ...currentFilters,
-      category: e.target.value === 'all' ? undefined : e.target.value,
-    });
-  };
 
   const handleFeeTypeChange = (feeType: string) => {
     const newFeeType = currentFilters.feeType === feeType ? undefined : feeType;
@@ -63,34 +63,49 @@ export default function FilterSection({
           </button>
         </div>
 
-        <div className="mb-6 relative">
-          <select
-            className="w-full appearance-none bg-background px-4 py-2 rounded-full border border-foreground text-foreground text-sm outline-none pr-10 transition-all duration-200 cursor-pointer"
+        <div className="mb-6">
+          <Select
             value={currentFilters.category || 'all'}
-            onChange={handleCategoryChange}
+            onValueChange={(value) => {
+              onFilterChange({
+                ...currentFilters,
+                category: value === 'all' ? undefined : value,
+              });
+            }}
           >
-            <option value="all">সব বিষয়</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.slug}>
-                {cat.title}
-              </option>
-            ))}
-          </select>
-
-          <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground pointer-events-none" />
+            <SelectTrigger className="w-full text-lg">
+              <SelectValue placeholder="সব বিষয়" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-lg">
+                সব বিষয়
+              </SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.slug} className="text-lg">
+                  {cat.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div>
           <h3 className="font-semibold mb-2 text-sm">ফি টাইপ</h3>
           {Object.entries(WebinarFeeType).map(([key, value]) => (
-            <label key={value} className="flex items-center gap-2 mb-2 text-sm cursor-pointer">
+            <label key={value} className="flex items-center gap-2 mb-2 text-lg cursor-pointer">
+              <CircleCheck
+                fill="#fff"
+                color={currentFilters.feeType === value ? '#23cf2f' : '#afafafaa'}
+                fillOpacity={currentFilters.feeType === value ? 1 : 0}
+              />
               <input
+                hidden
                 type="checkbox"
                 className="accent-blue-500"
                 checked={currentFilters.feeType === value}
                 onChange={() => handleFeeTypeChange(value)}
               />
-              {FeeBanglaLabels[key as keyof typeof WebinarFeeType]}
+              <span className="text-lg">{FeeBanglaLabels[key as keyof typeof WebinarFeeType]}</span>
             </label>
           ))}
         </div>

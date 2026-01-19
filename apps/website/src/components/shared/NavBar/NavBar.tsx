@@ -21,6 +21,17 @@ export default function NavBar() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (mobileOpen) {
+      window.document.body.style.overflow = 'hidden';
+    } else window.document.body.style.overflow = 'auto';
+
+    return () => {
+      window.document.body.style.overflow = 'auto';
+    };
+  }, [mobileOpen]);
+
   return (
     <header className="sticky top-0 z-50 w-full bg-background/30 backdrop-blur-md shadow-sm text-primary py-3">
       <div className="container px-4 w-full max-w-7xl mx-auto">
@@ -82,21 +93,36 @@ export default function NavBar() {
 
         {/* Mobile menu */}
         <div
-          className={`lg:hidden mt-3 transition-all duration-200 ${
-            mobileOpen ? 'block' : 'hidden'
+          className={`lg:hidden mt-3 transition-all duration-300 ease-in-out overflow-hidden h-screen ${
+            mobileOpen
+              ? 'max-h-screen opacity-100 translate-y-0'
+              : 'max-h-0 opacity-0 -translate-y-2 pointer-events-none'
           }`}
           role="menu"
           aria-hidden={!mobileOpen}
         >
-          <div className="w-full bg-background/90 backdrop-blur-md shadow-md rounded-md p-4 flex flex-col gap-3">
-            <SearchBar Icon={LucideSearch} />
+          <div className="w-full bg-background/90 backdrop-blur-md shadow-md rounded-md p-4 flex flex-col gap-3 h-full">
+            <div
+              className={`transition-all duration-300 delay-75 ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+            >
+              <SearchBar Icon={LucideSearch} />
+            </div>
             <nav className="flex flex-col gap-2">
               {navLinks.map((link, index) => (
-                <NavLink key={index} {...link} />
+                <div
+                  key={index}
+                  className={`transition-all duration-300 ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+                  style={{ transitionDelay: `${100 + index * 50}ms` }}
+                >
+                  <NavLink {...link} handleClick={() => setMobileOpen(false)} />
+                </div>
               ))}
             </nav>
 
-            <div>
+            <div
+              className={`transition-all duration-300 ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+              style={{ transitionDelay: `${100 + navLinks.length * 50}ms` }}
+            >
               <NavButton />
             </div>
           </div>

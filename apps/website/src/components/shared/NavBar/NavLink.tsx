@@ -29,7 +29,7 @@ export default function NavLink(props: NavLinksProps) {
                   asChild
                   className="flex flex-col justify-center"
                 >
-                  <Link href={link.href || '/'}>
+                  <Link href={link.href || '/'} onClick={props.handleClick}>
                     <span>
                       {link.icon ? <link.icon className="inline mr-2 size-4" /> : null}
                       {link.name}
@@ -49,7 +49,7 @@ export default function NavLink(props: NavLinksProps) {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
-            <Link href={props.href || '/'}>
+            <Link href={props.href || '/'} onClick={props.handleClick}>
               {props.icon ? <props.icon className="inline mr-2 size-4" /> : null}
               {props.name}
             </Link>

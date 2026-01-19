@@ -1,6 +1,5 @@
 'use client';
 
-import { FaChevronDown } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
 import { useAppStore } from '@/lib/zustand/app-store';
 import {
@@ -11,6 +10,15 @@ import {
   LevelBanglaLabels,
   CourseTypeBanglaLabels,
 } from '@/lib/constants/enums';
+import { CircleCheck } from 'lucide-react';
+import { useEffect } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface FilterSectionProps {
   isOpen?: boolean;
@@ -37,13 +45,6 @@ export default function FilterSection({
 }: FilterSectionProps) {
   const { categories } = useAppStore();
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({
-      ...currentFilters,
-      category: e.target.value === 'all' ? undefined : e.target.value,
-    });
-  };
-
   const handleLevelChange = (level: string) => {
     const newLevel = currentFilters.level === level ? undefined : level;
     onFilterChange({
@@ -67,6 +68,20 @@ export default function FilterSection({
       feeType: newFeeType,
     });
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (isOpen) {
+      window.document.body.style.overflow = 'hidden';
+    } else {
+      window.document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      window.document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -95,28 +110,43 @@ export default function FilterSection({
           </button>
         </div>
 
-        <div className="mb-6 relative">
-          <select
-            className="w-full appearance-none bg-background px-4 py-2 rounded-full border border-foreground text-foreground text-sm outline-none pr-10 transition-all duration-200 cursor-pointer"
+        <div className="mb-6">
+          <Select
             value={currentFilters.category || 'all'}
-            onChange={handleCategoryChange}
+            onValueChange={(value) => {
+              onFilterChange({
+                ...currentFilters,
+                category: value === 'all' ? undefined : value,
+              });
+            }}
           >
-            <option value="all">সব বিষয়</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.slug}>
-                {cat.title}
-              </option>
-            ))}
-          </select>
-
-          <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground pointer-events-none" />
+            <SelectTrigger className="w-full text-lg">
+              <SelectValue placeholder="সব বিষয়" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-lg">
+                সব বিষয়
+              </SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.slug} className="text-lg">
+                  {cat.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="mb-6">
           <h3 className="font-semibold mb-2 text-sm">টাইপ</h3>
           {Object.entries(CourseType).map(([key, value]) => (
-            <label key={value} className="flex items-center gap-2 mb-2 text-sm cursor-pointer">
+            <label key={value} className="flex items-center gap-2 mb-2 text-lg cursor-pointer">
+              <CircleCheck
+                fill="#fff"
+                color={currentFilters.courseType === value ? '#23cf2f' : '#afafafaa'}
+                fillOpacity={currentFilters.courseType === value ? 1 : 0}
+              />
               <input
+                hidden
                 type="checkbox"
                 className="accent-blue-500"
                 checked={currentFilters.courseType === value}
@@ -130,8 +160,14 @@ export default function FilterSection({
         <div className="mb-6">
           <h3 className="font-semibold mb-2 text-sm">লেভেল</h3>
           {Object.entries(CourseLevel).map(([key, value]) => (
-            <label key={value} className="flex items-center gap-2 mb-2 text-sm cursor-pointer">
+            <label key={value} className="flex items-center gap-2 mb-2 text-lg cursor-pointer">
+              <CircleCheck
+                fill="#fff"
+                color={currentFilters.level === value ? '#23cf2f' : '#afafafaa'}
+                fillOpacity={currentFilters.level === value ? 1 : 0}
+              />
               <input
+                hidden
                 type="checkbox"
                 className="accent-blue-500"
                 checked={currentFilters.level === value}
@@ -145,8 +181,14 @@ export default function FilterSection({
         <div>
           <h3 className="font-semibold mb-2 text-sm">ফি টাইপ</h3>
           {Object.entries(FeeType).map(([key, value]) => (
-            <label key={value} className="flex items-center gap-2 mb-2 text-sm cursor-pointer">
+            <label key={value} className="flex items-center gap-2 mb-2 text-lg cursor-pointer">
+              <CircleCheck
+                fill="#fff"
+                color={currentFilters.feeType === value ? '#23cf2f' : '#afafafaa'}
+                fillOpacity={currentFilters.feeType === value ? 1 : 0}
+              />
               <input
+                hidden
                 type="checkbox"
                 className="accent-blue-500"
                 checked={currentFilters.feeType === value}
