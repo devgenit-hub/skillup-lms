@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { MonthlyPurchaseData } from './PurchaseGraphs';
+import { Loader2 } from 'lucide-react';
 
 export interface CourseWebinarOption {
   id: string;
@@ -24,6 +25,7 @@ interface StudentEnrollmentGraphProps {
   options: CourseWebinarOption[];
   barColor: string;
   placeholder: string;
+  onSelectItem?: (id: string) => Promise<MonthlyPurchaseData[]>;
 }
 
 export function StudentEnrollmentGraph({
@@ -31,10 +33,40 @@ export function StudentEnrollmentGraph({
   options,
   barColor,
   placeholder,
+  onSelectItem,
 }: StudentEnrollmentGraphProps) {
   const [selectedId, setSelectedId] = useState<string>(options[0]?.id || '');
+  const [enrollmentData, setEnrollmentData] = useState<MonthlyPurchaseData[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch enrollment data when selection changes
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!selectedId || !onSelectItem) return;
+
+      setLoading(true);
+      try {
+        const data = await onSelectItem(selectedId);
+        setEnrollmentData(data);
+      } catch {
+        setEnrollmentData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedId, onSelectItem]);
+
+  // Set initial selection when options change
+  useEffect(() => {
+    if (options.length > 0 && !selectedId) {
+      setSelectedId(options[0]?.id || '');
+    }
+  }, [options, selectedId]);
 
   const selectedOption = options.find((opt) => opt.id === selectedId);
+  const dataToShow = onSelectItem ? enrollmentData : selectedOption?.enrollmentData || [];
 
   return (
     <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
@@ -43,7 +75,7 @@ export function StudentEnrollmentGraph({
         <select
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
-          className="px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white cursor-pointer"
+          className="px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white cursor-pointer max-w-[200px] truncate"
         >
           <option value="" disabled>
             {placeholder}
@@ -56,9 +88,13 @@ export function StudentEnrollmentGraph({
         </select>
       </div>
 
-      {selectedOption ? (
+      {loading ? (
+        <div className="h-[300px] flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+        </div>
+      ) : selectedOption && dataToShow.length > 0 ? (
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={selectedOption.enrollmentData}>
+          <BarChart data={dataToShow}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="month"
@@ -79,9 +115,15 @@ export function StudentEnrollmentGraph({
             <Bar dataKey="count" fill={barColor} radius={[8, 8, 0, 0]} name="Students Enrolled" />
           </BarChart>
         </ResponsiveContainer>
+      ) : options.length === 0 ? (
+        <div className="h-[300px] flex items-center justify-center text-slate-500">
+          No {placeholder.toLowerCase().replace('select a ', '')}s available
+        </div>
       ) : (
         <div className="h-[300px] flex items-center justify-center text-slate-500">
-          Select a {placeholder.toLowerCase()} to view data
+          {selectedOption
+            ? 'No enrollment data available'
+            : `Select a ${placeholder.toLowerCase().replace('select a ', '')} to view data`}
         </div>
       )}
     </div>

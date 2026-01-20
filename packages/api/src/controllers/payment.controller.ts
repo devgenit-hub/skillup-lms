@@ -72,6 +72,7 @@ const adminDeletePaymentSchema = z.object({
   paymentId: z.string().min(1),
   reason: z.string().min(1),
   adminPassword: z.string().min(1),
+  isPseudoPayment: z.boolean().optional(),
 });
 
 const adminPaymentsQuerySchema = z.object({
@@ -101,9 +102,7 @@ function getUddoktaHeaders() {
 export const initiatePayment = async (req: Request & AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
     const validation = initiatePaymentSchema.safeParse(req.body);
     if (!validation.success) {
@@ -116,70 +115,41 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       where: { id: userId },
       select: { id: true, email: true, name: true },
     });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
     if (itemType === 'course') {
       const course = await prisma.course.findUnique({ where: { id: itemId } });
-      if (!course) {
-        return res.status(404).json({ error: 'Course not found' });
-      }
-      if (!course.published) {
+      if (!course) return res.status(404).json({ error: 'Course not found' });
+      if (!course.published)
         return res.status(400).json({ error: 'Course is not available for enrollment' });
-      }
 
       const existingEnrollment = await prisma.enrollment.findUnique({
         where: { userId_courseId: { userId, courseId: itemId } },
       });
-      if (existingEnrollment) {
+      if (existingEnrollment)
         return res.status(400).json({ error: 'Already enrolled in this course' });
-      }
     } else {
       const webinar = await prisma.webinar.findUnique({ where: { id: itemId } });
-      if (!webinar) {
-        return res.status(404).json({ error: 'Webinar not found' });
-      }
+      if (!webinar) return res.status(404).json({ error: 'Webinar not found' });
 
       const existingRegistration = await prisma.webinarRegistration.findUnique({
         where: { webinarId_userId: { webinarId: itemId, userId } },
       });
-      if (existingRegistration) {
+      if (existingRegistration)
         return res.status(400).json({ error: 'Already registered for this webinar' });
-      }
     }
 
-    const existingPendingPayment = await prisma.payment.findFirst({
+    const existingPayment = await prisma.payment.findFirst({
       where: {
         userId,
-        status: 'PENDING',
+        status: { in: ['PENDING', 'FAILED', 'CANCELLED'] },
         ...(itemType === 'course' ? { courseId: itemId } : { webinarId: itemId }),
         createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    if (existingPendingPayment?.invoiceId) {
-      try {
-        const verifyRes = await axios.post(
-          `${UDDOKTA_PAY_API_URL}/verify-payment`,
-          { invoice_id: existingPendingPayment.invoiceId },
-          { headers: getUddoktaHeaders() }
-        );
-
-        if (verifyRes.data && verifyRes.data.transaction_id) {
-          return res.status(400).json({
-            error: 'You have a pending payment. Please complete or wait for it to expire.',
-          });
-        }
-      } catch {
-        await prisma.payment.update({
-          where: { id: existingPendingPayment.id },
-          data: { status: 'CANCELLED' },
-        });
-      }
-    }
-
+    let payment;
     const metadata: PaymentMetadata = {
       itemType,
       itemId,
@@ -188,18 +158,40 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       couponCode: couponCode || undefined,
     };
 
-    const payment = await prisma.payment.create({
-      data: {
-        userId,
-        amount,
-        status: 'PENDING',
-        paymentMethod: 'uddoktapay',
-        courseId: itemType === 'course' ? itemId : undefined,
-        webinarId: itemType === 'webinar' ? itemId : undefined,
-        couponCode: couponCode || undefined,
-        metadata: metadata as unknown as Prisma.InputJsonValue,
-      },
-    });
+    if (existingPayment) {
+      if (existingPayment.status === 'COMPLETED') {
+        return res
+          .status(400)
+          .json({ error: 'You already have a completed payment for this item' });
+      }
+
+      payment = await prisma.payment.update({
+        where: { id: existingPayment.id },
+        data: {
+          amount,
+          status: 'PENDING',
+          paymentMethod: 'uddoktapay',
+          couponCode: couponCode || undefined,
+          metadata: metadata as unknown as Prisma.InputJsonValue,
+          invoiceId: null,
+          gatewayTransactionId: null,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      payment = await prisma.payment.create({
+        data: {
+          userId,
+          amount,
+          status: 'PENDING',
+          paymentMethod: 'uddoktapay',
+          courseId: itemType === 'course' ? itemId : undefined,
+          webinarId: itemType === 'webinar' ? itemId : undefined,
+          couponCode: couponCode || undefined,
+          metadata: metadata as unknown as Prisma.InputJsonValue,
+        },
+      });
+    }
 
     const uddoktaPayload = {
       full_name: user.name || 'User',
@@ -245,7 +237,7 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       paymentUrl: uddoktaResponse.data.payment_url,
     });
   } catch (error) {
-    const err = error as Error;
+    const err = error as Error & { response?: { data?: unknown } };
     return res.status(500).json({ error: 'Failed to initiate payment', message: err.message });
   }
 };
@@ -253,7 +245,6 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
 export const handlePaymentCallback = async (req: Request, res: Response) => {
   try {
     const invoice_id = req.query.invoice_id as string;
-
     if (!invoice_id) {
       return res.redirect(`${FRONTEND_URL}/payment/failed?reason=invalid&message=No invoice ID`);
     }
@@ -278,9 +269,48 @@ export const handlePaymentCallback = async (req: Request, res: Response) => {
       );
     }
 
-    const uddoktaMetadata = verifyResponse.metadata as { payment_id?: string };
-    const paymentId = uddoktaMetadata?.payment_id;
+    const uddoktaMetadata = verifyResponse.metadata as {
+      payment_id?: string;
+      item_type?: string;
+      item_id?: string;
+    };
 
+    if (verifyResponse.status !== 'COMPLETED') {
+      const paymentId = uddoktaMetadata?.payment_id;
+      const itemType = uddoktaMetadata?.item_type || 'course';
+      const itemId = uddoktaMetadata?.item_id || '';
+
+      if (paymentId) {
+        const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
+        if (payment) {
+          const metadata = payment.metadata as unknown as PaymentMetadata;
+
+          let dbStatus: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'CANCELLED' = 'FAILED';
+          if (verifyResponse.status === 'PENDING') dbStatus = 'PENDING';
+          else if (verifyResponse.status === 'REFUNDED') dbStatus = 'REFUNDED';
+          else if (verifyResponse.status === 'CANCELLED') dbStatus = 'CANCELLED';
+
+          await prisma.payment.update({
+            where: { id: paymentId },
+            data: {
+              status: dbStatus,
+              invoiceId: invoice_id,
+              gatewayTransactionId: verifyResponse.transaction_id,
+              metadata: {
+                ...metadata,
+                uddoktaVerifyResponse: verifyResponse,
+              } as unknown as Prisma.InputJsonValue,
+            },
+          });
+        }
+      }
+
+      return res.redirect(
+        `${FRONTEND_URL}/payment/failed?itemType=${itemType}&itemId=${itemId}&reason=payment_${verifyResponse.status?.toLowerCase()}&message=Payment is ${verifyResponse.status}`
+      );
+    }
+
+    const paymentId = uddoktaMetadata?.payment_id;
     const payment = paymentId
       ? await prisma.payment.findUnique({ where: { id: paymentId } })
       : await prisma.payment.findFirst({ where: { invoiceId: invoice_id } });
@@ -345,11 +375,7 @@ export const handlePaymentCallback = async (req: Request, res: Response) => {
         });
         if (!existing) {
           await tx.enrollment.create({
-            data: {
-              userId: payment.userId,
-              courseId: metadata.itemId,
-              status: 'ACTIVE',
-            },
+            data: { userId: payment.userId, courseId: metadata.itemId, status: 'ACTIVE' },
           });
         }
       } else if (metadata.itemType === 'webinar') {
@@ -358,10 +384,7 @@ export const handlePaymentCallback = async (req: Request, res: Response) => {
         });
         if (!existing) {
           await tx.webinarRegistration.create({
-            data: {
-              userId: payment.userId,
-              webinarId: metadata.itemId,
-            },
+            data: { userId: payment.userId, webinarId: metadata.itemId },
           });
         }
       }
@@ -784,6 +807,8 @@ export const getAdminPayments = async (req: Request & AuthRequest, res: Response
 
     const enrollmentAsPseudoPayments = enrollmentsWithoutPayment.map((e) => ({
       id: e.id,
+      isPseudoPayment: true,
+      enrollmentId: e.id,
       userId: e.userId,
       courseId: e.courseId,
       webinarId: null,
@@ -1109,7 +1134,7 @@ export const adminDeletePayment = async (req: Request & AuthRequest, res: Respon
       return res.status(400).json({ error: 'Invalid request data', details: validation.error });
     }
 
-    const { paymentId, adminPassword } = validation.data;
+    const { paymentId, adminPassword, isPseudoPayment } = validation.data;
 
     // Validate admin password
     const adminEmails = (process.env.ADMIN_EMAILS || '').split(',');
@@ -1120,6 +1145,39 @@ export const adminDeletePayment = async (req: Request & AuthRequest, res: Respon
       return res.status(401).json({ error: 'Invalid admin password' });
     }
 
+    // Handle pseudo payments (free enrollments without payment record)
+    // For free enrollments, delete the enrollment since there's no payment record
+    if (isPseudoPayment) {
+      const enrollment = await prisma.enrollment.findUnique({
+        where: { id: paymentId },
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+          course: { select: { id: true, title: true } },
+        },
+      });
+
+      if (!enrollment) {
+        return res.status(404).json({ error: 'Enrollment not found' });
+      }
+
+      // Delete the free enrollment
+      await prisma.enrollment.delete({
+        where: { id: paymentId },
+      });
+
+      return res.json({
+        success: true,
+        message: 'Free enrollment deleted successfully',
+        deletedPayment: {
+          id: enrollment.id,
+          amount: 0,
+          user: enrollment.user.name || enrollment.user.email,
+          item: enrollment.course.title,
+        },
+      });
+    }
+
+    // Handle real payment records
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
       include: {
@@ -1142,17 +1200,19 @@ export const adminDeletePayment = async (req: Request & AuthRequest, res: Respon
       courseTitle = course?.title || null;
     }
 
-    // Delete related enrollment or webinar registration if exists
-    if (payment.courseId) {
-      await prisma.enrollment.deleteMany({
-        where: { userId: payment.userId, courseId: payment.courseId },
-      });
-    }
-
-    if (payment.webinarId) {
-      await prisma.webinarRegistration.deleteMany({
-        where: { userId: payment.userId, webinarId: payment.webinarId },
-      });
+    // Only delete enrollment/registration if payment was COMPLETED
+    // For other statuses (PENDING, FAILED, etc.), only delete the payment record
+    if (payment.status === 'COMPLETED') {
+      if (payment.courseId) {
+        await prisma.enrollment.deleteMany({
+          where: { userId: payment.userId, courseId: payment.courseId },
+        });
+      }
+      if (payment.webinarId) {
+        await prisma.webinarRegistration.deleteMany({
+          where: { userId: payment.userId, webinarId: payment.webinarId },
+        });
+      }
     }
 
     // Delete the payment record

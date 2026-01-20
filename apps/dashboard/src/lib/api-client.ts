@@ -376,6 +376,21 @@ class ApiClient {
     return this.request(`/analytics/courses?${query.toString()}`, { method: 'GET' });
   }
 
+  async getPurchaseAnalytics() {
+    return this.request('/analytics/purchases', { method: 'GET' });
+  }
+
+  async getEnrollmentAnalytics(params: { type: 'course' | 'webinar'; id: string }) {
+    const query = new URLSearchParams();
+    query.append('type', params.type);
+    query.append('id', params.id);
+    return this.request(`/analytics/enrollments?${query.toString()}`, { method: 'GET' });
+  }
+
+  async getItemsForAnalytics() {
+    return this.request('/analytics/items', { method: 'GET' });
+  }
+
   // Course Management
   async getCourses(params?: {
     page?: number;
@@ -665,7 +680,12 @@ class ApiClient {
     return this.request('/payment/admin/refund', { method: 'POST', data });
   }
 
-  async adminDeletePayment(data: { paymentId: string; reason: string; adminPassword: string }) {
+  async adminDeletePayment(data: {
+    paymentId: string;
+    reason: string;
+    adminPassword: string;
+    isPseudoPayment?: boolean;
+  }) {
     return this.request('/payment/admin/payment', { method: 'DELETE', data });
   }
 

@@ -61,6 +61,7 @@ interface Payment {
   refundedAt: string | null;
   refundAmount: number | null;
   refundReason: string | null;
+  isPseudoPayment?: boolean; // Flag to indicate this is a free enrollment (pseudo payment)
   user: { id: string; name: string | null; email: string; avatarUrl: string | null };
   course: { id: string; title: string } | null;
   webinar: { id: string; title: string } | null;
@@ -263,6 +264,7 @@ export default function PaymentsPage() {
         paymentId: deletePayment.id,
         reason: deleteReason,
         adminPassword: deleteAdminPassword,
+        isPseudoPayment: deletePayment.isPseudoPayment || false,
       });
       toast.success('Payment record deleted successfully');
       setDeleteModalOpen(false);
@@ -500,7 +502,7 @@ export default function PaymentsPage() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-vibrant-blue/10 flex items-center justify-center overflow-hidden">
-                          {payment.user.avatarUrl ? (
+                          {payment.user.avatarUrl && payment.user.avatarUrl.trim() !== '' ? (
                             <Image
                               src={payment.user.avatarUrl}
                               alt={payment.user.name || ''}
@@ -698,6 +700,11 @@ export default function PaymentsPage() {
                 <p className="text-sm text-red-800 font-medium mb-2">
                   ⚠️ This action cannot be undone
                 </p>
+                {(deletePayment.status === 'COMPLETED' || deletePayment.isPseudoPayment) && (
+                  <p className="text-sm text-orange-700 font-semibold mb-3 bg-orange-100 border border-orange-300 rounded p-2">
+                    🚨 This will also remove the student from the course/webinar enrollment!
+                  </p>
+                )}
                 <p className="text-sm text-slate-600">
                   <span className="font-medium">User:</span>{' '}
                   {deletePayment.user.name || deletePayment.user.email}
