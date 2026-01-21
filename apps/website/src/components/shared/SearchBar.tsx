@@ -5,15 +5,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocale } from '@/providers/locale-provider';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/api-client';
-import type { CourseCard, WebinarCard } from '@/lib/zustand/app-store';
-import { Loader2 } from 'lucide-react';
+import { Loader2, TrendingUp, Search } from 'lucide-react';
+import Image from 'next/image';
 
 type SearchResult = {
   id: string;
   title: string;
   type: 'course' | 'webinar';
-  category?: string;
+  category?: string | null;
   image?: string | null;
+  feeType?: 'free' | 'paid';
+  price?: number;
+  count?: number;
 };
 
 export default function SearchBar({
@@ -31,63 +34,65 @@ export default function SearchBar({
   const [isFocused, setIsFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
+  const [trendingItems, setTrendingItems] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Debounced search
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) {
-        fetchSuggestions(searchQuery);
-      } else {
-        setSuggestions([]);
+    const loadTrending = async () => {
+      try {
+        const response = await apiClient.searchTrending({ limit: 6 });
+        if (response?.data) {
+          setTrendingItems(response.data as SearchResult[]);
+        }
+      } catch {
+        /* ignore */
       }
-    }, 300);
+    };
+    loadTrending();
+  }, []);
 
-    return () => clearTimeout(delayDebounce);
-  }, [searchQuery]);
-
-  const fetchSuggestions = async (query: string) => {
-    setIsLoading(true);
-    try {
-      const [coursesResponse, webinarsResponse] = await Promise.all([
-        apiClient.getPublicCourses({ search: query, limit: 5 }),
-        apiClient.getPublicWebinars({ search: query, limit: 5 }),
-      ]);
-
-      const courseResults: SearchResult[] =
-        (coursesResponse.data as CourseCard[])?.map((course) => ({
-          id: course.id,
-          title: course.title,
-          type: 'course' as const,
-          category: course.category?.title,
-          image: course.image,
-        })) || [];
-
-      const webinarResults: SearchResult[] =
-        (webinarsResponse.data as WebinarCard[])?.map((webinar) => ({
-          id: webinar.id,
-          title: webinar.title,
-          type: 'webinar' as const,
-          category: webinar.category?.title,
-          image: webinar.image,
-        })) || [];
-
-      setSuggestions([...courseResults, ...webinarResults]);
-    } catch (error) {
-      console.error('Failed to fetch suggestions:', error);
-      setSuggestions([]);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
-  };
+
+    if (searchQuery.trim().length < 2) {
+      setSuggestions([]);
+      setSelectedIndex(-1);
+      return;
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    const debounceTimer = setTimeout(async () => {
+      setIsLoading(true);
+      try {
+        const response = await apiClient.searchTrending({ search: searchQuery, limit: 8 });
+        if (!controller.signal.aborted && response?.data) {
+          setSuggestions(response.data as SearchResult[]);
+          setSelectedIndex(-1);
+        }
+      } catch {
+        if (!controller.signal.aborted) setSuggestions([]);
+      } finally {
+        if (!controller.signal.aborted) setIsLoading(false);
+      }
+    }, 250);
+
+    return () => {
+      clearTimeout(debounceTimer);
+      controller.abort();
+    };
+  }, [searchQuery]);
 
   const handleSelect = useCallback(
     (result: SearchResult) => {
-      const path = result.type === 'course' ? `/course/${result.id}` : `/webinar/${result.id}`;
-      router.push(path);
+      router.push(result.type === 'course' ? `/course/${result.id}` : `/webinar/${result.id}`);
       setSearchQuery('');
       setSuggestions([]);
       setIsFocused(false);
@@ -97,38 +102,38 @@ export default function SearchBar({
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!suggestions.length) return;
+    const items = searchQuery.trim().length >= 2 ? suggestions : trendingItems;
+    if (!items.length) return;
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+      setSelectedIndex((prev) => (prev < items.length - 1 ? prev + 1 : prev));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
     } else if (e.key === 'Enter' && selectedIndex >= 0) {
       e.preventDefault();
-      handleSelect(suggestions[selectedIndex]);
+      const selected = items[selectedIndex];
+      if (selected) handleSelect(selected);
     } else if (e.key === 'Escape') {
-      setSuggestions([]);
       setIsFocused(false);
       inputRef.current?.blur();
     }
   };
 
-  // Click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setSuggestions([]);
         setIsFocused(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const showSuggestions = isFocused && (suggestions.length > 0 || isLoading);
+  const displayItems = searchQuery.trim().length >= 2 ? suggestions : trendingItems;
+  const showDropdown = isFocused && (displayItems.length > 0 || isLoading);
+  const isSearchMode = searchQuery.trim().length >= 2;
 
   return (
     <div
@@ -157,16 +162,26 @@ export default function SearchBar({
         </span>
       )}
 
-      {/* Suggestions Dropdown */}
-      {showSuggestions && (
+      {showDropdown && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
-          {isLoading && suggestions.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground text-sm">Searching...</div>
-          ) : suggestions.length === 0 ? (
+          {!isSearchMode && displayItems.length > 0 && (
+            <div className="px-3 py-2 border-b border-border flex items-center gap-2 text-xs text-muted-foreground">
+              <TrendingUp className="size-3" />
+              <span>Trending</span>
+            </div>
+          )}
+          {isSearchMode && isLoading && suggestions.length === 0 && (
+            <div className="px-3 py-2 border-b border-border flex items-center gap-2 text-xs text-muted-foreground">
+              <Search className="size-3" />
+              <span>Searching...</span>
+            </div>
+          )}
+          {isSearchMode && !isLoading && suggestions.length === 0 && (
             <div className="p-4 text-center text-muted-foreground text-sm">No results found</div>
-          ) : (
+          )}
+          {displayItems.length > 0 && (
             <ul>
-              {suggestions.map((result, index) => (
+              {displayItems.map((result, index) => (
                 <li
                   key={`${result.type}-${result.id}`}
                   className={`px-4 py-3 cursor-pointer transition-colors border-b last:border-b-0 ${
@@ -176,18 +191,18 @@ export default function SearchBar({
                   onMouseEnter={() => setSelectedIndex(index)}
                 >
                   <div className="flex items-start gap-3">
-                    {result.image && (
-                      <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-muted">
-                        <img
-                          src={result.image}
-                          alt={result.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
+                    <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0 bg-muted relative">
+                      <Image
+                        src={result.image || '/Card/cover.png'}
+                        alt={result.title}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{result.title}</p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <span
                           className={`text-xs px-2 py-0.5 rounded-full ${
                             result.type === 'course'
@@ -196,6 +211,15 @@ export default function SearchBar({
                           }`}
                         >
                           {result.type === 'course' ? 'Course' : 'Webinar'}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            result.feeType?.toUpperCase() === 'FREE'
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                          }`}
+                        >
+                          {result.feeType?.toUpperCase() === 'FREE' ? 'Free' : `৳${result.price}`}
                         </span>
                         {result.category && (
                           <span className="text-xs text-muted-foreground truncate">

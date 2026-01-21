@@ -271,4 +271,124 @@ export class PublicController {
 
     ApiResponse.success(res, webinar);
   });
+
+  static searchTrending = asyncHandler(async (req: Request, res: Response) => {
+    const search = (req.query.search as string)?.trim() || '';
+    const limit = Math.min(parseInt(req.query.limit as string) || 6, 10);
+
+    const courseSelect = {
+      id: true,
+      title: true,
+      metadata: true,
+      feeType: true,
+      price: true,
+      category: { select: { title: true } },
+      _count: { select: { enrollments: true } },
+    };
+
+    const webinarSelect = {
+      id: true,
+      title: true,
+      image: true,
+      feeType: true,
+      price: true,
+      category: { select: { title: true } },
+      _count: { select: { registrations: true } },
+    };
+
+    if (search.length >= 2) {
+      const [courses, webinars] = await Promise.all([
+        prisma.course.findMany({
+          where: {
+            published: true,
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } },
+            ],
+          },
+          select: courseSelect,
+          take: limit,
+          orderBy: { enrollments: { _count: 'desc' } },
+        }),
+        prisma.webinar.findMany({
+          where: {
+            status: { in: ['upcoming', 'live'] },
+            title: { contains: search, mode: 'insensitive' },
+          },
+          select: webinarSelect,
+          take: limit,
+          orderBy: { registrations: { _count: 'desc' } },
+        }),
+      ]);
+
+      const results = [
+        ...courses.map((c) => ({
+          id: c.id,
+          title: c.title,
+          type: 'course' as const,
+          image: ((c.metadata as Record<string, unknown>)?.heroImage as string) || null,
+          category: c.category?.title || null,
+          feeType: c.feeType,
+          price: c.price,
+          count: c._count.enrollments,
+        })),
+        ...webinars.map((w) => ({
+          id: w.id,
+          title: w.title,
+          type: 'webinar' as const,
+          image: w.image,
+          category: w.category?.title || null,
+          feeType: w.feeType,
+          price: w.price,
+          count: w._count.registrations,
+        })),
+      ]
+        .sort((a, b) => b.count - a.count)
+        .slice(0, limit);
+
+      return ApiResponse.success(res, results);
+    }
+
+    const [courses, webinars] = await Promise.all([
+      prisma.course.findMany({
+        where: { published: true },
+        select: courseSelect,
+        take: limit,
+        orderBy: { enrollments: { _count: 'desc' } },
+      }),
+      prisma.webinar.findMany({
+        where: { status: { in: ['upcoming', 'live'] } },
+        select: webinarSelect,
+        take: limit,
+        orderBy: { registrations: { _count: 'desc' } },
+      }),
+    ]);
+
+    const results = [
+      ...courses.map((c) => ({
+        id: c.id,
+        title: c.title,
+        type: 'course' as const,
+        image: ((c.metadata as Record<string, unknown>)?.heroImage as string) || null,
+        category: c.category?.title || null,
+        feeType: c.feeType,
+        price: c.price,
+        count: c._count.enrollments,
+      })),
+      ...webinars.map((w) => ({
+        id: w.id,
+        title: w.title,
+        type: 'webinar' as const,
+        image: w.image,
+        category: w.category?.title || null,
+        feeType: w.feeType,
+        price: w.price,
+        count: w._count.registrations,
+      })),
+    ]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit);
+
+    ApiResponse.success(res, results);
+  });
 }

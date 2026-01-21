@@ -4,5 +4,6 @@ import { PublicController } from '../controllers/public.controller.js';
 export const publicRouter: IRouter = Router();
 
 publicRouter.get('/initial', PublicController.getInitialData);
+publicRouter.get('/search', PublicController.searchTrending);
 publicRouter.get('/courses/:id', PublicController.getCourseDetails);
 publicRouter.get('/webinars/:id', PublicController.getWebinarDetails);

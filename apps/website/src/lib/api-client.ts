@@ -106,6 +106,13 @@ class ApiClient {
     return this.request('/public/initial', { method: 'GET' });
   }
 
+  async searchTrending(params?: { search?: string; limit?: number }) {
+    const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
+    if (params?.limit) query.append('limit', params.limit.toString());
+    return this.request(`/public/search?${query.toString()}`, { method: 'GET' });
+  }
+
   // Public Webinar endpoints (no auth required)
   async getPublicWebinars(params?: {
     page?: number;
