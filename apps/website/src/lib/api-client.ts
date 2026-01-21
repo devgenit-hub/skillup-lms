@@ -106,6 +106,13 @@ class ApiClient {
     return this.request('/public/initial', { method: 'GET' });
   }
 
+  async searchTrending(params?: { search?: string; limit?: number }) {
+    const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
+    if (params?.limit) query.append('limit', params.limit.toString());
+    return this.request(`/public/search?${query.toString()}`, { method: 'GET' });
+  }
+
   // Public Webinar endpoints (no auth required)
   async getPublicWebinars(params?: {
     page?: number;
@@ -420,6 +427,21 @@ class ApiClient {
       enrolled: boolean;
       enrollment?: unknown;
       registration?: unknown;
+    }>({
+      url: cleanEndpoint,
+      method: 'GET',
+    });
+    return response.data;
+  }
+
+  async checkExistingPayment(data: { itemType: 'course' | 'webinar'; itemId: string }): Promise<{
+    exists: boolean;
+    payment?: { id: string; status: string; amount: number; createdAt: string };
+  }> {
+    const cleanEndpoint = `/payment/check-existing?itemType=${data.itemType}&itemId=${data.itemId}`;
+    const response = await this.client.request<{
+      exists: boolean;
+      payment?: { id: string; status: string; amount: number; createdAt: string };
     }>({
       url: cleanEndpoint,
       method: 'GET',

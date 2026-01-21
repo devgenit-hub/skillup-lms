@@ -23,6 +23,7 @@ export default function WebinarCard(props: WebinarCardProps) {
           endDate={props.endDate || '2025-12-31'}
           feeType={props.feeType}
           price={props.price}
+          platform={props.platform}
           maxDiscount={props.maxDiscount}
         />
       </div>

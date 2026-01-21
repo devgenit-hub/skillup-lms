@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   const locale = (localeCookie === 'en' || localeCookie === 'bn' ? localeCookie : 'en') as Locale;
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning data-scroll-behavior="smooth">
       <body className="subpixel-antialiased">
         <AuthProvider>
           <AppContextProvider>

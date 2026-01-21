@@ -169,7 +169,13 @@ export default function WebinarDetailPage() {
         {/* Banner Image */}
         <div className="relative h-48 md:h-64 bg-linear-to-br from-purple-500 to-indigo-600">
           {webinar.image ? (
-            <Image src={webinar.image} alt={webinar.title} fill className="object-cover" />
+            <Image
+              src={webinar.image}
+              alt={webinar.title || 'image'}
+              fill
+              className="object-cover"
+              loading="eager"
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <Video className="w-24 h-24 text-white/30" />
@@ -253,9 +259,9 @@ export default function WebinarDetailPage() {
                     href={webinar.liveLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-purple-500 hover:text-purple-600 break-all mt-1 inline-block"
+                    className="text-sm text-purple-500 hover:text-white hover:bg-purple-500/80 break-all mt-1 inline-block bg-card px-2 py-1 rounded-lg border-2 border-purple-300/70 transition-all"
                   >
-                    {webinar.liveLink}
+                    Join Now
                   </a>
                 </div>
               </div>

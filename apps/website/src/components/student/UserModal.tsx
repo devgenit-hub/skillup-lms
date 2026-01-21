@@ -66,7 +66,7 @@ export default function UserModal({
             <div className="flex gap-7 items-center">
               <div className="shrink-0">
                 <div className="h-28 w-28 rounded-full overflow-hidden ring-2 ring-gray-100">
-                  <Image src={imageUrl} alt={name} width={112} height={112} />
+                  <Image src={imageUrl} alt={name} width={112} height={112} loading="eager" />
                 </div>
               </div>
               <div className="flex flex-col gap-3">

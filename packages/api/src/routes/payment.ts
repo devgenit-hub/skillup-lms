@@ -8,6 +8,7 @@ import {
   refundPayment,
   enrollFree,
   checkEnrollmentStatus,
+  checkExistingPayment,
   getAdminPayments,
   getAdminEnrollments,
   adminRefundPayment,
@@ -24,6 +25,7 @@ router.get('/status/:transactionId', authenticate, getPaymentStatus);
 router.post('/refund', authenticate, refundPayment);
 router.post('/enroll-free', authenticate, enrollFree);
 router.get('/enrollment-status', authenticate, checkEnrollmentStatus);
+router.get('/check-existing', authenticate, checkExistingPayment);
 
 router.get('/admin/payments', authenticate, getAdminPayments);
 router.get('/admin/enrollments', authenticate, getAdminEnrollments);

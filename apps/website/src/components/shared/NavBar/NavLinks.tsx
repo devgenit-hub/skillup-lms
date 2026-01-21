@@ -6,6 +6,7 @@ export interface NavLinksProps {
   name: string;
   href?: string;
   innerLinks?: NavLinksProps[];
+  handleClick?: () => void;
 }
 
 export const navLinks: NavLinksProps[] = [

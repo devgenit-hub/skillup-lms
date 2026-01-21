@@ -82,7 +82,7 @@ export default async function RootLayout({
   const locale = (localeCookie === 'en' || localeCookie === 'bn' ? localeCookie : 'bn') as Locale;
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <script
           dangerouslySetInnerHTML={{

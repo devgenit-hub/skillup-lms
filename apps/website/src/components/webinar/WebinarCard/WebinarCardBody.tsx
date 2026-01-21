@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, Video } from 'lucide-react';
 import { WebinarFeeType } from '@repo/shared';
 import Count from '../../CountDown';
 
@@ -11,12 +11,14 @@ export default function WebinarCardBody({
   endDate,
   feeType,
   price,
+  platform = 'Zoom',
   maxDiscount,
 }: {
   category: string;
   title: string;
   endDate: string;
   feeType?: string;
+  platform?: string | null;
   price?: number | null;
   maxDiscount?: string | null;
 }) {
@@ -52,12 +54,18 @@ export default function WebinarCardBody({
         )}
       </div>
       <span className="text-xl font-bold">{title}</span>
-      <div className="mt-4 flex items-center gap-2 text-sm">
-        <Clock className="size-4"></Clock>
-        <b>
-          <Count endDate={endDate} />
-        </b>
-        দিন বাকি
+      <div className="flex flex-wrap justify-start gap-4">
+        <div className="mt-4 flex items-center gap-2 text-sm">
+          <Clock className="size-4"></Clock>
+          <b>
+            <Count endDate={endDate} />
+          </b>
+          দিন বাকি
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-sm">
+          <Video className="size-4" />
+          {platform || ''}
+        </div>
       </div>
     </div>
   );

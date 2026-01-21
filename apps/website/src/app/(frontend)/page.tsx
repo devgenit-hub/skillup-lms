@@ -27,11 +27,11 @@ function Home() {
       <LandingHero />
       <LogoMarquee logoUrlList={LOGO_URL_LIST} />
       <OurCourses />
-      <Testimonial />
       <WebinarSection />
       <SkillSection />
       <JoiningProcess />
       <FaQ />
+      <Testimonial />
       <LandingPageFaQ />
     </>
   );

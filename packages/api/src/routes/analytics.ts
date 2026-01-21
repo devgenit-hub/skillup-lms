@@ -11,5 +11,8 @@ router.get('/dashboard', AnalyticsController.getDashboardStats);
 router.get('/revenue', AnalyticsController.getRevenueAnalytics);
 router.get('/students', AnalyticsController.getStudentAnalytics);
 router.get('/courses', AnalyticsController.getCourseAnalytics);
+router.get('/purchases', AnalyticsController.getPurchaseAnalytics);
+router.get('/enrollments', AnalyticsController.getEnrollmentAnalytics);
+router.get('/items', AnalyticsController.getItemsForAnalytics);
 
 export default router;
