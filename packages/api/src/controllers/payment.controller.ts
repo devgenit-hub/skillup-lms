@@ -420,6 +420,11 @@ export const handlePaymentCallback = async (req: Request, res: Response) => {
 
 export const handlePaymentWebhook = async (req: Request, res: Response) => {
   try {
+    const headerApiKey = req.header('RT-UDDOKTAPAY-API-KEY');
+    if (headerApiKey !== UDDOKTA_PAY_API_KEY) {
+      return res.status(401).json({ error: 'Unauthorized request' });
+    }
+
     const webhookData = req.body;
     const invoice_id = webhookData.invoice_id;
 
