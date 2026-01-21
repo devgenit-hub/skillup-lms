@@ -426,6 +426,21 @@ class ApiClient {
     });
     return response.data;
   }
+
+  async checkExistingPayment(data: { itemType: 'course' | 'webinar'; itemId: string }): Promise<{
+    exists: boolean;
+    payment?: { id: string; status: string; amount: number; createdAt: string };
+  }> {
+    const cleanEndpoint = `/payment/check-existing?itemType=${data.itemType}&itemId=${data.itemId}`;
+    const response = await this.client.request<{
+      exists: boolean;
+      payment?: { id: string; status: string; amount: number; createdAt: string };
+    }>({
+      url: cleanEndpoint,
+      method: 'GET',
+    });
+    return response.data;
+  }
 }
 
 export const apiClient = new ApiClient();

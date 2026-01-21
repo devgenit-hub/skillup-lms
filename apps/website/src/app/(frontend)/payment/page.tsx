@@ -2,8 +2,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Loader2, Tag, X, Check } from 'lucide-react';
+import { Loader2, Tag, X, Check, Clock, AlertCircle } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { useAuthStore } from '@/lib/zustand/auth-store';
 
 interface Coupon {
   id: string;
@@ -27,9 +28,17 @@ interface CourseWebinarData {
   numClasses?: number;
 }
 
+interface ExistingPayment {
+  id: string;
+  status: string;
+  amount: number;
+  createdAt: string;
+}
+
 export default function Page() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user, isLoading: authLoading, isVerified } = useAuthStore();
   const courseId = searchParams.get('courseId');
   const webinarId = searchParams.get('webinarId');
 
@@ -41,9 +50,22 @@ export default function Page() {
   const [couponError, setCouponError] = useState('');
   const [showCoupons, setShowCoupons] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [existingPayment, setExistingPayment] = useState<ExistingPayment | null>(null);
+
+  useEffect(() => {
+    if (!authLoading && isVerified && !user) {
+      const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+      router.push(`/auth/login?redirect=${returnUrl}`);
+    }
+  }, [authLoading, isVerified, user, router]);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!courseId && !webinarId) {
+        router.push('/');
+        return;
+      }
+
       try {
         setLoading(true);
         let response;
@@ -59,12 +81,9 @@ export default function Page() {
             `${process.env.NEXT_PUBLIC_API_URL}/api/public/webinars/${webinarId}`
           );
           type = 'webinar';
-        } else {
-          router.push('/');
-          return;
         }
 
-        if (!response.ok) {
+        if (!response || !response.ok) {
           throw new Error('Data not found');
         }
 
@@ -72,7 +91,6 @@ export default function Page() {
         const fetchedData = { ...result.data, type };
         setData(fetchedData);
 
-        // Auto-apply maximum discount coupon
         if (fetchedData.coupons && fetchedData.coupons.length > 0) {
           const maxCoupon = fetchedData.coupons.reduce((max: Coupon, coupon: Coupon) => {
             const discount = parseFloat(String(coupon.discount).replace(/[^\d.]/g, '')) || 0;
@@ -81,8 +99,7 @@ export default function Page() {
           });
           setSelectedCoupon(maxCoupon);
         }
-      } catch (err) {
-        console.error('Error fetching data:', err);
+      } catch {
         router.push('/');
       } finally {
         setLoading(false);
@@ -91,6 +108,26 @@ export default function Page() {
 
     fetchData();
   }, [courseId, webinarId, router]);
+
+  useEffect(() => {
+    if (!user?.id || !data) return;
+
+    const checkExisting = async () => {
+      try {
+        const res = await apiClient.checkExistingPayment({
+          itemType: data.type,
+          itemId: data.id,
+        });
+        if (res?.payment) {
+          setExistingPayment(res.payment);
+        }
+      } catch {
+        // Silently ignore
+      }
+    };
+
+    checkExisting();
+  }, [user?.id, data]);
 
   const calculatedPrice = useMemo(() => {
     if (!data) return { original: 0, discount: 0, final: 0 };
@@ -157,7 +194,7 @@ export default function Page() {
     }
   };
 
-  if (loading) {
+  if (authLoading || !isVerified || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -168,7 +205,7 @@ export default function Page() {
     );
   }
 
-  if (!data) {
+  if (!user || !data) {
     return null;
   }
 
@@ -222,6 +259,43 @@ export default function Page() {
         <div className="flex-1">
           <div className="bg-linear-to-br from-vibrant-blue/10 to-purple-100 dark:to-purple-900/20 rounded-2xl p-6 border-2 border-vibrant-blue/30 sticky top-4">
             <h3 className="text-xl font-bold mb-4">অর্ডারের সারাংশ</h3>
+
+            {/* Existing Payment Notice */}
+            {existingPayment && (
+              <div
+                className={`mb-4 p-3 rounded-lg border ${
+                  existingPayment.status === 'PENDING'
+                    ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-600'
+                    : 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-600'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  {existingPayment.status === 'PENDING' ? (
+                    <Clock className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+                  )}
+                  <div className="text-sm">
+                    <p
+                      className={`font-semibold ${
+                        existingPayment.status === 'PENDING'
+                          ? 'text-amber-700 dark:text-amber-400'
+                          : 'text-blue-700 dark:text-blue-400'
+                      }`}
+                    >
+                      {existingPayment.status === 'PENDING'
+                        ? 'একটি পেমেন্ট প্রক্রিয়াধীন আছে'
+                        : 'পূর্বে একটি পেমেন্ট চেষ্টা করা হয়েছে'}
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">
+                      {existingPayment.status === 'PENDING'
+                        ? 'আপনার পূর্বের পেমেন্ট এখনও প্রক্রিয়াধীন। নতুন পেমেন্ট করলে পুরনোটি আপডেট হবে।'
+                        : 'আপনি আবার পেমেন্ট করতে পারেন।'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-3 mb-4">
               <div className="flex justify-between items-center">

@@ -20,7 +20,8 @@ export default function PaymentSuccessPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          const targetPath = itemType === 'course' ? `/course/${itemId}` : `/webinar/${itemId}`;
+          const targetPath =
+            itemType === 'course' ? `/student/class/${itemId}` : `/student/webinar/${itemId}`;
           router.push(targetPath);
           return 0;
         }
@@ -65,7 +66,8 @@ export default function PaymentSuccessPage() {
 
         <button
           onClick={() => {
-            const targetPath = itemType === 'course' ? `/course/${itemId}` : `/webinar/${itemId}`;
+            const targetPath =
+              itemType === 'course' ? `/student/class/${itemId}` : `/student/webinar/${itemId}`;
             router.push(targetPath);
           }}
           className="w-full bg-primary text-primary-foreground py-3.5 px-6 rounded-xl font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl"

@@ -77,14 +77,12 @@ export default function AuthForm(props: AuthFormProps) {
 
         toast.success(pageText['toast_loginSuccess']);
 
-        // Check for redirect parameter
         const redirectUrl = searchParams.get('redirect');
         if (redirectUrl) {
-          router.push(decodeURIComponent(redirectUrl));
+          window.location.href = decodeURIComponent(redirectUrl);
         } else {
           router.push('/student/dashboard');
         }
-        router.refresh();
       }
     } catch (err: unknown) {
       const error = err as Error;

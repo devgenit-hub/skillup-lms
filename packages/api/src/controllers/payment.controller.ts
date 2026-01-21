@@ -99,6 +99,51 @@ function getUddoktaHeaders() {
   };
 }
 
+async function verifyPaymentWithGateway(invoice_id: string): Promise<UddoktaVerifyResponse> {
+  const response = await axios.post(
+    `${UDDOKTA_PAY_API_URL}/verify-payment`,
+    { invoice_id },
+    { headers: getUddoktaHeaders() }
+  );
+  return response.data;
+}
+
+function mapGatewayStatusToDbStatus(
+  gatewayStatus?: string
+): 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'CANCELLED' {
+  if (gatewayStatus === 'PENDING') return 'PENDING';
+  if (gatewayStatus === 'REFUNDED') return 'REFUNDED';
+  if (gatewayStatus === 'CANCELLED') return 'CANCELLED';
+  if (gatewayStatus === 'COMPLETED') return 'COMPLETED';
+  return 'FAILED';
+}
+
+async function createEnrollmentIfNeeded(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  metadata: PaymentMetadata
+) {
+  if (metadata.itemType === 'course') {
+    const existing = await tx.enrollment.findUnique({
+      where: { userId_courseId: { userId, courseId: metadata.itemId } },
+    });
+    if (!existing) {
+      await tx.enrollment.create({
+        data: { userId, courseId: metadata.itemId, status: 'ACTIVE' },
+      });
+    }
+  } else if (metadata.itemType === 'webinar') {
+    const existing = await tx.webinarRegistration.findUnique({
+      where: { webinarId_userId: { webinarId: metadata.itemId, userId } },
+    });
+    if (!existing) {
+      await tx.webinarRegistration.create({
+        data: { userId, webinarId: metadata.itemId },
+      });
+    }
+  }
+}
+
 export const initiatePayment = async (req: Request & AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -251,12 +296,7 @@ export const handlePaymentCallback = async (req: Request, res: Response) => {
 
     let verifyResponse: UddoktaVerifyResponse;
     try {
-      const response = await axios.post(
-        `${UDDOKTA_PAY_API_URL}/verify-payment`,
-        { invoice_id },
-        { headers: getUddoktaHeaders() }
-      );
-      verifyResponse = response.data;
+      verifyResponse = await verifyPaymentWithGateway(invoice_id);
     } catch {
       return res.redirect(
         `${FRONTEND_URL}/payment/failed?reason=verification_failed&message=Could not verify payment`
@@ -284,16 +324,10 @@ export const handlePaymentCallback = async (req: Request, res: Response) => {
         const payment = await prisma.payment.findUnique({ where: { id: paymentId } });
         if (payment) {
           const metadata = payment.metadata as unknown as PaymentMetadata;
-
-          let dbStatus: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'CANCELLED' = 'FAILED';
-          if (verifyResponse.status === 'PENDING') dbStatus = 'PENDING';
-          else if (verifyResponse.status === 'REFUNDED') dbStatus = 'REFUNDED';
-          else if (verifyResponse.status === 'CANCELLED') dbStatus = 'CANCELLED';
-
           await prisma.payment.update({
             where: { id: paymentId },
             data: {
-              status: dbStatus,
+              status: mapGatewayStatusToDbStatus(verifyResponse.status),
               invoiceId: invoice_id,
               gatewayTransactionId: verifyResponse.transaction_id,
               metadata: {
@@ -369,26 +403,7 @@ export const handlePaymentCallback = async (req: Request, res: Response) => {
         },
       });
 
-      if (metadata.itemType === 'course') {
-        const existing = await tx.enrollment.findUnique({
-          where: { userId_courseId: { userId: payment.userId, courseId: metadata.itemId } },
-        });
-        if (!existing) {
-          await tx.enrollment.create({
-            data: { userId: payment.userId, courseId: metadata.itemId, status: 'ACTIVE' },
-          });
-        }
-      } else if (metadata.itemType === 'webinar') {
-        const existing = await tx.webinarRegistration.findUnique({
-          where: { webinarId_userId: { webinarId: metadata.itemId, userId: payment.userId } },
-        });
-        if (!existing) {
-          await tx.webinarRegistration.create({
-            data: { userId: payment.userId, webinarId: metadata.itemId },
-          });
-        }
-      }
-
+      await createEnrollmentIfNeeded(tx, payment.userId, metadata);
       return updatedPayment;
     });
 
@@ -414,12 +429,7 @@ export const handlePaymentWebhook = async (req: Request, res: Response) => {
 
     let verifyResponse: UddoktaVerifyResponse;
     try {
-      const response = await axios.post(
-        `${UDDOKTA_PAY_API_URL}/verify-payment`,
-        { invoice_id },
-        { headers: getUddoktaHeaders() }
-      );
-      verifyResponse = response.data;
+      verifyResponse = await verifyPaymentWithGateway(invoice_id);
     } catch {
       return res.status(400).json({ error: 'Payment verification failed' });
     }
@@ -445,6 +455,47 @@ export const handlePaymentWebhook = async (req: Request, res: Response) => {
 
     const metadata = payment.metadata as unknown as PaymentMetadata;
 
+    if (verifyResponse.status !== 'COMPLETED') {
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: mapGatewayStatusToDbStatus(verifyResponse.status),
+          invoiceId: invoice_id,
+          gatewayTransactionId: verifyResponse.transaction_id,
+          metadata: {
+            ...metadata,
+            uddoktaVerifyResponse: verifyResponse,
+            uddoktaWebhookData: webhookData,
+          } as unknown as Prisma.InputJsonValue,
+        },
+      });
+
+      return res.json({
+        success: true,
+        message: `Payment status updated to ${mapGatewayStatusToDbStatus(verifyResponse.status)}`,
+      });
+    }
+
+    const expectedAmount = payment.amount;
+    const paidAmount = parseFloat(verifyResponse.amount);
+
+    if (Math.abs(expectedAmount - paidAmount) > 0.01) {
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'FAILED',
+          invoiceId: invoice_id,
+          metadata: {
+            ...metadata,
+            uddoktaVerifyResponse: verifyResponse,
+            uddoktaWebhookData: webhookData,
+            failureReason: 'Amount mismatch',
+          } as unknown as Prisma.InputJsonValue,
+        },
+      });
+      return res.status(400).json({ error: 'Amount mismatch' });
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.payment.update({
         where: { id: payment.id },
@@ -465,25 +516,7 @@ export const handlePaymentWebhook = async (req: Request, res: Response) => {
         },
       });
 
-      if (metadata.itemType === 'course') {
-        const existing = await tx.enrollment.findUnique({
-          where: { userId_courseId: { userId: payment.userId, courseId: metadata.itemId } },
-        });
-        if (!existing) {
-          await tx.enrollment.create({
-            data: { userId: payment.userId, courseId: metadata.itemId, status: 'ACTIVE' },
-          });
-        }
-      } else if (metadata.itemType === 'webinar') {
-        const existing = await tx.webinarRegistration.findUnique({
-          where: { webinarId_userId: { webinarId: metadata.itemId, userId: payment.userId } },
-        });
-        if (!existing) {
-          await tx.webinarRegistration.create({
-            data: { userId: payment.userId, webinarId: metadata.itemId },
-          });
-        }
-      }
+      await createEnrollmentIfNeeded(tx, payment.userId, metadata);
     });
 
     return res.json({ success: true });
@@ -699,6 +732,54 @@ export const checkEnrollmentStatus = async (req: Request & AuthRequest, res: Res
     return res.status(400).json({ error: 'Invalid itemType' });
   } catch {
     return res.status(500).json({ error: 'Failed to check enrollment status' });
+  }
+};
+
+export const checkExistingPayment = async (req: Request & AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { itemType, itemId } = req.query;
+
+    if (!itemType || !itemId) {
+      return res.status(400).json({ error: 'itemType and itemId are required' });
+    }
+
+    const existingPayment = await prisma.payment.findFirst({
+      where: {
+        userId,
+        status: { notIn: ['COMPLETED'] },
+        ...(itemType === 'course'
+          ? { courseId: itemId as string }
+          : { webinarId: itemId as string }),
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        status: true,
+        amount: true,
+        createdAt: true,
+      },
+    });
+
+    if (existingPayment) {
+      return res.json({
+        exists: true,
+        payment: {
+          id: existingPayment.id,
+          status: existingPayment.status,
+          amount: existingPayment.amount,
+          createdAt: existingPayment.createdAt.toISOString(),
+        },
+      });
+    }
+
+    return res.json({ exists: false });
+  } catch {
+    return res.status(500).json({ error: 'Failed to check existing payment' });
   }
 };
 
