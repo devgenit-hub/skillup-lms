@@ -55,7 +55,17 @@ export default function LoginPage() {
         await useAuthStore.getState().logout();
         return;
       }
+      if (loginType === 'teacher' && currentUser.role !== UserRole.INSTRUCTOR) {
+        setError('Access denied. Instructor role required for teacher login.');
+        await useAuthStore.getState().logout();
+        return;
+      }
 
+      if (loginType === 'superuser' && currentUser.role !== UserRole.ADMIN) {
+        setError('Access denied. Admin role required for superuser login.');
+        await useAuthStore.getState().logout();
+        return;
+      }
       router.replace(currentUser.role === UserRole.ADMIN ? '/superuser' : '/teacher');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';

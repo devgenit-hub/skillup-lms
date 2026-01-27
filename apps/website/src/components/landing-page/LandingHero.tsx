@@ -23,7 +23,7 @@ export default function LandingHero() {
           className="object-cover rounded-xl aspect-video h-full w-full pointer-events-none"
         />
         {/* Stats Card */}
-        <div className="absolute -bottom-20 sm:-bottom-16 md:-bottom-15 left-1/2 -translate-x-1/2 w-[95%] sm:w-[90%] max-w-4xl flex justify-center items-center">
+        <div className="absolute -bottom-20 sm:-bottom-16 md:-bottom-15 left-1/2 -translate-x-1/2 w-full max-w-7xl flex justify-center items-center">
           <div className="relative w-full">
             {/* Gradient Shadow */}
             <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-yellow-500 rounded-xl md:rounded-2xl blur-xl opacity-30 translate-y-2 not-md:scale-75"></div>
@@ -32,19 +32,21 @@ export default function LandingHero() {
             <div className="relative bg-linear-to-r from-blue-500 via-red-800 to-yellow-500 p-0.5 rounded-xl md:rounded-2xl not-md:scale-75">
               <div className="relative flex items-center bg-black backdrop-blur-xl rounded-xl md:rounded-2xl shadow-2xl">
                 {/* Stats List */}
-                <ul className="grid grid-cols-2 sm:flex flex-col sm:flex-row w-full py-6 sm:py-8 md:py-10 sm:divide-y-0 sm:divide-x divide-gray-700/50">
+                <ul className="grid grid-cols-4 w-full py-6 sm:py-8 md:py-10 sm:divide-y-0 sm:divide-x divide-gray-500/70">
                   {stats.map((stat, idx) => (
                     <li
                       key={idx}
                       className="flex flex-col justify-center items-center px-4 sm:px-8 md:px-12 lg:px-16 py-3 sm:py-0 flex-1"
                     >
                       <h3
-                        className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1"
+                        className="text-center text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white mb-1"
                         style={{ color: stat.color }}
                       >
                         {stat.label}
                       </h3>
-                      <p className="text-xs sm:text-sm text-gray-200">{stat.subLabel}</p>
+                      <p className="text-center text-xs sm:text-sm text-gray-200">
+                        {stat.subLabel}
+                      </p>
                     </li>
                   ))}
                 </ul>

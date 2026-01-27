@@ -55,7 +55,7 @@ export default function OurCourses() {
         window.removeEventListener('resize', checkScrollButtons);
       };
     }
-  }, []);
+  }, [categories]);
 
   const allCategories = [
     pageText.courses_category_all || 'সব',
@@ -83,11 +83,11 @@ export default function OurCourses() {
             disabled={!canScrollLeft}
             className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
               canScrollLeft
-                ? 'bg-black hover:shadow-lg hover:shadow-purple-500/50 cursor-pointer'
-                : 'bg-gray-800/50 cursor-not-allowed opacity-30'
+                ? 'bg-gray-300 hover:scale-110 hover:border hover:border-black hover:bg-white  cursor-pointer'
+                : 'bg-gray-500/50 cursor-not-allowed opacity-50'
             }`}
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft className="w-5 h-5 text-black" fill="#232322" />
           </button>
 
           {/* Scrollable Categories Container */}
@@ -141,11 +141,11 @@ export default function OurCourses() {
             disabled={!canScrollRight}
             className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
               canScrollRight
-                ? 'bg-linear-to-br from-purple-600 via-blue-600 to-cyan-600 hover:scale-110 hover:shadow-lg hover:shadow-purple-500/50 cursor-pointer'
-                : 'bg-gray-800/50 cursor-not-allowed opacity-30'
+                ? 'bg-gray-300 hover:scale-110 hover:border hover:border-black hover:bg-white  cursor-pointer'
+                : 'bg-gray-500/50 cursor-not-allowed opacity-50'
             }`}
           >
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-5 h-5 text-black" fill="#232322" />
           </button>
         </div>
       </div>

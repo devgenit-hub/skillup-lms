@@ -100,7 +100,7 @@ export default function CourseSection({ filters }: CourseSectionProps) {
       <div
         className={`${
           pn !== '/student/allcourse' ? 'lg:grid-cols-3' : ''
-        } grid grid-cols-1 md:grid-cols-2 gap-5 gap-y-6 pb-10 w-full`}
+        } grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-10`}
       >
         {isLoading ? (
           <div className="col-span-full text-center py-12 text-gray-400">Loading courses...</div>

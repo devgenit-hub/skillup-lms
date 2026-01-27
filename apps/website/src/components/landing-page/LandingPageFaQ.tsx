@@ -7,7 +7,7 @@ export default function LandingPageFaQ() {
     <div className="container px-4 w-full max-w-7xl mx-auto mt-20 grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* Card-1 */}
       <div className="lg:col-span-2 rounded-3xl overflow-hidden shadow-md dark:shadow-none border bg-white border-vibrant-blue/20 dark:bg-chart-1/10 dark:border-chart-1/20 p-7 flex flex-col justify-between flex-1">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex flex-row justify-between items-center gap-6">
           <div className="mb-4 flex-1">
             <h1 className="font-bold text-base md:text-lg">আমি কীভাবে কোর্সে ভর্তি হতে পারি?</h1>
             <p className="text-xs md:text-sm text-foreground/70 dark:text-white/70 w-1/2">
@@ -22,7 +22,7 @@ export default function LandingPageFaQ() {
               src="/CourseDetails/customer-care.svg"
               alt="Query about course"
               fill
-              className="object-contain relative z-10 scale-200 origin-top-right"
+              className="object-contain relative z-10 scale-150 lg:scale-200 origin-top-right"
             />
           </div>
         </div>
