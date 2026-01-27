@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { LucideSearch, Menu, X } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import SearchBar from '../SearchBar';
 // import { NavProps } from './NavProps';
 import { navLinks } from './NavLinks';
@@ -15,7 +14,6 @@ export default function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
@@ -36,7 +34,7 @@ export default function NavBar() {
     <header className="sticky top-0 z-50 w-full bg-background/30 backdrop-blur-md shadow-sm text-primary py-3">
       <div className="container px-4 w-full max-w-7xl mx-auto">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4" onClick={() => router.push('/')}>
+          <div className="flex items-center gap-4" onClick={() => window.location.assign('/')}>
             {mounted && resolvedTheme === 'dark' ? (
               <Image
                 width={96}
@@ -76,7 +74,7 @@ export default function NavBar() {
 
             {/* Desktop action button */}
             <div className="hidden lg:block">
-              <NavButton />
+              <NavButton onClick={() => setMobileOpen(false)} />
             </div>
 
             {/* Mobile hamburger */}
@@ -123,7 +121,7 @@ export default function NavBar() {
               className={`transition-all duration-300 ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
               style={{ transitionDelay: `${100 + navLinks.length * 50}ms` }}
             >
-              <NavButton />
+              <NavButton onClick={() => setMobileOpen(false)} />
             </div>
           </div>
         </div>

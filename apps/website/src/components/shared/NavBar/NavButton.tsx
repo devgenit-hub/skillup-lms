@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/zustand/auth-store';
 import { useLocale } from '@/providers/locale-provider';
 
-export default function NavButton() {
+export default function NavButton({ onClick }: { onClick?: () => void }) {
   const user = useAuthStore((state) => state.user);
   const isVerified = useAuthStore((state) => state.isVerified);
   const logout = useAuthStore((state) => state.logout);
@@ -53,6 +53,7 @@ export default function NavButton() {
     <Button
       asChild
       className="bg-vibrant-blue hover:bg-dark-blue text-white rounded-full py-3 px-6 w-full"
+      onClick={onClick}
     >
       <Link href="/auth/login">লগ ইন / সাইন আপ</Link>
     </Button>

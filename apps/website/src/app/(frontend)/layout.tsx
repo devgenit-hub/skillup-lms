@@ -96,6 +96,7 @@ export default async function RootLayout({
         />
       </head>
       <body className={`subpixel-antialiased`}>
+        <ProgressLoader />
         <QueryProvider>
           <LocaleProvider initialLocale={locale}>
             <ThemeProvider>
@@ -103,10 +104,7 @@ export default async function RootLayout({
                 <AppContextProvider>
                   <Toaster position="top-right" richColors />
                   <NavBar />
-                  <main className="px-4 pb-40 w-full">
-                    <ProgressLoader />
-                    {children}
-                  </main>
+                  <main className="px-4 pb-40 w-full">{children}</main>
                   <Footer />
                 </AppContextProvider>
               </AuthProvider>

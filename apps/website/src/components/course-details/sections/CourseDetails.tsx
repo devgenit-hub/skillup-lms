@@ -5,7 +5,7 @@ import RichTextDisplay from '@/components/ui/RichTextDisplay';
 export default function CourseDetails({ AboutCourse }: AboutCourseProps) {
   return (
     <div id="details" className="mt-20 scroll-m-20">
-      <RichTextDisplay content={AboutCourse.details} />
+      <RichTextDisplay className="w-full wrap-break-word" content={AboutCourse.details} />
     </div>
   );
 }
