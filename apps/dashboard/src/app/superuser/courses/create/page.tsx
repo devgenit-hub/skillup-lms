@@ -24,7 +24,7 @@ interface Instructor {
 export default function CreateCoursePage() {
   const router = useRouter();
   const { t } = useLocale();
-  const formText = t('forms');
+  const formText = t('forms') as Record<string, string>;
   const buttonText = t('buttons');
   const { addCategory } = useCategoryStore();
 
@@ -309,6 +309,7 @@ export default function CreateCoursePage() {
               >
                 <option value="live">{formText['live']}</option>
                 <option value="record">{formText['record']}</option>
+                <option value="hybrid ">{formText['hybrid']}</option>
               </select>
             </div>
 

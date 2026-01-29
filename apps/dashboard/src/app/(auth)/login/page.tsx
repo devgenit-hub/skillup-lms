@@ -90,7 +90,7 @@ export default function LoginPage() {
       {/* Role Toggle Tabs */}
       <div className="grid grid-cols-2 gap-2 mb-8 p-1 bg-slate-100 rounded-lg">
         <button
-          onClick={() => setRole('superuser')}
+          onClick={() => router.push('/login?id=superuser')}
           className={`flex items-center justify-center space-x-2 py-2 text-sm font-medium rounded-md transition-all ${
             role === 'superuser'
               ? 'bg-white text-slate-900 shadow-sm'
@@ -101,7 +101,7 @@ export default function LoginPage() {
           <span>{homepageText['superuser_title']}</span>
         </button>
         <button
-          onClick={() => setRole('teacher')}
+          onClick={() => router.push('/login?id=teacher')}
           className={`flex items-center justify-center space-x-2 py-2 text-sm font-medium rounded-md transition-all ${
             role === 'teacher'
               ? 'bg-white text-slate-900 shadow-sm'

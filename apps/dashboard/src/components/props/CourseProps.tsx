@@ -41,7 +41,7 @@ export interface CourseProps {
   description?: string;
   batchNo: string;
   heroImage: string;
-  courseType: 'live' | 'record';
+  courseType: 'live' | 'record' | 'hybrid';
   level: 'beginner' | 'intermediate' | 'advanced';
   feeType: 'free' | 'paid';
   price?: number;
