@@ -141,7 +141,7 @@ export default function SearchBar({
       className={`relative transition-all duration-300 ease-in-out ${isFocused ? 'w-64 md:w-80 not-lg:w-full' : 'w-48 md:w-64'} mx-auto`}
     >
       {Icon && (
-        <span className="absolute left-3 bottom-1/2 translate-y-1/2 text-foreground font-bold pointer-events-none z-10">
+        <span className=" absolute top-2.5 left-2.5 text-foreground font-bold pointer-events-none z-10">
           <Icon className="size-4 font-black" />
         </span>
       )}
@@ -163,7 +163,7 @@ export default function SearchBar({
       )}
 
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+        <div className="lg:absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
           {!isSearchMode && displayItems.length > 0 && (
             <div className="px-3 py-2 border-b border-border flex items-center gap-2 text-xs text-muted-foreground">
               <TrendingUp className="size-3" />
@@ -191,7 +191,7 @@ export default function SearchBar({
                   onMouseEnter={() => setSelectedIndex(index)}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0 bg-muted relative">
+                    <div className="w-10 h-10 rounded overflow-hidden shrink-0 bg-muted relative">
                       <Image
                         src={result.image || '/Card/cover.png'}
                         alt={result.title}

@@ -107,7 +107,7 @@ export default function NameCard() {
           </div>
 
           {/* Right Section - Quick Stats */}
-          <div className="flex gap-4">
+          <div className="grid grid-cols-3 gap-2 lg:gap-4">
             {numberCardData?.map((ele, idx) => {
               const getIcon = () => {
                 const chipText = ele.chipText;
@@ -119,7 +119,7 @@ export default function NameCard() {
               return (
                 <div
                   key={idx}
-                  className="bg-white/20 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/30 shadow-lg hover:scale-105 transition-transform"
+                  className="bg-white/20 backdrop-blur-md rounded-2xl w-full px-4 py-3 border border-white/30 shadow-lg hover:scale-105 transition-transform justify-center duration-300 flex flex-col items-center"
                 >
                   <p className="text-2xl text-center font-bold">{ele.numb}</p>
                   <div className="flex items-center gap-2 text-white font-bold mb-1">

@@ -50,7 +50,7 @@ export default function FaQ() {
           </p>
         </div>
 
-        <div className="flex justify-start items-end max-w-[300px]">
+        <div className="flex justify-start items-end max-w-75">
           <div className="flex flex-col gap-2 border p-5 rounded-3xl">
             <h5 className="text-sm font-bold">এখনও প্রশ্ন আছে?</h5>
             <p className="text-xs dark:text-white/50">
@@ -74,9 +74,9 @@ export default function FaQ() {
           <AccordionItem
             key={idx}
             value={`Question-${idx}`}
-            className={`shadow-md  ${
+            className={`shadow-md transition-all duration-300 ease-in-out ${
               idx == curId ? 'bg-vibrant-blue text-white' : 'bg-vibrant-blue/10 '
-            } border border-vibrant-blue/20 dark:border-chart-1/20 rounded-lg px-4 `}
+            } border border-vibrant-blue/20 dark:border-chart-1/20 rounded-lg px-4 hover:shadow-lg`}
           >
             <AccordionTrigger
               className="flex items-center justify-between py-3 font-semibold text-left"
@@ -89,11 +89,17 @@ export default function FaQ() {
               }}
             >
               <span className="flex gap-3 items-center">
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight
+                  className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
+                    idx === curId ? 'rotate-90' : 'rotate-0'
+                  }`}
+                />
                 {question}
               </span>
             </AccordionTrigger>
-            <AccordionContent className="dark:text-white/70 pb-4">{answer}</AccordionContent>
+            <AccordionContent className="dark:text-white/70 pb-4 overflow-hidden transition-all duration-300 ease-in-out">
+              {answer}
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

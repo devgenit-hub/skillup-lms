@@ -27,6 +27,7 @@ export type CourseLevelType = (typeof CourseLevel)[keyof typeof CourseLevel];
 export const CourseType = {
   RECORDED: 'record',
   LIVE: 'live',
+  HYBRID: 'hybrid',
 } as const;
 
 export type CourseTypeType = (typeof CourseType)[keyof typeof CourseType];

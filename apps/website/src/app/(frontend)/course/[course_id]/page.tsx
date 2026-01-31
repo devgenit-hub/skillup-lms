@@ -15,7 +15,7 @@ interface CourseDetails {
   description: string | null;
   batchNo: string;
   heroImage: string;
-  courseType: 'live' | 'record';
+  courseType: 'live' | 'record' | 'hybrid';
   level: 'beginner' | 'intermediate' | 'advanced';
   feeType: 'FREE' | 'PAID';
   price: number | null;

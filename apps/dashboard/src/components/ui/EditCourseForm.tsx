@@ -27,7 +27,7 @@ export default function EditCourseForm({
     description: course.description || '',
     batchNo: course.batchNo || '',
     heroImage: course.heroImage || '',
-    courseType: course.courseType || ('live' as 'live' | 'record'),
+    courseType: course.courseType || ('live' as 'live' | 'record' | 'hybrid'),
     level: course.level || ('beginner' as 'beginner' | 'intermediate' | 'advanced'),
     feeType: course.feeType || ('free' as 'free' | 'paid'),
     price: course.price?.toString() || '',
@@ -206,6 +206,7 @@ export default function EditCourseForm({
             >
               <option value="live">Live</option>
               <option value="record">Record</option>
+              <option value="hybrid">Hybrid</option>
             </select>
           </div>
 

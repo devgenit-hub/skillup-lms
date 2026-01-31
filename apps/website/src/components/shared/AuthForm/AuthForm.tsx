@@ -77,6 +77,9 @@ export default function AuthForm(props: AuthFormProps) {
 
         toast.success(pageText['toast_loginSuccess']);
 
+        // Wait a bit for auth state to propagate before redirecting
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
         const redirectUrl = searchParams.get('redirect');
         if (redirectUrl) {
           window.location.href = decodeURIComponent(redirectUrl);

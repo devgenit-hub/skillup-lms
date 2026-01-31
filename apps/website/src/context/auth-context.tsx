@@ -11,13 +11,12 @@ export { useAuthStore as useAuth } from '@/lib/zustand/auth-store';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = useAuthStore((state) => state.refreshUser);
-  const setLoading = useAuthStore((state) => state.setLoading);
   const setUser = useAuthStore((state) => state.setUser);
 
   useEffect(() => {
     const supabase = createClient();
 
-    refreshUser().finally(() => setLoading(false));
+    refreshUser();
 
     const {
       data: { subscription },
@@ -50,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [refreshUser, setLoading, setUser]);
+  }, [refreshUser, setUser]);
 
   return <>{children}</>;
 }
