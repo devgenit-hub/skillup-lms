@@ -105,7 +105,7 @@ export default function NavBar() {
             >
               <SearchBar Icon={LucideSearch} />
             </div>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col gap-2 flex-1">
               {navLinks.map((link, index) => (
                 <div
                   key={index}
@@ -118,7 +118,7 @@ export default function NavBar() {
             </nav>
 
             <div
-              className={`transition-all duration-300 ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+              className={`transition-all duration-300 mt-auto mb-20 ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
               style={{ transitionDelay: `${100 + navLinks.length * 50}ms` }}
             >
               <NavButton onClick={() => setMobileOpen(false)} />

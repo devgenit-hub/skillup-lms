@@ -6,6 +6,15 @@ import { UserRole } from '@repo/shared';
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Skip middleware for API proxy routes - they handle their own auth
+  if (pathname.startsWith('/api/proxy')) {
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+  }
+
   const response = NextResponse.next({
     request: {
       headers: request.headers,

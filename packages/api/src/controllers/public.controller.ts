@@ -160,7 +160,7 @@ export class PublicController {
     const metadata = (course.metadata || {}) as {
       batchNo?: string;
       heroImage?: string;
-      courseType?: 'live' | 'recorded';
+      courseType?: 'live' | 'record' | 'hybrid';
       level?: 'beginner' | 'intermediate' | 'advanced';
       aboutCourse?: { about?: string; details?: string };
       numClasses?: number;

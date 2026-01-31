@@ -36,9 +36,9 @@ export default function ProgramSyllabus({ curriculum }: ProgramSyllabusProps) {
           <AccordionItem
             key={module.id}
             value={module.id}
-            className={`shadow-md ${
+            className={`shadow-md transition-all duration-300 ease-in-out ${
               module.id === curId ? 'bg-vibrant-blue text-white' : 'bg-vibrant-blue/10 '
-            } border-vibrant-blue/20 border dark:border-chart-1/20 rounded-lg px-4`}
+            } border-vibrant-blue/20 border dark:border-chart-1/20 rounded-lg px-4 hover:shadow-lg`}
           >
             <AccordionTrigger
               onClick={() => {
@@ -50,11 +50,13 @@ export default function ProgramSyllabus({ curriculum }: ProgramSyllabusProps) {
               }}
             >
               <span className="flex gap-4 items-center font-semibold">
-                <IoBookOutline className="text-lg" />
+                <IoBookOutline
+                  className={`text-lg transition-transform duration-300 ease-in-out`}
+                />
                 {module.title}
               </span>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="transition-all duration-300 ease-in-out overflow-hidden">
               {module.details && <p className="mb-4 text-sm opacity-90">{module.details}</p>}
               <div className="flex items-center gap-6 text-sm mt-2">
                 <div className="flex items-center gap-2">

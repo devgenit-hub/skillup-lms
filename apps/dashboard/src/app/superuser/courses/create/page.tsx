@@ -38,7 +38,7 @@ export default function CreateCoursePage() {
     batchNo: '',
     heroImage: '',
     introVideoLink: '',
-    courseType: 'live' as 'live' | 'record',
+    courseType: 'live' as 'live' | 'record' | 'hybrid',
     level: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
     feeType: 'free' as 'free' | 'paid',
     price: '',
@@ -309,7 +309,7 @@ export default function CreateCoursePage() {
               >
                 <option value="live">{formText['live']}</option>
                 <option value="record">{formText['record']}</option>
-                <option value="hybrid ">{formText['hybrid']}</option>
+                <option value="hybrid">{formText['hybrid']}</option>
               </select>
             </div>
 

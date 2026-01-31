@@ -25,10 +25,12 @@ export default function DashboardContent({ children }: DashboardContentProps) {
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const isVerified = useAuthStore((state) => state.isVerified);
+  const isLoading = useAuthStore((state) => state.isLoading);
   const router = useRouter();
 
   useEffect(() => {
-    if (isVerified && !user) {
+    // Only redirect if auth verification is complete, not loading, and user is null
+    if (isVerified && !user && !isLoading) {
       // Clear all auth state and cookies before redirecting
       const supabase = createClient();
       supabase.auth.signOut().then(() => {
@@ -37,9 +39,9 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         });
       });
     }
-  }, [user, isVerified, router]);
+  }, [user, isVerified, isLoading, router]);
 
-  if (!isVerified) {
+  if (!isVerified || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vibrant-blue"></div>

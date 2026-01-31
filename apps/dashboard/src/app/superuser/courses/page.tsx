@@ -132,7 +132,7 @@ export default function ManageCoursesPage() {
     const metadata = course.metadata as {
       batchNo?: string;
       heroImage?: string;
-      courseType?: 'live' | 'record';
+      courseType?: 'live' | 'record' | 'hybrid';
       level?: 'beginner' | 'intermediate' | 'advanced';
       category?: 'webdev' | 'frontend' | 'backend' | 'mobiledev' | 'devOps' | 'ui-ux' | 'others';
       numClasses?: number;

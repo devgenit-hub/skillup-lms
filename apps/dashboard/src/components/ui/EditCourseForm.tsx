@@ -206,6 +206,7 @@ export default function EditCourseForm({
             >
               <option value="live">Live</option>
               <option value="record">Record</option>
+              <option value="hybrid">Hybrid</option>
             </select>
           </div>
 

@@ -30,11 +30,12 @@ interface AuthStore {
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  isLoading: false,
+  isLoading: true,
   isVerified: false,
   setUser: (user) => set({ user }),
   setLoading: (isLoading) => set({ isLoading }),
   refreshUser: async () => {
+    set({ isLoading: true });
     try {
       const supabase = createClient();
       const {
@@ -61,11 +62,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
           const userData = backendData.data as AuthUser;
 
           if (userData.role === UserRole.STUDENT) {
-            set({ user: userData, isVerified: true });
+            set({ user: userData, isVerified: true, isLoading: false });
           } else {
             await supabase.auth.signOut();
             await clearAuthCookies();
-            set({ user: null, isVerified: true });
+            set({ user: null, isVerified: true, isLoading: false });
           }
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : '';
@@ -73,17 +74,17 @@ export const useAuthStore = create<AuthStore>((set) => ({
           if (errorMessage.includes('User not found') || errorMessage.includes('USER_NOT_SYNCED')) {
             await supabase.auth.signOut();
             await clearAuthCookies();
-            set({ user: null, isVerified: true });
+            set({ user: null, isVerified: true, isLoading: false });
           } else {
-            set({ user: null, isVerified: true });
+            set({ user: null, isVerified: true, isLoading: false });
           }
         }
       } else {
-        set({ user: null, isVerified: true });
+        set({ user: null, isVerified: true, isLoading: false });
         await clearAuthCookies();
       }
     } catch {
-      set({ user: null, isVerified: true });
+      set({ user: null, isVerified: true, isLoading: false });
     }
   },
   logout: async () => {

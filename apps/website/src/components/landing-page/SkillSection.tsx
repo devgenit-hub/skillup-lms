@@ -4,7 +4,7 @@ import { Play } from 'lucide-react';
 
 export default function SkillSection() {
   return (
-    <div className="mt-20 py-8 container px-4 w-full max-w-7xl mx-auto flex items-center gap-7">
+    <div className="mt-20 py-8 container px-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-7">
       <div className="space-y-5">
         <h3 className="flex flex-col text-xl font-bold bg-[#7361E5] dark:bg-linear-to-b from-[#C3C0D8] via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text">
           <span>Skill UP দক্ষতা শিখুন</span>
@@ -19,10 +19,14 @@ export default function SkillSection() {
           আরও জানুন
         </Button>
       </div>
-      <div className="min-w-1/2 relative">
-        <div className="min-h-75 bg-vibrant-blue/10 border border-vibrant-blue/20 rounded-3xl w-full"></div>
-        <div className="absolute left-1/2 top-1/2 p-3 bg-white/10 rounded-full">
-          <Play />
+      <div className="w-full lg:min-w-1/2 relative">
+        <div className="min-h-75 bg-vibrant-blue/10 border border-vibrant-blue/20 rounded-3xl w-full flex flex-col items-center justify-center gap-2">
+          <Play
+            className="bg-white/20 rounded-full p-2 text-2xl"
+            size={24}
+            width={48}
+            height={48}
+          />
         </div>
       </div>
     </div>

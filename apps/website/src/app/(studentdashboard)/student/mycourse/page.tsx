@@ -118,9 +118,9 @@ function Page() {
 
       {/* No Courses Message */}
       {enrollments.length === 0 ? (
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/50 p-8 text-center">
+        <div className="bg-card backdrop-blur-xl rounded-3xl shadow-lg border border-border p-8 text-center">
           <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Courses Yet</h3>
+          <h3 className="text-lg font-semibold text-gray-500 mb-2">No Courses Yet</h3>
           <p className="text-gray-500 mb-4">You haven&apos;t enrolled in any courses yet.</p>
           <a
             href="/allcourse"
