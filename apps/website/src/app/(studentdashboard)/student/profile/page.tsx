@@ -90,7 +90,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="space-y-3 lg:space-y-4 pb-4">
+    <div className="space-y-3 lg:space-y-4 h-full">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/50 p-3 lg:p-6">
         <div className="flex items-center gap-3">
@@ -366,21 +366,6 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
-
-      {/* Account Actions Section */}
-      {/* <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-lg border border-white/50 p-6 lg:p-8">
-        <h4 className="font-bold text-base lg:text-lg text-gray-800 mb-4">
-          Account Actions
-        </h4>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button className="px-6 py-3 rounded-xl border-2 border-amber-500 text-amber-600 hover:bg-amber-50 transition-all duration-300 font-medium">
-            Deactivate Account
-          </button>
-          <button className="px-6 py-3 rounded-xl border-2 border-red-500 text-red-600 hover:bg-red-50 transition-all duration-300 font-medium">
-            Delete Account
-          </button>
-        </div>
-      </div> */}
     </div>
   );
 }

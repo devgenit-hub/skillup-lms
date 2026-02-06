@@ -1,4 +1,5 @@
-import { GraduationCap, Info } from 'lucide-react';
+import { GraduationCap, Info, LayoutDashboard, BookOpen, Video } from 'lucide-react';
+
 import React from 'react';
 
 export interface NavLinksProps {
@@ -13,17 +14,21 @@ export const navLinks: NavLinksProps[] = [
   {
     name: 'হোম',
     href: '/',
+    icon: LayoutDashboard,
   },
   {
     name: 'সকল কোর্স',
     href: '/allcourse',
+    icon: BookOpen,
   },
   {
     name: 'ওয়েবিনার',
     href: '/webinar',
+    icon: Video,
   },
   {
     name: 'অন্যান্য',
+    icon: Info, // Added icon for parent
     innerLinks: [
       {
         name: 'আমাদের সম্পর্কে',
@@ -35,11 +40,6 @@ export const navLinks: NavLinksProps[] = [
         href: '/career',
         icon: GraduationCap,
       },
-      // {
-      //   name: "ব্লগ",
-      //   href: "/blog",
-      //   icon: FaBlog,
-      // },
     ],
   },
 ];

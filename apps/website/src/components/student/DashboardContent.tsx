@@ -103,7 +103,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
           {/* Main Content - Full width on mobile */}
           <main className="xl:col-span-7 h-full overflow-hidden">
-            <div className="h-full overflow-y-auto scrollbar-thin pr-2">{children}</div>
+            <div className="h-full overflow-y-auto scrollbar-thin">{children}</div>
           </main>
 
           {/* Desktop Right Sidebar - Hidden on mobile */}

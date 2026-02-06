@@ -1,61 +1,83 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { NavLinksProps } from './NavLinks';
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-  NavigationMenuLink,
-} from '@/components/ui/navigation-menu';
+import { ChevronDown } from 'lucide-react';
 
 export default function NavLink(props: NavLinksProps) {
-  if (props.innerLinks && props.innerLinks.length > 0) {
+  const [isOpen, setIsOpen] = useState(false);
+  const hasChildren = props.innerLinks && props.innerLinks.length > 0;
+
+  // 1. RENDER PARENT WITH CHILDREN (Accordion)
+  if (hasChildren) {
     return (
-      <NavigationMenu>
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>{props.name}</NavigationMenuTrigger>
-            <NavigationMenuContent
-              className="bg-[#885afd33] backdrop-blur-lg rounded-lg p-4"
-              style={{ width: '190px' }}
-            >
-              {props.innerLinks.map((link) => (
-                <NavigationMenuLink
-                  key={link.href}
-                  asChild
-                  className="flex flex-col justify-center"
+      <div className="w-full mb-1">
+        {/* Main Toggle Button */}
+        <button
+          onClick={() => setIsOpen((o) => !o)}
+          className={`
+            group flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 
+            backdrop-blur-md
+             ${
+               isOpen
+                 ? 'bg-dark-blue/10 text-light-blue'
+                 : 'text-foreground hover:bg-white/5 hover:text-slate-500'
+             }
+          `}
+        >
+          <div className="flex items-center gap-3">
+            {props.icon && <props.icon className="size-4" />}
+            <span>{props.name}</span>
+          </div>
+          <ChevronDown
+            className={`size-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-light-blue' : 'text-slate-500'}`}
+          />
+        </button>
+
+        {/* Expandable Content Container */}
+        <div
+          className={`
+            grid transition-all duration-300 ease-in-out
+            ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-1' : 'grid-rows-[0fr] opacity-0'}
+          `}
+        >
+          <div className="overflow-hidden">
+            {/* Inner Links List */}
+            <div className="flex flex-col space-y-1 pl-4 border-l border-[#885afd33] ml-4 my-1">
+              {props.innerLinks?.map((link) => (
+                <Link
+                  key={link.href || link.name}
+                  href={link.href || '/'}
+                  onClick={props.handleClick}
+                  className="
+                    flex items-center gap-3 rounded-md px-3 py-2 
+                    text-sm text-foreground hover:text-black dark:hover:text-white hover:bg-white/5 
+                    transition-colors
+                  "
                 >
-                  <Link href={link.href || '/'} onClick={props.handleClick}>
-                    <span>
-                      {link.icon ? <link.icon className="inline mr-2 size-4" /> : null}
-                      {link.name}
-                    </span>
-                  </Link>
-                </NavigationMenuLink>
+                  {link.icon ? <link.icon className="size-4" /> : null}
+                  <span>{link.name}</span>
+                </Link>
               ))}
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
+  // 2. RENDER SIMPLE LINK
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link href={props.href || '/'} onClick={props.handleClick}>
-              {props.icon ? <props.icon className="inline mr-2 size-4" /> : null}
-              {props.name}
-            </Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+    <Link
+      href={props.href || '/'}
+      onClick={props.handleClick}
+      className="
+        flex not-lg:w-full w-fit items-center gap-3 rounded-lg px-4 py-3 mb-1 text-sm font-medium text-foreground hover:bg-white/5 hover:text-slate-500 transition-colors
+      "
+    >
+      {props.icon && <props.icon className="size-4" />}
+      <span className="text-nowrap whitespace-nowrap">{props.name}</span>
+    </Link>
   );
 }

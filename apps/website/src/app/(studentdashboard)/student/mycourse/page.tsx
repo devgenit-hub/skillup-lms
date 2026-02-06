@@ -28,7 +28,7 @@ interface EnrolledCourse {
 }
 
 function Page() {
-  const [isGrid, setIsGrid] = useState<boolean>(true);
+  const [isGrid, setIsGrid] = useState<boolean>(false);
   const [enrollments, setEnrollments] = useState<EnrolledCourse[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -83,11 +83,8 @@ function Page() {
               <BookText className="w-3 h-3 lg:w-4 lg:h-4" />
               <span>All Course</span>
             </Link>
-            {/* <button className="flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl bg-linear-to-r from-gray-100 to-slate-100 hover:from-vibrant-blue hover:to-indigo-600 text-gray-700 hover:text-white transition-all duration-300 text-xs lg:text-sm font-medium group flex-1 lg:flex-none justify-center cursor-pointer">
-              <Filter className="w-3 h-3 lg:w-4 lg:h-4 group-hover:rotate-180 transition-transform duration-300" />
-              <span>Filter</span>
-            </button> */}
-            <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
+
+            <div className="flex gap-1 p-1 bg-gray-100 rounded-xl" hidden>
               <button
                 onClick={() => setIsGrid(true)}
                 className={`p-1.5 lg:p-2 rounded-lg transition-colors ${
