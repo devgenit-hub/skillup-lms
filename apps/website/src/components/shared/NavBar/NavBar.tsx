@@ -56,14 +56,14 @@ export default function NavBar() {
             )}
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {/* Desktop search */}
             <div className="hidden lg:block">
               <SearchBar Icon={LucideSearch} />
             </div>
 
             {/* Desktop nav links */}
-            <nav className="hidden lg:flex items-center gap-4" aria-label="Primary">
+            <nav className="hidden lg:flex items-center gap-2" aria-label="Primary">
               {navLinks.map((link, index) => (
                 <NavLink key={index} {...link} />
               ))}
@@ -115,14 +115,13 @@ export default function NavBar() {
                   <NavLink {...link} handleClick={() => setMobileOpen(false)} />
                 </div>
               ))}
+              <div
+                className={`transition-all duration-300 relative ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
+                style={{ transitionDelay: `${100 + navLinks.length * 50}ms` }}
+              >
+                <NavButton onClick={() => setMobileOpen(false)} />
+              </div>
             </nav>
-
-            <div
-              className={`transition-all duration-300 mt-auto mb-20 ${mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}
-              style={{ transitionDelay: `${100 + navLinks.length * 50}ms` }}
-            >
-              <NavButton onClick={() => setMobileOpen(false)} />
-            </div>
           </div>
         </div>
       </div>
