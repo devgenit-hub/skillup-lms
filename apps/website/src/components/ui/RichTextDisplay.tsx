@@ -21,6 +21,10 @@ export default function RichTextDisplay({ content, className = '' }: RichTextDis
   return (
     <div
       className={`rich-text-display ${className}`}
+      style={{
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+      }}
       dangerouslySetInnerHTML={{ __html: content }}
     />
   );

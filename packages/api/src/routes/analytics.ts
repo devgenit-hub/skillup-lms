@@ -13,6 +13,7 @@ router.get('/students', AnalyticsController.getStudentAnalytics);
 router.get('/courses', AnalyticsController.getCourseAnalytics);
 router.get('/purchases', AnalyticsController.getPurchaseAnalytics);
 router.get('/enrollments', AnalyticsController.getEnrollmentAnalytics);
+router.get('/course-revenue', AnalyticsController.getCourseRevenueAnalytics);
 router.get('/items', AnalyticsController.getItemsForAnalytics);
 
 export default router;

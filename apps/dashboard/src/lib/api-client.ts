@@ -387,6 +387,13 @@ class ApiClient {
     return this.request(`/analytics/enrollments?${query.toString()}`, { method: 'GET' });
   }
 
+  async getCourseRevenueAnalytics(params: { courseId?: string; months?: number }) {
+    const query = new URLSearchParams();
+    if (params.courseId) query.append('courseId', params.courseId);
+    if (params.months) query.append('months', params.months.toString());
+    return this.request(`/analytics/course-revenue?${query.toString()}`, { method: 'GET' });
+  }
+
   async getItemsForAnalytics() {
     return this.request('/analytics/items', { method: 'GET' });
   }

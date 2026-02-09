@@ -16,7 +16,7 @@ import {
   Trash2,
   Video,
   BookOpen,
-  ChartLine,
+  AlertOctagonIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { PaginationControls } from '@/components/utils';
@@ -41,7 +41,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import RevenueDashboard from '@/components/Revenue/RevenueDashboard';
 
 interface Webinar {
   id: string;
@@ -88,7 +87,6 @@ export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
-  const [showGraph, setShowGraph] = useState(false);
   const { courses } = useCourseStore();
   const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -338,12 +336,6 @@ export default function PaymentsPage() {
               <p className="text-2xl font-bold text-slate-900 mt-1">
                 ৳{stats.totalRevenue.toLocaleString()}
               </p>
-              <button
-                className="inline-flex items-center gap-2 text-sm rounded-full px-3 py-2 bg-green-500/10 text-green-500 hover:bg-green-500/20 transition-colors mt-2"
-                onClick={() => setShowGraph((p) => !p)}
-              >
-                Show Graph <ChartLine size={16} />
-              </button>
             </div>
             <div className="bg-green-500/10 p-3 rounded-lg">
               <DollarSign size={22} className="text-green-600" />
@@ -378,21 +370,15 @@ export default function PaymentsPage() {
         <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-500 font-medium">Refunded</p>
-              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.refunded}</p>
+              <p className="text-sm text-slate-500 font-medium">Pending</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.pending}</p>
             </div>
-            <div className="bg-red-500/10 p-3 rounded-lg">
-              <RotateCcw size={22} className="text-red-600" />
+            <div className="bg-amber-500/10 p-3 rounded-lg">
+              <AlertOctagonIcon size={22} className="text-amber-500" />
             </div>
           </div>
         </div>
       </div>
-
-      {showGraph && (
-        <div>
-          <RevenueDashboard paymentList={payments} handleState={() => setShowGraph(false)} />
-        </div>
-      )}
 
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
