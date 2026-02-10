@@ -27,7 +27,7 @@ export default function NavLink(props: NavLinksProps) {
           `}
         >
           <div className="flex items-center gap-3">
-            {props.icon && <props.icon className="size-4" />}
+            {props.icon && <props.icon className="size-4 hidden" />}
             <span>{props.name}</span>
           </div>
           <ChevronDown
@@ -38,13 +38,13 @@ export default function NavLink(props: NavLinksProps) {
         {/* Expandable Content Container */}
         <div
           className={`
-            grid transition-all duration-300 ease-in-out
-            ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-1' : 'grid-rows-[0fr] opacity-0'}
+            grid transition-all duration-300 ease-in-out lg:absolute lg:overflow-hidden
+           lg:bg-background rounded-md lg:border border-[#885afd33] ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-1' : 'grid-rows-[0fr] opacity-0'}
           `}
         >
           <div className="overflow-hidden">
             {/* Inner Links List */}
-            <div className="flex flex-col space-y-1 pl-4 border-l border-[#885afd33] ml-4 my-1">
+            <div className="flex flex-col space-y-1 not-lg:pl-4 lg:p-2 not-lg:border-l border-[#885afd33] my-1">
               {props.innerLinks?.map((link) => (
                 <Link
                   key={link.href || link.name}
@@ -56,7 +56,7 @@ export default function NavLink(props: NavLinksProps) {
                     transition-colors
                   "
                 >
-                  {link.icon ? <link.icon className="size-4" /> : null}
+                  {link.icon ? <link.icon className="size-4 lg:hidden" /> : null}
                   <span>{link.name}</span>
                 </Link>
               ))}
@@ -76,7 +76,7 @@ export default function NavLink(props: NavLinksProps) {
         flex not-lg:w-full w-fit items-center gap-3 rounded-lg px-4 py-3 mb-1 text-sm font-medium text-foreground hover:bg-white/5 hover:text-slate-500 transition-colors
       "
     >
-      {props.icon && <props.icon className="size-4" />}
+      {props.icon && <props.icon className="size-4 lg:hidden" />}
       <span className="text-nowrap whitespace-nowrap">{props.name}</span>
     </Link>
   );

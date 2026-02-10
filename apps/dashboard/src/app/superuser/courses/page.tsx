@@ -363,13 +363,13 @@ export default function ManageCoursesPage() {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <Link href={`/superuser/courses/${course.id}/enrollments`}>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 cursor-pointer hover:bg-blue-200 transition-colors">
-                      {course._count.enrollments} students
-                    </span>
-                  </Link>
+                  {/* <Link href={`/superuser/courses/${course.id}/enrollments`}> */}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 cursor-default transition-colors">
+                    {course._count.enrollments} students
+                  </span>
+                  {/* </Link> */}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-6 py-4 whitespace-nowrap cursor-default">
                   {course.feeType === 'PAID' ? (
                     <span className="px-3 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
                       💰 ৳{course.price || '0'}

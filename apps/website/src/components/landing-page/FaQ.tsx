@@ -6,7 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { ArrowRight, ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const faq = [
   {
@@ -32,8 +32,6 @@ const faq = [
 ];
 
 export default function FaQ() {
-  const [curId, setCurId] = React.useState<number | null>(null);
-
   return (
     <div className="container px-4 w-full max-w-7xl mx-auto my-36 grid grid-cols-1 md:grid-cols-2 gap-10">
       {/* Left Section */}
@@ -69,37 +67,17 @@ export default function FaQ() {
       </div>
 
       {/* Right Section - Accordion */}
-      <Accordion type="single" collapsible className="flex flex-col gap-4">
+      <Accordion collapsible className="flex flex-col gap-4">
         {faq.map(({ question, answer }, idx) => (
           <AccordionItem
             key={idx}
             value={`Question-${idx}`}
-            className={`shadow-md transition-all duration-300 ease-in-out ${
-              idx == curId ? 'bg-vibrant-blue text-white' : 'bg-vibrant-blue/10 '
-            } border border-vibrant-blue/20 dark:border-chart-1/20 rounded-lg px-4 hover:shadow-lg`}
+            className="shadow-md transition-colors duration-300 ease-in-out data-[state=open]:bg-vibrant-blue data-[state=open]:text-white data-[state=closed]:bg-vibrant-blue/10 border border-vibrant-blue/20 dark:border-chart-1/20 rounded-lg px-4 hover:shadow-lg"
           >
-            <AccordionTrigger
-              className="flex items-center justify-between py-3 font-semibold text-left"
-              onClick={() => {
-                if (idx === curId) {
-                  setCurId(null);
-                } else {
-                  setCurId(idx);
-                }
-              }}
-            >
-              <span className="flex gap-3 items-center">
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
-                    idx === curId ? 'rotate-90' : 'rotate-0'
-                  }`}
-                />
-                {question}
-              </span>
+            <AccordionTrigger className="py-3 font-semibold text-left">
+              <span className="flex gap-3 items-center">{question}</span>
             </AccordionTrigger>
-            <AccordionContent className="dark:text-white/70 pb-4 overflow-hidden transition-all duration-300 ease-in-out">
-              {answer}
-            </AccordionContent>
+            <AccordionContent className="dark:text-white/70">{answer}</AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

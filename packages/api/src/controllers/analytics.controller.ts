@@ -521,6 +521,102 @@ export class AnalyticsController {
     );
   });
 
+  // Get revenue data for a specific course over selectable months
+  static getCourseRevenueAnalytics = asyncHandler(async (req: Request, res: Response) => {
+    const { courseId, months = '12' } = req.query;
+    const monthCount = Math.min(Math.max(parseInt(months as string) || 12, 1), 24);
+
+    const now = new Date();
+    const monthLabels = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    // Generate labels for last N months
+    const labels: string[] = [];
+    for (let i = monthCount - 1; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = date.getFullYear().toString().slice(-2);
+      labels.push(`${monthLabels[date.getMonth()]} ${year}`);
+    }
+
+    const startDate = new Date(now.getFullYear(), now.getMonth() - (monthCount - 1), 1);
+
+    const revenueData: { month: string; amount: number }[] = labels.map((month) => ({
+      month,
+      amount: 0,
+    }));
+
+    if (courseId) {
+      const payments = await prisma.payment.findMany({
+        where: {
+          courseId: courseId as string,
+          status: 'COMPLETED',
+          createdAt: { gte: startDate },
+        },
+        select: { amount: true, createdAt: true },
+      });
+
+      let totalRevenue = 0;
+      payments.forEach((payment) => {
+        const monthIndex =
+          now.getMonth() -
+          payment.createdAt.getMonth() +
+          (now.getFullYear() - payment.createdAt.getFullYear()) * 12;
+        const adjustedIndex = monthCount - 1 - monthIndex;
+        if (adjustedIndex >= 0 && adjustedIndex < monthCount) {
+          revenueData[adjustedIndex]!.amount += payment.amount;
+        }
+        totalRevenue += payment.amount;
+      });
+
+      return ApiResponse.success(
+        res,
+        { revenueData, totalRevenue },
+        'Course revenue analytics retrieved successfully'
+      );
+    }
+
+    // If no courseId, return all-courses revenue
+    const payments = await prisma.payment.findMany({
+      where: {
+        courseId: { not: null },
+        status: 'COMPLETED',
+        createdAt: { gte: startDate },
+      },
+      select: { amount: true, createdAt: true },
+    });
+
+    let totalRevenue = 0;
+    payments.forEach((payment) => {
+      const monthIndex =
+        now.getMonth() -
+        payment.createdAt.getMonth() +
+        (now.getFullYear() - payment.createdAt.getFullYear()) * 12;
+      const adjustedIndex = monthCount - 1 - monthIndex;
+      if (adjustedIndex >= 0 && adjustedIndex < monthCount) {
+        revenueData[adjustedIndex]!.amount += payment.amount;
+      }
+      totalRevenue += payment.amount;
+    });
+
+    return ApiResponse.success(
+      res,
+      { revenueData, totalRevenue },
+      'Course revenue analytics retrieved successfully'
+    );
+  });
+
   // Get list of courses/webinars for enrollment graph dropdown
   static getItemsForAnalytics = asyncHandler(async (_req: Request, res: Response) => {
     const [courses, webinars] = await Promise.all([

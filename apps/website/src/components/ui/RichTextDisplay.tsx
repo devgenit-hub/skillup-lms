@@ -21,7 +21,7 @@ export default function RichTextDisplay({ content, className = '' }: RichTextDis
   return (
     <div
       className={`rich-text-display ${className}`}
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: content.replaceAll('&nbsp;', ' ') }}
     />
   );
 }

@@ -11,6 +11,7 @@ import {
   Video,
   GraduationCap,
   CreditCard,
+  Handshake,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/zustand/auth-store';
 
@@ -20,6 +21,7 @@ const sidebarItems = [
   { label: 'Teachers', href: '/superuser/teachers', icon: Users },
   { label: 'Students', href: '/superuser/students', icon: GraduationCap },
   { label: 'Webinars', href: '/superuser/webinars', icon: Video },
+  { label: 'Finance', href: '/superuser/finance', icon: Handshake },
   { label: 'Payments', href: '/superuser/payments', icon: CreditCard },
   { label: 'Settings', href: '/superuser/settings', icon: Settings },
 ];

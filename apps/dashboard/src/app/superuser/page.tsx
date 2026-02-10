@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { DollarSign, Users, Video, RefreshCw, PlusCircle } from 'lucide-react';
@@ -9,11 +9,6 @@ import { useLocale } from '@/providers/locale-provider';
 import { useApp } from '@/context/app-context';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
-import { PurchaseGraph, MonthlyPurchaseData } from '@/components/superuser/PurchaseGraphs';
-import {
-  StudentEnrollmentGraph,
-  CourseWebinarOption,
-} from '@/components/superuser/StudentEnrollmentGraph';
 
 interface DashboardStats {
   students: {
@@ -42,11 +37,6 @@ interface DashboardStats {
   };
 }
 
-interface AnalyticsItem {
-  id: string;
-  name: string;
-}
-
 export default function SuperuserDashboard() {
   const { refreshAll } = useApp();
   const { t } = useLocale();
@@ -55,16 +45,6 @@ export default function SuperuserDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Purchase analytics data
-  const [coursePurchaseData, setCoursePurchaseData] = useState<MonthlyPurchaseData[]>([]);
-  const [webinarPurchaseData, setWebinarPurchaseData] = useState<MonthlyPurchaseData[]>([]);
-  const [purchaseLoading, setPurchaseLoading] = useState(true);
-
-  // Enrollment analytics data
-  const [courses, setCourses] = useState<CourseWebinarOption[]>([]);
-  const [webinars, setWebinars] = useState<CourseWebinarOption[]>([]);
-  const [itemsLoading, setItemsLoading] = useState(true);
 
   const fetchStats = async (isRefresh = false) => {
     try {
@@ -83,80 +63,9 @@ export default function SuperuserDashboard() {
     }
   };
 
-  const fetchPurchaseAnalytics = useCallback(async () => {
-    try {
-      setPurchaseLoading(true);
-      const response = await apiClient.getPurchaseAnalytics();
-      if (response.data) {
-        const data = response.data as {
-          coursePurchases: MonthlyPurchaseData[];
-          webinarPurchases: MonthlyPurchaseData[];
-        };
-        setCoursePurchaseData(data.coursePurchases || []);
-        setWebinarPurchaseData(data.webinarPurchases || []);
-      }
-    } catch {
-      // Silently fail - graphs will show empty
-    } finally {
-      setPurchaseLoading(false);
-    }
-  }, []);
-
-  const fetchItemsForAnalytics = useCallback(async () => {
-    try {
-      setItemsLoading(true);
-      const response = await apiClient.getItemsForAnalytics();
-      if (response.data) {
-        const data = response.data as {
-          courses: AnalyticsItem[];
-          webinars: AnalyticsItem[];
-        };
-
-        // Initialize courses and webinars with empty enrollment data
-        setCourses(
-          data.courses.map((c) => ({
-            id: c.id,
-            name: c.name,
-            enrollmentData: [],
-          }))
-        );
-        setWebinars(
-          data.webinars.map((w) => ({
-            id: w.id,
-            name: w.name,
-            enrollmentData: [],
-          }))
-        );
-      }
-    } catch {
-      // Silently fail
-    } finally {
-      setItemsLoading(false);
-    }
-  }, []);
-
-  // Callback to fetch enrollment data for a specific item
-  const fetchEnrollmentData = useCallback(
-    async (type: 'course' | 'webinar', id: string): Promise<MonthlyPurchaseData[]> => {
-      try {
-        const response = await apiClient.getEnrollmentAnalytics({ type, id });
-        if (response.data) {
-          const data = response.data as { enrollmentData: MonthlyPurchaseData[] };
-          return data.enrollmentData || [];
-        }
-      } catch {
-        // Silently fail
-      }
-      return [];
-    },
-    []
-  );
-
   useEffect(() => {
     fetchStats();
-    fetchPurchaseAnalytics();
-    fetchItemsForAnalytics();
-  }, [fetchPurchaseAnalytics, fetchItemsForAnalytics]);
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return Intl.NumberFormat('en-BD', {
@@ -175,12 +84,7 @@ export default function SuperuserDashboard() {
             onClick={async () => {
               setRefreshing(true);
               try {
-                await Promise.all([
-                  refreshAll(),
-                  fetchStats(true),
-                  fetchPurchaseAnalytics(),
-                  fetchItemsForAnalytics(),
-                ]);
+                await Promise.all([refreshAll(), fetchStats(true)]);
               } finally {
                 setRefreshing(false);
               }
@@ -266,56 +170,6 @@ export default function SuperuserDashboard() {
             </div>
           </button>
         </Link>
-      </div>
-
-      <h2 className="text-xl font-bold text-slate-900 mb-4 mt-8">Purchase Analytics</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {purchaseLoading ? (
-          <>
-            <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm animate-pulse h-[380px]" />
-            <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm animate-pulse h-[380px]" />
-          </>
-        ) : (
-          <>
-            <PurchaseGraph
-              title="Course Purchases (Last 12 Months)"
-              data={coursePurchaseData}
-              barColor="#3b82f6"
-            />
-            <PurchaseGraph
-              title="Webinar Purchases (Last 12 Months)"
-              data={webinarPurchaseData}
-              barColor="#8b5cf6"
-            />
-          </>
-        )}
-      </div>
-
-      <h2 className="text-xl font-bold text-slate-900 mb-4 mt-8">Student Enrollment Analytics</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {itemsLoading ? (
-          <>
-            <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm animate-pulse h-[380px]" />
-            <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm animate-pulse h-[380px]" />
-          </>
-        ) : (
-          <>
-            <StudentEnrollmentGraph
-              title="Course Student Enrollment"
-              options={courses}
-              barColor="#10b981"
-              placeholder="Select a course"
-              onSelectItem={(id) => fetchEnrollmentData('course', id)}
-            />
-            <StudentEnrollmentGraph
-              title="Webinar Student Enrollment"
-              options={webinars}
-              barColor="#f59e0b"
-              placeholder="Select a webinar"
-              onSelectItem={(id) => fetchEnrollmentData('webinar', id)}
-            />
-          </>
-        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -19,30 +19,22 @@ interface SessionAgendaProps {
 }
 
 export default function SessionAgenda({ agenda }: SessionAgendaProps) {
-  const [curId, setCurId] = useState<string | null>(null);
-
   if (!agenda || agenda.length === 0) return null;
 
   return (
     <div id="agenda" className="container mx-auto mt-20 scroll-m-20">
       <h1 className="font-bold text-2xl mb-6">সেশন এজেন্ডা</h1>
       <p className="text-foreground/70 mb-4">ওয়েবিনার সময়সূচী এবং বিষয়বস্তুর বিবরণ</p>
-      <Accordion type="single" collapsible className="flex flex-col gap-4">
+      <Accordion collapsible className="flex flex-col gap-4">
         {agenda.map((item, index) => {
           const id = `item-${index}`;
           return (
             <AccordionItem
               key={id}
               value={id}
-              className={`shadow-md ${
-                id == curId ? 'bg-vibrant-blue text-white' : 'bg-vibrant-blue/10 '
-              } border-vibrant-blue/20 border dark:border-chart-1/20 rounded-lg px-4 cursor-pointer!`}
+              className="shadow-md transition-colors duration-300 ease-in-out data-[state=open]:bg-vibrant-blue data-[state=open]:text-white data-[state=closed]:bg-vibrant-blue/10 border-vibrant-blue/20 border dark:border-chart-1/20 rounded-lg px-4"
             >
-              <AccordionTrigger
-                onClick={() => {
-                  setCurId(id === curId ? null : id);
-                }}
-              >
+              <AccordionTrigger>
                 <div className="flex gap-4 items-start font-semibold text-left">
                   <MdAccessTime className="text-xl mt-1 shrink-0" />
                   <div>
