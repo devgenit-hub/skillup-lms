@@ -220,35 +220,34 @@ body {
   /* Rich Text Display - Full support for all HTML formatting */
   .rich-text-display {
     @apply text-foreground;
-    max-width: auto;
-    overflow-x: auto;
+    width: 100%;
     padding: 10px;
-    word-break: break-word;
-    white-space: pre-wrap;
-    overflow-wrap: normal;
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
+    /* allow horizontal scroll if needed */
+    overflow-x: auto;
+    /* ensures long words break */
+    overflow-wrap: break-word;
+  }
+
+  .rich-text-display>* {
+    word-break: break-word;
   }
 
   /* Typography */
   .rich-text-display p {
     margin-bottom: 1em;
     line-height: 1.6;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+
   }
 
   .rich-text-display h1 {
-    max-width: 100px;
+    width: auto;
     font-size: 2em;
     font-weight: bold;
     margin-top: 0.67em;
     margin-bottom: 0.67em;
     line-height: 1.2;
-    word-break: break-word;
-    white-space: pre-wrap;
-    overflow-wrap: normal;
   }
 
   .rich-text-display h2 {
@@ -258,8 +257,6 @@ body {
     margin-top: 0.67em;
     margin-bottom: 0.67em;
     line-height: 1.2;
-    word-break: break-word;
-    overflow-wrap: break-word;
   }
 
   .rich-text-display h3 {
@@ -268,9 +265,6 @@ body {
     margin-top: 1em;
     margin-bottom: 1em;
     line-height: 1.4;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    overflow-wrap: normal;
   }
 
   .rich-text-display h4 {
@@ -278,9 +272,6 @@ body {
     font-weight: bold;
     margin-top: 1em;
     margin-bottom: 1em;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    overflow-wrap: normal;
   }
 
   .rich-text-display h5,
@@ -289,9 +280,6 @@ body {
     font-weight: bold;
     margin-top: 1em;
     margin-bottom: 1em;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: normal;
   }
 
 
@@ -321,9 +309,6 @@ body {
     color: var(--vibrant-blue);
     text-decoration: underline;
     transition: opacity 0.2s;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: break-all;
   }
 
   .rich-text-display a:hover {
@@ -336,8 +321,6 @@ body {
     margin-bottom: 1em;
     margin-top: 0.5em;
     padding-left: 1rem !important;
-    word-wrap: break-word;
-    overflow-wrap: normal;
   }
 
   .rich-text-display ul {
@@ -352,8 +335,6 @@ body {
     display: list-item !important;
     list-style-position: outside !important;
     margin-bottom: 0.5em;
-    word-wrap: break-word;
-    overflow-wrap: normal;
   }
 
   .rich-text-display ul>li {
@@ -389,8 +370,6 @@ body {
     margin: 1em 0;
     font-style: italic;
     opacity: 0.9;
-    word-wrap: break-word;
-    overflow-wrap: normal;
   }
 
   /* Code blocks */
@@ -400,9 +379,6 @@ body {
     border-radius: 3px;
     font-family: monospace;
     font-size: 0.9em;
-    word-wrap: break-word;
-    overflow-wrap: normal;
-    /* white-space: pre-wrap; */
   }
 
   .dark .rich-text-display code {
@@ -462,5 +438,10 @@ body {
 
   .dark .rich-text-display th {
     background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  input[type="password"]::-ms-reveal,
+  input[type="password"]::-ms-clear {
+    display: none !important;
   }
 }
