@@ -8,22 +8,22 @@ config({ path: resolve(process.cwd(), '../../.env') });
 async function main() {
   console.log('🌱 Seeding database...'); // Create test users
   const instructor = await prisma.user.upsert({
-    where: { email: 'john.instructor@skillup.com' },
+    where: { email: 'john.instructor@skillshikho.com' },
     update: {},
     create: {
       supabaseId: 'seed-instructor-supabase-id',
-      email: 'john.instructor@skillup.com',
+      email: 'john.instructor@skillshikho.com',
       name: 'John Instructor',
       role: 'INSTRUCTOR',
     },
   });
 
   const student = await prisma.user.upsert({
-    where: { email: 'jane.student@skillup.com' },
+    where: { email: 'jane.student@skillshikho.com' },
     update: {},
     create: {
       supabaseId: 'seed-student-supabase-id',
-      email: 'jane.student@skillup.com',
+      email: 'jane.student@skillshikho.com',
       name: 'Jane Student',
       role: 'STUDENT',
     },

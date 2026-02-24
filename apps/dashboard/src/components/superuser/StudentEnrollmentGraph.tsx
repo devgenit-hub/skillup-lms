@@ -89,7 +89,7 @@ export function StudentEnrollmentGraph({
       </div>
 
       {loading ? (
-        <div className="h-[300px] flex items-center justify-center">
+        <div className="h-75 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
         </div>
       ) : selectedOption && dataToShow.length > 0 ? (
@@ -116,11 +116,11 @@ export function StudentEnrollmentGraph({
           </BarChart>
         </ResponsiveContainer>
       ) : options.length === 0 ? (
-        <div className="h-[300px] flex items-center justify-center text-slate-500">
+        <div className="h-75 flex items-center justify-center text-slate-500">
           No {placeholder.toLowerCase().replace('select a ', '')}s available
         </div>
       ) : (
-        <div className="h-[300px] flex items-center justify-center text-slate-500">
+        <div className="h-75 flex items-center justify-center text-slate-500">
           {selectedOption
             ? 'No enrollment data available'
             : `Select a ${placeholder.toLowerCase().replace('select a ', '')} to view data`}

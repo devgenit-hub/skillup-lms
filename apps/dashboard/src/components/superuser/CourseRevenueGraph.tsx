@@ -125,7 +125,7 @@ export function CourseRevenueGraph({
       </div>
 
       {loading ? (
-        <div className="h-[300px] flex items-center justify-center">
+        <div className="h-75 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
         </div>
       ) : selectedId && revenueData.length > 0 ? (
@@ -157,11 +157,11 @@ export function CourseRevenueGraph({
           </BarChart>
         </ResponsiveContainer>
       ) : options.length === 0 ? (
-        <div className="h-[300px] flex items-center justify-center text-slate-500">
+        <div className="h-75 flex items-center justify-center text-slate-500">
           No courses available
         </div>
       ) : (
-        <div className="h-[300px] flex items-center justify-center text-slate-500">
+        <div className="h-75 flex items-center justify-center text-slate-500">
           {selectedId
             ? 'No revenue data available for this period'
             : `Select a ${placeholder.toLowerCase().replace('select a ', '')} to view revenue`}

@@ -70,7 +70,7 @@ app.use(
 app.get('/', (_req: Request, res: Response) => {
   res.json({
     status: 'success',
-    message: 'Skill Up API',
+    message: 'SkillShikho API',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
   });
@@ -125,7 +125,7 @@ app.use(errorHandler);
 
 // Start server
 const server = app.listen(PORT, async () => {
-  console.log(`🚀 Skill Up API running on http://localhost:${PORT}`);
+  console.log(`🚀 SkillShikho API running on http://localhost:${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 CORS enabled for: ${allowedOrigins.join(', ')}`);
 

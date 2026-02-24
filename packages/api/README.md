@@ -1,6 +1,6 @@
 # @repo/api
 
-Express API with TypeScript and Prisma for Skill Up LMS.
+Express API with TypeScript and Prisma for SkillShikho LMS.
 
 ## Local Development
 
@@ -54,7 +54,7 @@ cd packages/api
 
 Required in `.env`:
 
-```
+```env
 DATABASE_URL=postgresql://...
 DATABASE_DIRECT_URL=postgresql://...
 SUPABASE_URL=https://...
