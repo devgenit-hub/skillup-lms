@@ -109,25 +109,25 @@ export default function Footer() {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="tel:+880123456789"
+                  href="tel:+8801632344220"
                   className="flex items-start gap-3 text-gray-400 hover:text-white transition-colors duration-200 group"
                 >
                   <Phone size={18} className="mt-1 text-blue-400 group-hover:text-blue-300" />
                   <div>
                     <span className="block text-sm">আমাদের কল করুন</span>
-                    <span className="text-xs text-gray-500">+880 123 456 789</span>
+                    <span className="text-xs text-gray-500">+880 1632-344220</span>
                   </div>
                 </Link>
               </li>
               <li>
                 <Link
-                  href="mailto:info@skillup.com"
+                  href="mailto:info.skillshikho@gmail.com"
                   className="flex items-start gap-3 text-gray-400 hover:text-white transition-colors duration-200 group"
                 >
                   <Mail size={18} className="mt-1 text-green-400 group-hover:text-green-300" />
                   <div>
                     <span className="block text-sm">আমাদের মেইল করুন</span>
-                    <span className="text-xs text-gray-500">info@skillup.com</span>
+                    <span className="text-xs text-gray-500">info.skillshikho@gmail.com</span>
                   </div>
                 </Link>
               </li>
@@ -136,7 +136,9 @@ export default function Footer() {
                   <MapPin size={18} className="mt-1 text-red-400 shrink-0" />
                   <div>
                     <span className="block text-sm">আমাদের ঠিকানা</span>
-                    <span className="text-xs text-gray-500">ঢাকা, বাংলাদেশ</span>
+                    <span className="text-xs text-gray-500">
+                      1/1, Meghna Shopping Complex, Shonir Akhra, Jatrabari, Dhaka.
+                    </span>
                   </div>
                 </div>
               </li>

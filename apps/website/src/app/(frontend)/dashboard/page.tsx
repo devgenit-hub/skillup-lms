@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/context/auth-context';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -57,15 +58,18 @@ export default function DashboardPage() {
           <div className="p-6 bg-card rounded-lg border">
             <h2 className="text-xl font-semibold mb-2">দ্রুত লিংক</h2>
             <div className="space-y-2">
-              <a href="/courses" className="block text-vibrant-blue hover:underline">
+              <Link href="/courses" className="block text-vibrant-blue hover:underline">
                 কোর্সসমূহ
-              </a>
-              <a href="/dashboard/enrollments" className="block text-vibrant-blue hover:underline">
+              </Link>
+              <Link
+                href="/dashboard/enrollments"
+                className="block text-vibrant-blue hover:underline"
+              >
                 আমার এনরোলমেন্ট
-              </a>
-              <a href="/dashboard/profile" className="block text-vibrant-blue hover:underline">
+              </Link>
+              <Link href="/dashboard/profile" className="block text-vibrant-blue hover:underline">
                 প্রোফাইল সম্পাদনা
-              </a>
+              </Link>
             </div>
           </div>
         </div>

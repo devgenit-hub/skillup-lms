@@ -119,12 +119,12 @@ function Page() {
           <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-500 mb-2">No Courses Yet</h3>
           <p className="text-gray-500 mb-4">You haven&apos;t enrolled in any courses yet.</p>
-          <a
+          <Link
             href="/allcourse"
             className="inline-flex items-center gap-2 px-6 py-3 bg-vibrant-blue text-white rounded-xl hover:bg-dark-blue transition-colors"
           >
             Browse Courses
-          </a>
+          </Link>
         </div>
       ) : (
         <>

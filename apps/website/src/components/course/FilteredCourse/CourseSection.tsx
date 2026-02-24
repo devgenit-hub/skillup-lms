@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation';
 import CourseCard from '../CourseCard/CourseCard';
 import PaginationSection from './PaginationSection';
-import { useAppStore } from '@/lib/zustand/app-store';
 import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/api-client';
 import type { CourseCard as CourseCardType } from '@/lib/zustand/app-store';
@@ -20,8 +19,8 @@ interface CourseSectionProps {
 
 export default function CourseSection({ filters }: CourseSectionProps) {
   const pn = usePathname();
-  const { courses: initialCourses, coursesLoading: initialLoading } = useAppStore();
-  const [displayCourses, setDisplayCourses] = useState<CourseCardType[]>(initialCourses);
+  // const { courses: initialCourses, coursesLoading: initialLoading } = useAppStore();
+  const [displayCourses, setDisplayCourses] = useState<CourseCardType[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -41,13 +40,6 @@ export default function CourseSection({ filters }: CourseSectionProps) {
 
   // Fetch courses when filters or page changes
   const fetchCourses = useCallback(async () => {
-    // If no filters and page 1, use initial data from store
-    if (!hasFilters && currentPage === 1) {
-      setDisplayCourses(initialCourses);
-      setTotalPages(Math.ceil(initialCourses.length / pageSize));
-      return;
-    }
-
     setLoading(true);
     try {
       const response = await apiClient.getPublicCourses({
@@ -67,12 +59,13 @@ export default function CourseSection({ filters }: CourseSectionProps) {
         setDisplayCourses(items);
         setTotalPages(pagination?.totalPages || 1);
       }
-    } catch {
+    } catch (err) {
+      console.error('Error fetching courses:', err);
       setDisplayCourses([]);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, filters, hasFilters, initialCourses, pageSize]);
+  }, [currentPage, filters, pageSize]);
 
   useEffect(() => {
     fetchCourses();
@@ -92,7 +85,7 @@ export default function CourseSection({ filters }: CourseSectionProps) {
     hasFilters,
   ]);
 
-  const isLoading = initialLoading || loading;
+  const isLoading = loading;
 
   return (
     <section className="w-full flex flex-col items-center gap-12">
@@ -126,7 +119,7 @@ export default function CourseSection({ filters }: CourseSectionProps) {
         )}
       </div>
 
-      {/* Pagination */}
+      {/* Pagination :  */}
       {!isLoading && displayCourses.length > 0 && totalPages > 1 && (
         <div className="mt-8">
           <PaginationSection

@@ -1,4 +1,4 @@
-# Skill Up - Learning Management Platform
+# SkillShikho - Learning Management Platform
 
 A modern Learning Management System built with Turborepo monorepo architecture.
 
@@ -90,8 +90,8 @@ pnpm dev
 
 This will start:
 
-- Website at http://localhost:3000
-- Dashboard at http://localhost:3001
+- Website at `http://localhost:3000`
+- Dashboard at `http://localhost:3001`
 
 Run a specific app:
 
@@ -103,7 +103,7 @@ pnpm turbo dev --filter=dashboard
 
 ## Project Structure
 
-```
+```bash
 skill-up/
 ├── apps/
 │   ├── website/          # Student-facing application (Next.js)

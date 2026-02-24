@@ -41,7 +41,7 @@ export default function UpcomingLive() {
             {pageText['live_upcoming']}
           </h1>
         </div>
-        <span className="text-xs text-muted-foreground font-medium">
+        <span className="text-xs text-muted-foreground font-medium" hidden>
           {liveList.length} {pageText['sessions_viewAll']}
         </span>
       </div>

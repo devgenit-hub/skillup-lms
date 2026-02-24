@@ -4,6 +4,7 @@ import CourseCard from '../course/CourseCard/CourseCard';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLocale } from '@/providers/locale-provider';
 import { useAppStore } from '@/lib/zustand/app-store';
+import Link from 'next/link';
 
 export default function OurCourses() {
   const { t } = useLocale();
@@ -179,12 +180,12 @@ export default function OurCourses() {
         )}
       </div>
       <div className="flex justify-center items-center">
-        <a
+        <Link
           href="/allcourse"
           className="border border-vibrant-blue font-bold rounded-full px-6 py-2 hover:bg-white/5 text-sm flex items-center gap-2 mt-20 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20"
         >
           {pageText.courses_viewAll} <ArrowRight size={25} />
-        </a>
+        </Link>
       </div>
     </div>
   );

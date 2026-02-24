@@ -1,6 +1,6 @@
 # @repo/db
 
-Shared database package for Skill Up LMS using Prisma and PostgreSQL.
+Shared database package for SkillShikho LMS using Prisma and PostgreSQL.
 
 ## Features
 
@@ -22,7 +22,7 @@ Shared database package for Skill Up LMS using Prisma and PostgreSQL.
 2. **Update DATABASE_URL in .env:**
 
    ```env
-   DATABASE_URL="postgresql://user:password@localhost:5432/skillup?schema=public"
+   DATABASE_URL="postgresql://user:password@localhost:5432/skillshikho?schema=public"
    ```
 
 3. **Generate Prisma Client:**

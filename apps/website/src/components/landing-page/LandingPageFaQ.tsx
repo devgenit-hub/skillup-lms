@@ -33,7 +33,7 @@ export default function LandingPageFaQ() {
             <span>সকাল ৯টা - রাত ১০টা</span>
           </p>
           <button className="border border-vibrant-blue font-bold rounded-full px-6 py-2 hover:bg-foreground/5 dark:border-white text-xs md:text-sm flex items-center gap-2 mt-4 transition-all">
-            +880112464645
+            +880 1632-344220
           </button>
         </div>
       </div>

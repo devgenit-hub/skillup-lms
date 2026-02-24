@@ -15,7 +15,7 @@ if [ -z "$PROJECT_ID" ]; then
     exit 1
 fi
 
-echo -e "${GREEN}🚀 Deploying SkillUp API via Cloud Build${NC}"
+echo -e "${GREEN}🚀 Deploying SkillShikho API via Cloud Build${NC}"
 echo -e "${YELLOW}Project: ${PROJECT_ID}${NC}"
 echo -e "${YELLOW}Region: ${REGION}${NC}"
 echo ""
@@ -37,7 +37,7 @@ echo -e "${YELLOW}📦 Creating Artifact Registry...${NC}"
 gcloud artifacts repositories create skillup-repo \
     --repository-format=docker \
     --location=${REGION} \
-    --description="SkillUp API images" 2>/dev/null || echo "Repository already exists"
+    --description="SkillShikho API images" 2>/dev/null || echo "Repository already exists"
 
 # Build substitutions - only simple values, URLs are hardcoded in cloudbuild.yaml
 SUBSTITUTIONS="_REGION=${REGION}"

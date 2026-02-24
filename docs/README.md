@@ -1,4 +1,4 @@
-# SkillUp Platform Documentation 📚
+# SkillShikho Platform Documentation 📚
 
 ## 📋 Documentation Overview
 
@@ -137,4 +137,4 @@ For questions about specific implementations, refer to the relevant documentatio
 
 ---
 
-_Last Updated: December 24, 2025_
+### _Last Updated: December 24, 2025_
