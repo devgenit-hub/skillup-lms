@@ -15,7 +15,7 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               <Image
                 src="/logodark.png"
-                alt="Skill Up Logo"
+                alt="Skill শিখো Logo"
                 width={100}
                 height={100}
                 className="brightness-0 invert"
@@ -182,7 +182,7 @@ export default function Footer() {
             </Link>
           </div>
           <p className="text-gray-400 text-center md:text-right">
-            © {currentYear} Skill Up. All rights reserved.{' '}
+            © {currentYear} Skill শিখো. All rights reserved.{' '}
             <span className="inline-block">
               Developed by{' '}
               <Link
