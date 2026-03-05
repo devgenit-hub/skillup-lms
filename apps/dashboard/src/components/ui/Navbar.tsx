@@ -21,7 +21,7 @@ export function Navbar() {
               height={(96 * 9) / 16}
               fill={false}
               src={'/logolight.png'}
-              alt="skillশিখো logo"
+              alt="Skill শিখো logo"
             />
           </div>
           <sup className="text-xs font-bold text-slate-900">Admin</sup>

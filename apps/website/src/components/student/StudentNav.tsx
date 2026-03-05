@@ -26,7 +26,7 @@ export default function StudentNav() {
         <Image
           className="brightness-0 invert w-auto h-auto max-w-20"
           src="/logodark.png"
-          alt="Skill Up Logo"
+          alt="Skill শিখো Logo"
           width={96}
           height={22}
           loading="eager"

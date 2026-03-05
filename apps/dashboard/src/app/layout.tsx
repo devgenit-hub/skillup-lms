@@ -9,11 +9,11 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Skillশিখো Dashboard - Learning Management System',
-    template: '%s | Skillশিখো Dashboard',
+    default: 'Skill শিখো Dashboard - Learning Management System',
+    template: '%s | Skill শিখো Dashboard',
   },
   description:
-    'Skillশিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম। কোর্স পরিচালনা করুন, অগ্রগতি ট্র্যাক করুন এবং শিক্ষার অভিজ্ঞতা বাড়ান।',
+    'Skill শিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম। কোর্স পরিচালনা করুন, অগ্রগতি ট্র্যাক করুন এবং শিক্ষার অভিজ্ঞতা বাড়ান।',
   keywords: [
     'learning management system',
     'LMS',
@@ -25,9 +25,9 @@ export const metadata: Metadata = {
     'অনলাইন কোর্স',
     'শিক্ষা প্ল্যাটফর্ম',
   ],
-  authors: [{ name: 'Skillশিখো Team' }],
-  creator: 'Skillশিখো',
-  publisher: 'Skillশিখো',
+  authors: [{ name: 'Skill শিখো Team' }],
+  creator: 'Skill শিখো',
+  publisher: 'Skill শিখো',
   robots: {
     index: false,
     follow: false,
@@ -36,10 +36,10 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'bn_BD',
     url: 'https://manage.skillshikho.com',
-    title: 'Skillশিখো Dashboard - Learning Management System',
+    title: 'Skill শিখো Dashboard - Learning Management System',
     description:
-      'Skillশিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম।',
-    siteName: 'Skillশিখো Dashboard',
+      'Skill শিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম।',
+    siteName: 'Skill শিখো Dashboard',
     images: [
       {
         url: 'https://www.skillshikho.com/metaBanner.png',
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Skillশিখো Dashboard - Learning Management System',
+    title: 'Skill শিখো Dashboard - Learning Management System',
     description:
-      'Skillশিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম।',
+      'Skill শিখো ড্যাশবোর্ড - শিক্ষার্থী, শিক্ষক এবং অ্যাডমিনিস্ট্রেটরদের জন্য সম্পূর্ণ লার্নিং ম্যানেজমেন্ট সিস্টেম।',
     images: ['https://www.skillshikho.com/metaBanner.png'],
   },
   icons: {
