@@ -31,8 +31,8 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    'Skill শিখো',
-    'স্কিল শিখো',
+    'SkillShikho',
+    'SkillShikho',
     'অনলাইন কোর্স',
     'বাংলা কোর্স',
     'অনলাইন লার্নিং',

@@ -9,7 +9,10 @@ import Image from 'next/image';
 
 export default function LogoMarquee({ logoUrlList }: { logoUrlList: string[] }) {
   return (
-    <div className="w-full py-8 mt-16 container px-4 max-w-7xl mx-auto">
+    <div className="w-full mt-16 container px-4 max-w-7xl mx-auto">
+      <h3 className="mb-8 text-center font-bold text-2xl sm:text-3xl md:text-4xl bg-linear-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text py-8">
+        আমাদের পার্টনার
+      </h3>
       <Marquee>
         <MarqueeFade side="left" />
         <MarqueeFade side="right" />

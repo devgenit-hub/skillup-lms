@@ -2,7 +2,6 @@ import React from 'react';
 import LandingHero from '@/components/landing-page/LandingHero';
 import LogoMarquee from '@/components/landing-page/LogoMarquee';
 import OurCourses from '@/components/landing-page/OurCourses';
-import Testimonial from '@/components/landing-page/Testimonial';
 import WebinarSection from '@/components/landing-page/WebinarSection';
 import SkillSection from '@/components/landing-page/SkillSection';
 import JoiningProcess from '@/components/landing-page/JoiningProcess';
@@ -31,7 +30,7 @@ function Home() {
       <SkillSection />
       <JoiningProcess />
       <FaQ />
-      <Testimonial />
+      {/* <Testimonial /> */}
       <LandingPageFaQ />
     </>
   );

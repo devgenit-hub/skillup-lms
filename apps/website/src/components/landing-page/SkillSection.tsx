@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Play } from 'lucide-react';
 
@@ -7,16 +8,21 @@ export default function SkillSection() {
     <div className="mt-20 py-8 container px-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-7">
       <div className="space-y-5">
         <h3 className="flex flex-col text-xl font-bold bg-[#7361E5] dark:bg-linear-to-b from-[#C3C0D8] via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text">
-          <span>Skill শিখো দক্ষতা শিখুন</span>
+          <span>SkillShikho দক্ষতা শিখুন</span>
           <span className="">ভবিষ্যত গড়ুন</span>
         </h3>
         <p className="text-base dark:text-white/70">
-          এখানে শিক্ষার্থীরা সমস্ত গুরুত্বপূর্ণ স্কিল শেখার সুযোগ পায়, যা তাদের পেশাদার জীবনে
-          সাহায্য করবে। আমাদের কোর্সগুলো প্রফেশনাল মেন্টরদের দ্বারা তৈরি, তাই শেখা হয় প্রায়োগিক
-          এবং ফলপ্রসূ।
+          SkillShikho শুধুমাত্র একটি লার্নিং প্ল্যাটফর্ম নয়; এটি আপনার ক্যারিয়ার গড়ার একটি কমপ্লিট
+          গেটওয়ে। আমাদের প্রতিটি ক্যারিয়ার পাথ এমনভাবে ডিজাইন করা হয়েছে যা আপনাকে কেবল দক্ষই করে
+          তুলবে না, বরং জব মার্কেটে আপনার প্লেসমেন্টও নিশ্চিত করবে। লার্নিং জার্নির শুরু থেকে
+          প্রফেশনাল ক্যারিয়ারে পদার্পণ পর্যন্ত প্রতিটি ধাপে আপনি পাবেন ইন্ডাস্ট্রি এক্সপার্টদের
+          মেন্টরশিপ এবং তাৎক্ষণিক প্রবলেম সলভিং সাপোর্ট।
         </p>
-        <Button className="rounded-full bg-vibrant-blue dark:text-white font-bold px-6 cursor-pointer">
-          আরও জানুন
+        <Button
+          asChild
+          className="rounded-full bg-vibrant-blue dark:text-white font-bold px-6 cursor-pointer"
+        >
+          <Link href="/about">আরও জানুন</Link>
         </Button>
       </div>
       <div className="w-full lg:min-w-1/2 relative">

@@ -45,7 +45,8 @@ export default function LandingPageFaQ() {
           <div>
             <h1 className="font-bold mb-4 text-base md:text-lg">ফ্রি ভিডিও লাইব্রেরি</h1>
             <a
-              href="#"
+              href="https://www.youtube.com/@SkillShikhoAcademy"
+              target="_blank"
               className="border border-vibrant-blue font-bold rounded-full px-6 py-2 w-fit hover:bg-foreground/5 dark:border-white text-xs md:text-sm flex items-center gap-2 mt-5 transition-all"
             >
               ভিডিও দেখুন <MdArrowOutward className="text-lg" />
@@ -68,7 +69,8 @@ export default function LandingPageFaQ() {
           <div>
             <h1 className="font-bold mb-4 text-base md:text-lg">Facebook গ্রুপে যোগ দিন</h1>
             <a
-              href="#"
+              href="https://www.facebook.com/skillshikho.it/"
+              target="_blank"
               className="border border-vibrant-blue font-bold rounded-full px-6 py-2 w-fit hover:bg-foreground/5 dark:border-white text-xs md:text-sm flex items-center gap-2 mt-5 transition-all"
             >
               যোগ দিন <MdArrowOutward className="text-lg" />

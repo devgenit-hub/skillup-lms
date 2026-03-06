@@ -40,7 +40,7 @@ export default function NavBar() {
                 width={96}
                 height={24}
                 src={'/logodark.png'}
-                alt="Skill শিখো logo"
+                alt="SkillShikho logo"
                 priority
                 loading="eager"
               />
@@ -49,7 +49,7 @@ export default function NavBar() {
                 width={96}
                 height={24}
                 src={'/logolight.png'}
-                alt="Skill শিখো logo"
+                alt="SkillShikho logo"
                 priority
                 loading="eager"
               />
