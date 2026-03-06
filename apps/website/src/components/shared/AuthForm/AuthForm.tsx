@@ -125,52 +125,71 @@ export default function AuthForm(props: AuthFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2 h-full">
-      <div className="flex flex-col gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         {props.inputs &&
           props.inputs.map((inputProps, index) => <FormInput key={index} {...inputProps} />)}
         {props.isForgotPassword && (
-          <span className="text-primary/50 text-sm underline mt-3 cursor-pointer">
+          <Link
+            href="#"
+            className="text-vibrant-blue hover:text-vibrant-blue/80 text-sm font-medium mt-1 transition-colors duration-200 w-fit"
+          >
             পাসওয়ার্ড ভুলে গেছেন?
-          </span>
+          </Link>
         )}
-        <span className="text-primary/50 text-sm mt-3">
-          {props.isTermsChecked && (
+        {props.isTermsChecked && (
+          <label className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-2 cursor-pointer select-none">
+            <Input type="checkbox" className="w-4 h-4 rounded accent-vibrant-blue" required />
             <span>
-              <Input type="checkbox" className="mr-2 w-4 h-4 align-middle" required />
-              <span>
-                <Link href={'#'} className="underline">
-                  শর্তাবলী
-                </Link>{' '}
-                ও{' '}
-                <Link href={'#'} className="underline">
-                  নীতি
-                </Link>{' '}
-                মেনে চলতে সম্মত
-              </span>
+              <Link href={'#'} className="text-vibrant-blue hover:underline transition-colors">
+                শর্তাবলী
+              </Link>{' '}
+              ও{' '}
+              <Link href={'#'} className="text-vibrant-blue hover:underline transition-colors">
+                নীতি
+              </Link>{' '}
+              মেনে চলতে সম্মত
             </span>
-          )}
-        </span>
+          </label>
+        )}
       </div>
-      <div className="flex flex-col items-center gap-5">
+      <div className="flex flex-col items-center gap-4 mt-4">
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full tracking-wider py-5 text-[16px] bg-vibrant-blue font-semibold text-white hover:bg-dark-blue shadow-[0_5px_5px_0_rgba(0,0,0,0.25)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-6 text-[16px] bg-vibrant-blue font-semibold text-white rounded-xl hover:bg-vibrant-blue/90 shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           {isLoading ? 'অপেক্ষা করুন...' : props.submitButtonText || 'প্রবেশ করুন'}
         </Button>
-        <span className="text-foreground/50">অথবা</span>
+
+        <div className="flex items-center gap-3 w-full">
+          <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+          <span className="text-gray-400 dark:text-gray-500 text-sm">অথবা</span>
+          <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
+        </div>
+
         <Button
           type="button"
           onClick={handleGoogleAuth}
           disabled={isLoading}
           variant={'outline'}
-          className="w-full rounded-full py-5 bg-foreground hover:bg-foreground/50 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-xl py-6 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
-          <Image src={`/icons/google_logo.png`} alt="Google Logo" width={16} height={16} />
-          <span className="text-[16px] text-white">Google</span>
+          <Image src={`/icons/google_logo.png`} alt="Google Logo" width={18} height={18} />
+          <span className="text-[16px] font-medium">Google</span>
         </Button>
+
+        {props.bottomLinkText && props.bottomLinkTo && (
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+            {props.bottomSubText}{' '}
+            <Link
+              href={props.bottomLinkTo}
+              className="text-vibrant-blue font-semibold hover:underline transition-all duration-200"
+            >
+              {props.bottomLinkText}
+            </Link>
+          </p>
+        )}
       </div>
     </form>
   );

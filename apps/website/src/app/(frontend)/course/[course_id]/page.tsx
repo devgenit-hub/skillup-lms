@@ -5,6 +5,7 @@ import { FeeType } from '@repo/shared';
 import Hero from '@/components/course-details/sections/Hero';
 import MainContent from '@/components/course-details/sections/MainContent';
 import SideBar from '@/components/course-details/sections/SideBar';
+import StickyEnrollBar from '@/components/course-details/sections/StickyEnrollBar';
 import { AboutCourse } from '@/components/course-details/types/AboutCourse';
 import { HeroProps } from '@/components/course-details/types/HeroProps';
 import { Loader2 } from 'lucide-react';
@@ -180,6 +181,13 @@ export default function Page() {
           <SideBar AboutCourse={aboutCourseData} />
         </div>
       </div>
+      <StickyEnrollBar
+        price={courseData.price}
+        deletedPrice={courseData.deletedPrice}
+        contactNumber={course.contactNumbers?.[0]}
+        coupons={course.coupons}
+        isFree={courseData.isFree}
+      />
     </>
   );
 }

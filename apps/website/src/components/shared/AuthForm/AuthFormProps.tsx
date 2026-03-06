@@ -6,4 +6,7 @@ export interface AuthFormProps {
   isForgotPassword?: boolean;
   submitButtonText?: string;
   isTermsChecked?: boolean;
+  bottomSubText?: string;
+  bottomLinkText?: string;
+  bottomLinkTo?: string;
 }

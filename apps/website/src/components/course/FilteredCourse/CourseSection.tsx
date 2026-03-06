@@ -114,6 +114,7 @@ export default function CourseSection({ filters }: CourseSectionProps) {
               courseId={course.id}
               route="/course/"
               maxDiscount={course.maxDiscount}
+              courseType={course.courseType}
             />
           ))
         )}

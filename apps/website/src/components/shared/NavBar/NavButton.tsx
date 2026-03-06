@@ -52,7 +52,7 @@ export default function NavButton({ onClick }: { onClick?: () => void }) {
   return (
     <Button
       asChild
-      className="bg-vibrant-blue hover:bg-dark-blue text-white rounded-full py-3 px-6 w-full"
+      className="bg-vibrant-blue hover:bg-dark-blue text-white rounded-full py-3 px-6 w-full text-lg"
       onClick={onClick}
     >
       <Link href="/auth/login">লগ ইন / সাইন আপ</Link>

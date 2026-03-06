@@ -17,7 +17,7 @@ export default function NavLink(props: NavLinksProps) {
         <button
           onClick={() => setIsOpen((o) => !o)}
           className={`
-            group flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 
+            group flex w-full items-center justify-between rounded-lg px-4 py-3 text-lg font-medium transition-all duration-200 
             backdrop-blur-md
              ${
                isOpen
@@ -52,7 +52,7 @@ export default function NavLink(props: NavLinksProps) {
                   onClick={props.handleClick}
                   className="
                     flex items-center gap-3 rounded-md px-3 py-2 
-                    text-sm text-foreground hover:text-black dark:hover:text-white hover:bg-white/5 
+                    text-lg text-foreground hover:text-black dark:hover:text-white hover:bg-white/5 
                     transition-colors
                   "
                 >
@@ -73,7 +73,7 @@ export default function NavLink(props: NavLinksProps) {
       href={props.href || '/'}
       onClick={props.handleClick}
       className="
-        flex not-lg:w-full w-fit items-center gap-3 rounded-lg px-4 py-3 mb-1 text-sm font-medium text-foreground hover:bg-white/5 hover:text-slate-500 transition-colors
+        flex not-lg:w-full w-fit items-center gap-3 rounded-lg px-4 py-3 mb-1 text-lg font-medium text-foreground hover:bg-white/5 hover:text-slate-500 transition-colors
       "
     >
       {props.icon && <props.icon className="size-4 lg:hidden" />}

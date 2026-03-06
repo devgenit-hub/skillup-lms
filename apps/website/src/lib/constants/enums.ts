@@ -27,7 +27,7 @@ export const LevelBanglaLabels = {
 export const CourseTypeBanglaLabels = {
   LIVE: 'লাইভ',
   RECORDED: 'রেকর্ডেড',
-  HYBRID: 'হাইব্রিড',
+  HYBRID: 'অফলাইন',
 } as const;
 
 export const WebinarStatusBanglaLabels = {

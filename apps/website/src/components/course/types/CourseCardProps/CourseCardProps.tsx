@@ -13,4 +13,5 @@ export interface CourseCardProps {
   feeType?: 'FREE' | 'PAID';
   price?: number | null;
   maxDiscount?: number | string | null;
+  courseType?: string | null;
 }

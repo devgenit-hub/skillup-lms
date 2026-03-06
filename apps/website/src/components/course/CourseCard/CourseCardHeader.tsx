@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { FeeType } from '@repo/shared';
+import { CourseTypeBanglaLabels, CourseType } from '@/lib/constants/enums';
 
 export default function CourseCardHeader({
   imageUrl,
@@ -9,6 +10,7 @@ export default function CourseCardHeader({
   price,
   batchNo,
   maxDiscount,
+  courseType,
 }: {
   imageUrl: string;
   title: string;
@@ -16,9 +18,24 @@ export default function CourseCardHeader({
   price?: number | null;
   batchNo: string;
   maxDiscount?: string | null;
+  courseType?: string | null;
 }) {
   return (
     <div className="relative w-full h-full p-1.5 z-0 rounded-3xl">
+      {/* Course Type Badge */}
+      {courseType &&
+        (() => {
+          const labelKey = Object.entries(CourseType).find(([, val]) => val === courseType)?.[0];
+          if (!labelKey) return null;
+          return (
+            <div className="absolute top-2 right-2 z-20">
+              <span className="bg-purple-600 text-white px-3 py-1.5 rounded-full shadow-lg font-bold text-sm">
+                {CourseTypeBanglaLabels[labelKey as keyof typeof CourseTypeBanglaLabels]}
+              </span>
+            </div>
+          );
+        })()}
+
       {/* Discount Badge */}
       {maxDiscount && (
         <div className="absolute top-2 left-2 z-20">

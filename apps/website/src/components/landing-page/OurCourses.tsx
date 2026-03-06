@@ -175,6 +175,7 @@ export default function OurCourses() {
               feeType={course.feeType as 'FREE' | 'PAID'}
               price={course.price}
               maxDiscount={course.maxDiscount}
+              courseType={course.courseType}
             />
           ))
         )}

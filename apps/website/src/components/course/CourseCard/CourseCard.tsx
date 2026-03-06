@@ -10,7 +10,10 @@ export default function CourseCard(props: CourseCardProps) {
   const pn = usePathname();
   console.log(props);
   return (
-    <div className="flex flex-col h-full relative rounded-3xl pb-10 bg-card border-black/10 dark:border-white/10 border-2 text-card-foreground shadow-md shadow-black/25">
+    <div
+      onClick={() => router.push(`${props.route}${props.courseId}`)}
+      className="flex flex-col h-full relative rounded-3xl pb-10 bg-card border-black/10 dark:border-white/10 border-2 text-card-foreground shadow-md shadow-black/25 cursor-pointer"
+    >
       <div className="overflow-hidden w-full flex-1 flex flex-col justify-between gap-2 rounded-3xl">
         <CourseCardHeader
           imageUrl={props.imageUrl || '/test_images/course_test.png'}
@@ -19,6 +22,7 @@ export default function CourseCard(props: CourseCardProps) {
           feeType={props.feeType}
           price={props.price}
           maxDiscount={props.maxDiscount?.toString() || null}
+          courseType={props.courseType}
         />
         <CourseCardBody
           category={props.category || 'UI/UX ডিজাইন'}
