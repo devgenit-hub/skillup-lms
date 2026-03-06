@@ -15,14 +15,18 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               <Image
                 src="/logodark.png"
-                alt="Skill শিখো Logo"
+                alt="SkillShikho Logo"
                 width={100}
                 height={100}
                 className="brightness-0 invert"
               />
             </div>
-            <p className="text-gray-400 leading-relaxed max-w-xs">
-              জ্ঞানই আমাদের জীবনকে আলোকিত করে। শিখুন, বাড়ুন এবং সফল হন।
+            <p className="text-gray-300 leading-relaxed max-w-xs">
+              SkillShikho শুধুমাত্র একটি লার্নিং প্ল্যাটফর্ম নয়; এটি আপনার ক্যারিয়ার গড়ার একটি
+              কমপ্লিট গেটওয়ে। আমাদের প্রতিটি ক্যারিয়ার পাথ এমনভাবে ডিজাইন করা হয়েছে যা আপনাকে কেবল
+              দক্ষই করে তুলবে না, বরং জব মার্কেটে আপনার প্লেসমেন্টও নিশ্চিত করবে। লার্নিং জার্নির
+              শুরু থেকে প্রফেশনাল ক্যারিয়ারে পদার্পণ পর্যন্ত প্রতিটি ধাপে আপনি পাবেন ইন্ডাস্ট্রি
+              এক্সপার্টদের মেন্টরশিপ এবং তাৎক্ষণিক প্রবলেম সলভিং সাপোর্ট।
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-4 pt-2">
@@ -35,7 +39,7 @@ export default function Footer() {
                 <Facebook size={18} />
               </Link>
               <Link
-                href="https://www.youtube.com/SkillShikhoAcademy"
+                href="https://www.youtube.com/@SkillShikhoAcademy"
                 target="_blank"
                 className="w-10 h-10 rounded-full bg-slate-700 hover:bg-red-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="YouTube"
@@ -69,7 +73,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
+                  className="text-gray-300 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
                 >
                   আমাদের সম্পর্কে
                 </Link>
@@ -77,7 +81,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
+                  className="text-gray-300 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
                 >
                   ক্যারিয়ার
                 </Link>
@@ -85,7 +89,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
+                  className="text-gray-300 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
                 >
                   স্কিলস
                 </Link>
@@ -93,7 +97,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
+                  className="text-gray-300 hover:text-white hover:translate-x-1 inline-block transition-all duration-200"
                 >
                   টিচার পোর্টাল
                 </Link>
@@ -110,33 +114,33 @@ export default function Footer() {
               <li>
                 <Link
                   href="tel:+8801632344220"
-                  className="flex items-start gap-3 text-gray-400 hover:text-white transition-colors duration-200 group"
+                  className="flex items-start gap-3 text-gray-300 hover:text-white transition-colors duration-200 group"
                 >
                   <Phone size={18} className="mt-1 text-blue-400 group-hover:text-blue-300" />
                   <div>
-                    <span className="block text-sm">আমাদের কল করুন</span>
-                    <span className="text-xs text-gray-500">+880 1632-344220</span>
+                    <span className="block text-md">আমাদের কল করুন</span>
+                    <span className="text-sm text-gray-400">+880 1632-344220</span>
                   </div>
                 </Link>
               </li>
               <li>
                 <Link
                   href="mailto:info.skillshikho@gmail.com"
-                  className="flex items-start gap-3 text-gray-400 hover:text-white transition-colors duration-200 group"
+                  className="flex items-start gap-3 text-gray-300 hover:text-white transition-colors duration-200 group"
                 >
                   <Mail size={18} className="mt-1 text-green-400 group-hover:text-green-300" />
                   <div>
-                    <span className="block text-sm">আমাদের মেইল করুন</span>
-                    <span className="text-xs text-gray-500">info.skillshikho@gmail.com</span>
+                    <span className="block text-md">আমাদের মেইল করুন</span>
+                    <span className="text-sm text-gray-400">info.skillshikho@gmail.com</span>
                   </div>
                 </Link>
               </li>
               <li>
-                <div className="flex items-start gap-3 text-gray-400">
+                <div className="flex items-start gap-3 text-gray-300">
                   <MapPin size={18} className="mt-1 text-red-400 shrink-0" />
                   <div>
-                    <span className="block text-sm">আমাদের ঠিকানা</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="block text-md">আমাদের ঠিকানা</span>
+                    <span className="text-sm text-gray-400">
                       1/1, Meghna Shopping Complex, Shonir Akhra, Jatrabari, Dhaka.
                     </span>
                   </div>
@@ -182,7 +186,7 @@ export default function Footer() {
             </Link>
           </div>
           <p className="text-gray-400 text-center md:text-right">
-            © {currentYear} Skill শিখো. All rights reserved.{' '}
+            © {currentYear} SkillShikho. All rights reserved.{' '}
             <span className="inline-block">
               Developed by{' '}
               <Link
