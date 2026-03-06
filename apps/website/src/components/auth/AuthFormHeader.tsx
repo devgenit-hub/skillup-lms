@@ -1,17 +1,18 @@
-import Link from 'next/link';
+import Image from 'next/image';
 import React from 'react';
 import { AuthFormHeaderProps } from './AuthFormHeaderProps';
 
 export default function AuthFormHeader(props: AuthFormHeaderProps) {
   return (
-    <div>
-      <span className="text-4xl">{props.title}</span>
-      <span className="mt-2 mb-6 flex gap-2 ">
-        <span className="font-light text-foreground/50">{props.subTitle1}</span>
-        <Link href={props.linkTo || '/auth/login'} className="underline">
-          {props.linkText}
-        </Link>
-      </span>
+    <div className="mb-8 flex flex-col items-center text-center">
+      <Image
+        src="/logodark.png"
+        alt="SkillShikho Logo"
+        width={120}
+        height={40}
+        className="mb-6 dark:invert-0 invert"
+      />
+      <h1 className="text-3xl md:text-4xl font-bold text-vibrant-blue">{props.title}</h1>
     </div>
   );
 }

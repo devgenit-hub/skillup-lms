@@ -7,11 +7,10 @@ import { InfoCardProps } from '../types/InfoCardProps/InfoCardProps';
 
 const infoCardData: InfoCardProps[] = [
   {
-    chipText: 'ওয়েবিনার',
+    chipText: 'লাইভ কোর্স',
     chipColor: '#0047b3',
-    title: 'ডিজিটাল যুগে যোগাযোগের সহজ মাধ্যম',
-    description:
-      'উপস্থাপক, অংশগ্রহণকারী, বিষয়বস্তু (স্লাইড বা স্ক্রিন শেয়ার), আলাপচারিতার জন্য চ্যাট/প্রশ্নোত্তর এবং ভবিষ্যতের জন্য রেকর্ডিং।',
+    title: 'Real-Time Learning by Live Courses',
+    description: 'Grow your skills with real-time learning from top mentors.',
     bgColor: '#5604F41A',
     borderColor: '#FFFFFF1A',
     totalStudents: '৬,৫০০',
@@ -22,11 +21,10 @@ const infoCardData: InfoCardProps[] = [
     ],
   },
   {
-    chipText: 'লাইভ',
+    chipText: 'রেকর্ডেড কোর্স',
     chipColor: '#539622',
-    title: 'ডিজিটাল যুগে যোগাযোগের সহজ মাধ্যম',
-    description:
-      'উপস্থাপক, অংশগ্রহণকারী, বিষয়বস্তু (স্লাইড বা স্ক্রিন শেয়ার), আলাপচারিতার জন্য চ্যাট/প্রশ্নোত্তর এবং ভবিষ্যতের জন্য রেকর্ডিং।',
+    title: 'Learn Anytime, Anywhere',
+    description: 'Learn anytime from anywhere.',
     bgColor: '#5396221A',
     borderColor: '#FFFFFF1A',
     totalStudents: '৬,৫০০',
@@ -37,11 +35,10 @@ const infoCardData: InfoCardProps[] = [
     ],
   },
   {
-    chipText: 'রেকর্ডেড',
+    chipText: 'অফলাইন ব্যাচ',
     chipColor: '#FF6600',
-    title: 'ডিজিটাল যুগে যোগাযোগের সহজ মাধ্যম',
-    description:
-      'উপস্থাপক, অংশগ্রহণকারী, বিষয়বস্তু (স্লাইড বা স্ক্রিন শেয়ার), আলাপচারিতার জন্য চ্যাট/প্রশ্নোত্তর এবং ভবিষ্যতের জন্য রেকর্ডিং।',
+    title: 'Traditional Learning',
+    description: 'Be skilled through one-to-one interaction.',
     bgColor: '#FF66001A',
     borderColor: '#FFFFFF1A',
     totalStudents: '৬,৫০০',
@@ -72,7 +69,7 @@ export default function Hero() {
         {/* Foreground content */}
         <div className="relative z-10 min-h-[500px] py-6 w-full backdrop-blur-2xl flex items-center justify-center">
           <div className="container mx-auto px-4 max-w-5xl">
-            <h1 className="font-bold text-4xl mb-5 text-white">সব কোর্স</h1>
+            <h1 className="font-bold text-4xl mb-5 text-white">সকল কোর্স</h1>
             <div className="grid grid-cols-1 not-lg:mx-auto sm:grid-cols-2 lg:grid-cols-3 gap-3 w-fit">
               {infoCardData.map((info, idx) => (
                 <InfoCard key={idx} {...info} />

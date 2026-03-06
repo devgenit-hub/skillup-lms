@@ -116,10 +116,13 @@ export default function Footer() {
                   href="tel:+8801632344220"
                   className="flex items-start gap-3 text-gray-300 hover:text-white transition-colors duration-200 group"
                 >
-                  <Phone size={18} className="mt-1 text-blue-400 group-hover:text-blue-300" />
+                  <Phone
+                    size={18}
+                    className="mt-1 text-blue-400 group-hover:text-blue-300 shrink-0"
+                  />
                   <div>
                     <span className="block text-md">আমাদের কল করুন</span>
-                    <span className="text-sm text-gray-400">+880 1632-344220</span>
+                    <span className="text-xs sm:text-sm text-gray-400">+880 1632-344220</span>
                   </div>
                 </Link>
               </li>
@@ -128,10 +131,15 @@ export default function Footer() {
                   href="mailto:info.skillshikho@gmail.com"
                   className="flex items-start gap-3 text-gray-300 hover:text-white transition-colors duration-200 group"
                 >
-                  <Mail size={18} className="mt-1 text-green-400 group-hover:text-green-300" />
+                  <Mail
+                    size={18}
+                    className="mt-1 text-green-400 group-hover:text-green-300 shrink-0"
+                  />
                   <div>
                     <span className="block text-md">আমাদের মেইল করুন</span>
-                    <span className="text-sm text-gray-400">info.skillshikho@gmail.com</span>
+                    <span className="text-xs sm:text-sm text-gray-400">
+                      info.skillshikho@gmail.com
+                    </span>
                   </div>
                 </Link>
               </li>
@@ -140,7 +148,7 @@ export default function Footer() {
                   <MapPin size={18} className="mt-1 text-red-400 shrink-0" />
                   <div>
                     <span className="block text-md">আমাদের ঠিকানা</span>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-xs sm:text-sm text-gray-400">
                       1/1, Meghna Shopping Complex, Shonir Akhra, Jatrabari, Dhaka.
                     </span>
                   </div>

@@ -6,12 +6,12 @@ import Image from 'next/image';
 
 export default function LeftImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="w-auto max-w-lg h-auto relative not-md:hidden">
-      <div className="absolute right-3 top-3 p-1">
+    <div className="w-auto max-w-md h-auto relative not-md:hidden flex-shrink-0">
+      <div className="absolute left-4 top-4 z-10">
         <Link href="/">
           <Button
             variant={'outline'}
-            className="bg-transparent/50 backdrop-blur-xl rounded-full text-white hover:bg-transparent hover:text-white/85 hover:cursor-pointer"
+            className="bg-black/30 backdrop-blur-xl border-white/20 rounded-full text-white hover:bg-black/50 hover:text-white hover:cursor-pointer text-sm px-4 py-2 transition-all duration-300"
           >
             <IoIosArrowBack className="size-4" />
             ওয়েবসাইটে ফিরে যান
@@ -23,7 +23,7 @@ export default function LeftImage({ src, alt }: { src: string; alt: string }) {
         alt={alt}
         width={510}
         height={510}
-        className="w-full h-full rounded-lg object-cover aspect-square"
+        className="w-full h-full rounded-2xl object-cover"
       />
     </div>
   );
