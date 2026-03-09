@@ -69,7 +69,7 @@ export default function OurCourses() {
       : courses.filter((course) => course.category?.title === selected);
   return (
     <div className="container px-4 w-full max-w-7xl mx-auto my-20">
-      <h3 className="text-center font-bold text-2xl sm:text-3xl md:text-4xl bg-linear-to-b from-[#C3C0D8] via-10% via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text my-8 py-8">
+      <h3 className="text-center font-bold text-2xl sm:text-3xl md:text-4xl text-[#2300ff] dark:text-transparent dark:bg-clip-text dark:bg-linear-to-b dark:from-[#C3C0D8] dark:via-10% dark:via-[#9B90DF] dark:to-[#7361E5] my-8 py-8">
         {pageText.courses_heading}
       </h3>
 

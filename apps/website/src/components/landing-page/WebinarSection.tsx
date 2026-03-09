@@ -96,7 +96,7 @@ export default function WebinarSection() {
       <div className="container px-4 md:px-6 max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-linear-to-b from-[#C3C0D8] via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 py-2 bg-clip-text text-transparent bg-linear-to-r from-[#b400ff] via-[#7700e1] to-[#2300ff] dark:bg-linear-to-b dark:from-[#C3C0D8] dark:via-[#9B90DF] dark:to-[#7361E5]">
             {pageText['webinar_heading']}
           </h2>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm md:text-base">

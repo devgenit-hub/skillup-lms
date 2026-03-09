@@ -37,7 +37,7 @@ export default function FaQ() {
       {/* Left Section */}
       <div className="flex flex-col justify-between gap-10 h-full">
         <div>
-          <h3 className="text-2xl font-bold bg-linear-to-b from-[#C3C0D8] via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text mb-3">
+          <h3 className="text-2xl font-bold text-[#2300ff] dark:text-transparent dark:bg-clip-text dark:bg-linear-to-b dark:from-[#C3C0D8] dark:via-[#9B90DF] dark:to-[#7361E5] mb-3">
             প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী
           </h3>
           <p className="dark:text-white/50 text-black/80 text-sm">
