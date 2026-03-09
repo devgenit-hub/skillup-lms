@@ -10,14 +10,12 @@ import LandingPageFaQ from '@/components/landing-page/LandingPageFaQ';
 
 // Move outside component to avoid recreation on every render
 const LOGO_URL_LIST: string[] = [
-  '/icons/Marquee/1.png',
-  '/icons/Marquee/2.png',
-  '/icons/Marquee/3.png',
-  '/icons/Marquee/4.png',
-  '/icons/Marquee/5.png',
-  '/icons/Marquee/6.png',
-  '/icons/Marquee/7.png',
-  '/icons/Marquee/8.png',
+  '/icons/Marquee/Express.png',
+  '/icons/Marquee/Infinity.png',
+  '/icons/Marquee/PN.png',
+  '/icons/Marquee/Studio.png',
+  '/icons/Marquee/Hookoom.png',
+  '/icons/Marquee/Shining.png',
 ] as const;
 
 function Home() {

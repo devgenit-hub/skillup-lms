@@ -57,7 +57,7 @@ export default function NavLink(props: NavLinksProps) {
         {/* Expandable Content Container */}
         <div
           className={`
-            grid transition-all duration-300 ease-in-out lg:absolute lg:right-0 lg:overflow-hidden lg:min-w-[200px]
+            grid transition-all duration-300 ease-in-out lg:absolute lg:right-0 lg:overflow-hidden lg:min-w-50
            lg:bg-background rounded-xl lg:border border-[#885afd33] lg:shadow-lg ${isOpen ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}
           `}
         >
