@@ -7,23 +7,35 @@ import RichTextDisplay from '@/components/ui/RichTextDisplay';
 
 export default function SideBar({ AboutCourse }: AboutCourseProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollHeight = document.documentElement.scrollHeight;
       const scrollTop = window.scrollY;
       const clientHeight = window.innerHeight;
-      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
 
-      if (distanceFromBottom < 100) {
+      // Hide when near top (avoid overlapping hero card enroll button)
+      if (scrollTop < 500) {
         setIsVisible(false);
-      } else {
-        setIsVisible(true);
+        return;
       }
+
+      // Hide when footer is visible
+      const footer = document.querySelector('footer');
+      if (footer) {
+        const footerTop = footer.getBoundingClientRect().top;
+        // Button is at bottom-36 (144px) + button height (~56px) = ~200px from bottom
+        if (footerTop < clientHeight) {
+          setIsVisible(false);
+          return;
+        }
+      }
+
+      setIsVisible(true);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -32,7 +44,7 @@ export default function SideBar({ AboutCourse }: AboutCourseProps) {
       {/* Mobile Button - Only visible on small screens */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`lg:hidden fixed bottom-6 right-6 z-40 bg-vibrant-blue hover:bg-dark-blue text-white p-4 rounded-full shadow-lg flex items-center gap-2 font-bold transition-all duration-300 ${
+        className={`lg:hidden fixed bottom-36 right-6 z-40 bg-vibrant-blue hover:bg-dark-blue text-white p-4 rounded-full shadow-lg flex items-center gap-2 font-bold transition-all duration-300 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'
         }`}
       >
