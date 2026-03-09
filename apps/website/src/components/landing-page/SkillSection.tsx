@@ -7,7 +7,7 @@ export default function SkillSection() {
   return (
     <div className="mt-20 py-8 container px-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-7">
       <div className="space-y-5">
-        <h3 className="flex flex-col text-xl font-bold bg-[#7361E5] dark:bg-linear-to-b from-[#C3C0D8] via-[#9B90DF] to-[#7361E5] text-transparent bg-clip-text">
+        <h3 className="flex flex-col text-xl font-bold text-[#2300ff] dark:text-transparent dark:bg-clip-text dark:bg-linear-to-b dark:from-[#C3C0D8] dark:via-[#9B90DF] dark:to-[#7361E5]">
           <span>SkillShikho দক্ষতা শিখুন</span>
           <span className="">ভবিষ্যত গড়ুন</span>
         </h3>

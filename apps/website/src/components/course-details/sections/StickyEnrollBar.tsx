@@ -82,7 +82,7 @@ export default function StickyEnrollBar({
     <div
       className={`sticky bottom-0 z-40 -mx-4 -mb-40 bg-gray-50 dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700 shadow-[0_-6px_20px_rgba(0,0,0,0.12)] dark:shadow-[0_-6px_20px_rgba(0,0,0,0.5)] transition-all duration-300 ${visible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'}`}
     >
-      <div className="px-6 sm:px-10 lg:px-14 py-4">
+      <div className="container px-4 max-w-7xl mx-auto py-4">
         {/* Mobile Layout */}
         <div className="flex flex-col gap-2.5 sm:hidden">
           {contactNumber && (
@@ -131,7 +131,7 @@ export default function StickyEnrollBar({
             <button
               onClick={handleEnrollClick}
               disabled={enrolling}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2.5 rounded-full text-base font-bold shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
+              className="bg-purple-600 hover:bg-purple-700 hover:scale-105 hover:shadow-xl text-white px-6 py-2.5 rounded-full text-base font-bold shadow-lg transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
             >
               {enrolling ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -205,7 +205,7 @@ export default function StickyEnrollBar({
           <button
             onClick={handleEnrollClick}
             disabled={enrolling}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-10 py-3.5 rounded-full text-xl font-bold shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
+            className="bg-purple-600 hover:bg-purple-700 hover:scale-105 hover:shadow-xl text-white px-10 py-3.5 rounded-full text-xl font-bold shadow-lg transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
           >
             {enrolling ? (
               <>
