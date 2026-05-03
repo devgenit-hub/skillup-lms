@@ -14,6 +14,7 @@ interface CourseMetadata {
 
 export class PublicController {
   static getInitialData = asyncHandler(async (_req: Request, res: Response) => {
+    const now = new Date();
     const [coursesRaw, webinarsRaw, categories] = await Promise.all([
       prisma.course.findMany({
         where: { published: true },
@@ -29,6 +30,7 @@ export class PublicController {
             select: { discount: true },
             where: {
               active: true,
+              expiresAt: { gte: now },
             },
             orderBy: { discount: 'desc' },
             take: 1,
@@ -54,6 +56,7 @@ export class PublicController {
             select: { discount: true },
             where: {
               active: true,
+              expiresAt: { gte: now },
             },
             orderBy: { discount: 'desc' },
             take: 1,
@@ -225,6 +228,7 @@ export class PublicController {
 
   static getWebinarDetails = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const now = new Date();
 
     const webinar = await prisma.webinar.findUnique({
       where: { id },
@@ -251,7 +255,7 @@ export class PublicController {
         sessionAgenda: true,
         resources: true,
         coupons: {
-          where: { active: true },
+          where: { active: true, expiresAt: { gte: now } },
           orderBy: { discount: 'desc' },
           select: {
             code: true,

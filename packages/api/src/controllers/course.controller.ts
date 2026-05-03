@@ -17,6 +17,7 @@ export class CourseController {
   static getPublicCourses = asyncHandler(async (req: Request, res: Response) => {
     const query = courseQuerySchema.parse(req.query);
     const { page, limit, search, category, feeType, level, courseType } = query;
+    const now = new Date();
 
     const baseWhere: Record<string, unknown> = { published: true };
 
@@ -60,6 +61,7 @@ export class CourseController {
             select: { discount: true },
             where: {
               active: true,
+              expiresAt: { gte: now },
             },
             orderBy: { discount: 'desc' },
             take: 1,
