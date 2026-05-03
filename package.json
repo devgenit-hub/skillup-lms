@@ -15,7 +15,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "prepare": "husky",
-    "postinstall": "pnpm run generate",
+    "postinstall": "pnpm run generate:locales",
     "generate": "pnpm run generate:db && pnpm run generate:locales",
     "generate:db": "pnpm --filter @repo/db generate",
     "generate:locales": "pnpm --filter @repo/locales generate",
