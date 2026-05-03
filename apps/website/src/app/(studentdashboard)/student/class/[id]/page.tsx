@@ -197,13 +197,49 @@ export default function Page() {
     });
   };
 
+  const extractYouTubeId = (value?: string): string | undefined => {
+    if (!value) return undefined;
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+
+    if (!trimmed.includes('/') && !trimmed.includes('?') && !trimmed.includes('http')) {
+      return trimmed;
+    }
+
+    try {
+      const url = new URL(trimmed);
+      const host = url.hostname.replace(/^www\./, '');
+
+      if (host === 'youtu.be') {
+        return url.pathname.split('/').filter(Boolean)[0];
+      }
+
+      if (host.endsWith('youtube.com')) {
+        const directId = url.searchParams.get('v');
+        if (directId) return directId;
+
+        const pathParts = url.pathname.split('/').filter(Boolean);
+        const markerIndex = pathParts.findIndex((part) => ['embed', 'v', 'shorts'].includes(part));
+        if (markerIndex >= 0 && pathParts[markerIndex + 1]) {
+          return pathParts[markerIndex + 1];
+        }
+
+        if (pathParts.length > 0) return pathParts[pathParts.length - 1];
+      }
+    } catch {
+      const pathParts = trimmed.split('?')[0].split('/').filter(Boolean);
+      if (pathParts.length > 0) return pathParts[pathParts.length - 1];
+    }
+
+    return undefined;
+  };
+
   const handlePlayVideo = (videoUrl?: string, isLocked?: boolean, title?: string) => {
     if (isLocked) return;
     if (videoUrl) {
-      const vidIdArray = videoUrl?.split('/');
-
-      const x = vidIdArray ? vidIdArray[vidIdArray.length - 1] || '' : '';
-      setCurrentVideoId(x);
+      const normalizedVideoId = extractYouTubeId(videoUrl);
+      if (!normalizedVideoId) return;
+      setCurrentVideoId(normalizedVideoId);
       setCt(title || null);
     }
   };
