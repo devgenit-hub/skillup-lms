@@ -85,6 +85,44 @@ interface TimeObject {
   m: string | number;
   s: string | number;
 }
+
+function extractYouTubeId(value?: string): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+
+  if (!trimmed.includes('/') && !trimmed.includes('?') && !trimmed.includes('http')) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed);
+    const host = url.hostname.replace(/^www\./, '');
+
+    if (host === 'youtu.be') {
+      return url.pathname.split('/').filter(Boolean)[0];
+    }
+
+    if (host.endsWith('youtube.com')) {
+      const directId = url.searchParams.get('v');
+      if (directId) return directId;
+
+      const pathParts = url.pathname.split('/').filter(Boolean);
+      const markerIndex = pathParts.findIndex((part) => ['embed', 'v', 'shorts'].includes(part));
+      if (markerIndex >= 0 && pathParts[markerIndex + 1]) {
+        return pathParts[markerIndex + 1];
+      }
+
+      if (pathParts.length > 0) return pathParts[pathParts.length - 1];
+    }
+  } catch {
+    const pathParts = trimmed.split('?')[0].split('/').filter(Boolean);
+    if (pathParts.length > 0) return pathParts[pathParts.length - 1];
+  }
+
+  return undefined;
+}
+
 const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | null }) => {
   const playerRef = useRef<YTPlayer | null>(null);
   const playerDivRef = useRef<HTMLDivElement | null>(null);
@@ -98,15 +136,22 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
   const [lastSavedDuration] = useState<number>(10);
   const [lockedTimeDuration] = useState<number>(-1);
   const currentTimeRef = useRef<number>(currentTime);
-  const [lockProgressBar] = useState<boolean>(true);
+  // const [lockProgressBar] = useState<boolean>(true);
+  const [lockProgressBar] = useState<boolean>(false);
 
   const [showControl, setShowControl] = useState<boolean>(true);
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
   };
-  const toggleControl = () => {
-    setShowControl((prev) => !prev);
+  const handleMouseEnter = () => {
+    setShowControl(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowControl(false);
+    setsspeed(false);
+    setsquality(false);
   };
 
   // useEffect(() => {
@@ -233,14 +278,17 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
   }, [duration, currentTime, lastSavedDuration, lockedTimeDuration]);
 
   useEffect(() => {
-    console.log('VIDEO: ', videoId);
+    const normalizedVideoId = extractYouTubeId(videoId);
+    console.log('VIDEO: ', normalizedVideoId || videoId);
+
+    if (!normalizedVideoId) return;
     // Store ref value at the start of effect
     const playerElement = playerDivRef.current;
 
     const initializeYouTubePlayer = (): void => {
       // Create a new YouTube player
       const player = new window.YT.Player(playerDivRef.current, {
-        videoId: videoId,
+        videoId: normalizedVideoId,
         playerVars: {
           fs: 0,
           controls: 0,
@@ -439,12 +487,12 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
               <button className="text-xs w-fit" onClick={showSpeed}>
                 Speed
               </button>
-              <ul onClick={showSpeed} className="absolute left-2">
+              <ul onClick={showSpeed} className="absolute right-0">
                 {sspeed &&
                   speeds.map((ele, id) => {
                     return (
                       <li
-                        className={`speed ${speed === ele && 'bg-blue-700 text-white'}`}
+                        className={`speed ${speed === ele ? 'is-active' : ''}`}
                         key={id}
                         onClick={() => {
                           handleSpeedChange(ele);
@@ -505,6 +553,8 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
   return (
     <div
       className={`video-container`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onContextMenu={(e) => e.preventDefault()}
       onKeyDown={(e) => {
         if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || e.key === 'Tab') {
@@ -538,12 +588,9 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
           zIndex: '10',
           pointerEvents: 'all',
         }}
-        onClick={toggleControl}
       />
       <div
-        className={`centerController ${
-          !showControl ? (!isPlaying ? 'active' : 'hide') : 'active'
-        } `}
+        className={`centerController ${showControl ? 'active' : 'hide'} `}
         style={{
           display: 'flex',
           justifyContent: 'center',
@@ -609,19 +656,19 @@ function ProgessBar({
     const clickX: number = e.clientX - left;
     const newTime: number = (clickX / width) * duration;
 
-    // Allow seeking only if newTime is before the locked area
-    if (newTime < lockedStartTime + 10 || !lockProgressBar) {
-      handleSeekChange(newTime);
-    }
+    // if (newTime < lockedStartTime + 10 || !lockProgressBar) {
+    //   handleSeekChange(newTime);
+    // }
+    handleSeekChange(newTime);
   };
 
   const handleContinuousChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const newTime: number = parseFloat(e.target.value);
 
-    // Allow seeking only if newTime is before the locked area
-    if (newTime < lockedStartTime + 10 || !lockProgressBar) {
-      handleSeekChange(newTime);
-    }
+    // if (newTime < lockedStartTime + 10 || !lockProgressBar) {
+    //   handleSeekChange(newTime);
+    // }
+    handleSeekChange(newTime);
   };
   return (
     <>
@@ -646,10 +693,7 @@ function ProgessBar({
         step={0.5}
         value={currentTime}
         onClick={handleClick}
-        onChange={(e) => {
-          if (currentTime < lockedStartTime) handleSeekChange(Number(e.target.value));
-          handleContinuousChange(e);
-        }}
+        onChange={handleContinuousChange}
       />
       {/* Create a visual representation of the locked area */}
       {lockProgressBar && (
