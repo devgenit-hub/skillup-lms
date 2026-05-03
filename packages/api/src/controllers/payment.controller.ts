@@ -40,6 +40,11 @@ interface UddoktaVerifyResponse {
   status?: string;
 }
 
+interface CouponRecord {
+  code: string;
+  discount: string;
+}
+
 const UDDOKTA_PAY_API_KEY = (process.env.UDDOKTA_PAY_API_KEY || '').trim();
 const UDDOKTA_PAY_API_URL = (
   process.env.UDDOKTA_PAY_API_URL || 'https://sandbox.uddoktapay.com/api'
@@ -96,6 +101,47 @@ function getUddoktaHeaders() {
     'Content-Type': 'application/json',
     Accept: 'application/json',
     'RT-UDDOKTAPAY-API-KEY': UDDOKTA_PAY_API_KEY,
+  };
+}
+
+function parseDiscountValue(discount: string | number | null | undefined): number {
+  if (discount === null || discount === undefined) return 0;
+  const parsed = parseFloat(String(discount).replace(/[^\d.]/g, ''));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function resolveCouponAmount(
+  originalAmount: number,
+  coupons: CouponRecord[] = [],
+  couponCode?: string | null
+) {
+  if (!originalAmount || originalAmount <= 0) {
+    return {
+      originalAmount: 0,
+      discountAmount: 0,
+      finalAmount: 0,
+      appliedCouponCode: couponCode || undefined,
+    };
+  }
+
+  const normalizedCouponCode = couponCode?.trim().toLowerCase();
+  const preferredCoupon = normalizedCouponCode
+    ? coupons.find((coupon) => coupon.code.toLowerCase() === normalizedCouponCode)
+    : undefined;
+
+  const bestCoupon =
+    preferredCoupon ||
+    [...coupons].sort((a, b) => parseDiscountValue(b.discount) - parseDiscountValue(a.discount))[0];
+
+  const discountPercent = parseDiscountValue(bestCoupon?.discount);
+  const discountAmount = (originalAmount * discountPercent) / 100;
+  const finalAmount = Math.max(0, Math.round(originalAmount - discountAmount));
+
+  return {
+    originalAmount,
+    discountAmount: Math.max(0, Math.round(discountAmount)),
+    finalAmount,
+    appliedCouponCode: bestCoupon?.code || couponCode || undefined,
   };
 }
 
@@ -162,19 +208,49 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
     });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    const now = new Date();
+    let originalAmount = amount;
+    let resolvedAmount = amount;
+    let discountAmount = 0;
+    let resolvedCouponCode = couponCode || undefined;
+
     if (itemType === 'course') {
-      const course = await prisma.course.findUnique({ where: { id: itemId } });
+      const course = await prisma.course.findFirst({
+        where: { id: itemId, published: true },
+        select: {
+          price: true,
+          coupons: {
+            where: { active: true, expiresAt: { gte: now } },
+            orderBy: { discount: 'desc' },
+            select: { code: true, discount: true },
+          },
+        },
+      });
       if (!course) return res.status(404).json({ error: 'Course not found' });
-      if (!course.published)
-        return res.status(400).json({ error: 'Course is not available for enrollment' });
 
       const existingEnrollment = await prisma.enrollment.findUnique({
         where: { userId_courseId: { userId, courseId: itemId } },
       });
       if (existingEnrollment)
         return res.status(400).json({ error: 'Already enrolled in this course' });
+
+      originalAmount = course.price || 0;
+      const pricing = resolveCouponAmount(originalAmount, course.coupons, couponCode);
+      resolvedAmount = pricing.finalAmount;
+      discountAmount = pricing.discountAmount;
+      resolvedCouponCode = pricing.appliedCouponCode;
     } else {
-      const webinar = await prisma.webinar.findUnique({ where: { id: itemId } });
+      const webinar = await prisma.webinar.findUnique({
+        where: { id: itemId },
+        select: {
+          price: true,
+          coupons: {
+            where: { active: true, expiresAt: { gte: now } },
+            orderBy: { discount: 'desc' },
+            select: { code: true, discount: true },
+          },
+        },
+      });
       if (!webinar) return res.status(404).json({ error: 'Webinar not found' });
 
       const existingRegistration = await prisma.webinarRegistration.findUnique({
@@ -182,6 +258,12 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       });
       if (existingRegistration)
         return res.status(400).json({ error: 'Already registered for this webinar' });
+
+      originalAmount = webinar.price || 0;
+      const pricing = resolveCouponAmount(originalAmount, webinar.coupons, couponCode);
+      resolvedAmount = pricing.finalAmount;
+      discountAmount = pricing.discountAmount;
+      resolvedCouponCode = pricing.appliedCouponCode;
     }
 
     const existingPayment = await prisma.payment.findFirst({
@@ -199,8 +281,9 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       itemType,
       itemId,
       userId,
-      originalAmount: amount,
-      couponCode: couponCode || undefined,
+      originalAmount,
+      discountAmount,
+      couponCode: resolvedCouponCode,
     };
 
     if (existingPayment) {
@@ -213,10 +296,10 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       payment = await prisma.payment.update({
         where: { id: existingPayment.id },
         data: {
-          amount,
+          amount: resolvedAmount,
           status: 'PENDING',
           paymentMethod: 'uddoktapay',
-          couponCode: couponCode || undefined,
+          couponCode: resolvedCouponCode,
           metadata: metadata as unknown as Prisma.InputJsonValue,
           invoiceId: null,
           gatewayTransactionId: null,
@@ -227,12 +310,12 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
       payment = await prisma.payment.create({
         data: {
           userId,
-          amount,
+          amount: resolvedAmount,
           status: 'PENDING',
           paymentMethod: 'uddoktapay',
           courseId: itemType === 'course' ? itemId : undefined,
           webinarId: itemType === 'webinar' ? itemId : undefined,
-          couponCode: couponCode || undefined,
+          couponCode: resolvedCouponCode,
           metadata: metadata as unknown as Prisma.InputJsonValue,
         },
       });
@@ -241,7 +324,7 @@ export const initiatePayment = async (req: Request & AuthRequest, res: Response)
     const uddoktaPayload = {
       full_name: user.name || 'User',
       email: user.email,
-      amount: amount.toString(),
+      amount: resolvedAmount.toString(),
       metadata: {
         payment_id: payment.id,
         item_type: itemType,

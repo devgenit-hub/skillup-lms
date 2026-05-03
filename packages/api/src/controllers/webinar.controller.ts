@@ -13,6 +13,7 @@ import { idParamSchema, createCouponSchema } from '../schemas/index.js';
 export class WebinarController {
   static getPublicWebinars = asyncHandler(async (req: Request, res: Response) => {
     const query = webinarQuerySchema.parse(req.query);
+    const now = new Date();
 
     const where: Record<string, unknown> = {};
 
@@ -61,6 +62,7 @@ export class WebinarController {
             select: { discount: true },
             where: {
               active: true,
+              expiresAt: { gte: now },
             },
             orderBy: { discount: 'desc' },
             take: 1,
