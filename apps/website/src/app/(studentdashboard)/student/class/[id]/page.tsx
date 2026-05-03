@@ -227,7 +227,8 @@ export default function Page() {
         if (pathParts.length > 0) return pathParts[pathParts.length - 1];
       }
     } catch {
-      const pathParts = trimmed.split('?')[0].split('/').filter(Boolean);
+      const basePath = trimmed.split('?')[0] || '';
+      const pathParts = basePath.split('/').filter(Boolean);
       if (pathParts.length > 0) return pathParts[pathParts.length - 1];
     }
 
