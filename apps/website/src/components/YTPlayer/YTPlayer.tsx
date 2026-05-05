@@ -1,5 +1,12 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import { FaForward, FaBackward, FaPlayCircle, FaPauseCircle } from 'react-icons/fa';
+import {
+  FaForward,
+  FaBackward,
+  FaPlayCircle,
+  FaPauseCircle,
+  FaExpand,
+  FaCompress,
+} from 'react-icons/fa';
 import './style.css';
 
 // YouTube Player API types
@@ -127,7 +134,9 @@ function extractYouTubeId(value?: string): string | undefined {
 const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | null }) => {
   const playerRef = useRef<YTPlayer | null>(null);
   const playerDivRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [sspeed, setsspeed] = useState<boolean>(false);
   const [squality, setsquality] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -141,6 +150,15 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
   const [lockProgressBar] = useState<boolean>(false);
 
   const [showControl, setShowControl] = useState<boolean>(true);
+
+  useEffect(() => {
+    const handleFullscreenChange = (): void => {
+      setIsFullscreen(document.fullscreenElement === containerRef.current);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
@@ -430,6 +448,23 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
     setsquality((pre) => !pre);
   }, []);
 
+  const toggleFullscreen = useCallback((): void => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    if (document.fullscreenElement === container) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+      return;
+    }
+
+    if (document.fullscreenElement) return;
+    if (container.requestFullscreen) {
+      container.requestFullscreen();
+    }
+  }, []);
+
   const controller = useMemo(() => {
     const speeds: number[] = [0.5, 0.75, 1, 1.25, 1.5, 2];
     const qualities: string[] = ['hd720', 'large', 'medium'];
@@ -530,6 +565,13 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
                 </ul>
               </button>
             </div>
+            <button
+              className="mobile-only"
+              onClick={toggleFullscreen}
+              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            >
+              {isFullscreen ? <FaCompress /> : <FaExpand />}
+            </button>
           </div>
         </div>
       </div>
@@ -549,11 +591,14 @@ const YTPlayer = ({ videoId, ct }: { videoId: string | undefined; ct: string | n
     showSpeed,
     showQuality,
     handleQualityChange,
+    toggleFullscreen,
+    isFullscreen,
   ]);
 
   return (
     <div
       className={`video-container`}
+      ref={containerRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onContextMenu={(e) => e.preventDefault()}
