@@ -15,6 +15,18 @@
   /* gap: 2em; */
 }
 
+.video-container:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+.video-container:fullscreen iframe {
+  border-radius: 0;
+}
+
 .customHeader {
   position: absolute;
   top: 0;
@@ -52,6 +64,22 @@ iframe {
   color: #fff;
   font-size: 0.95rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .video-container {
+    width: 100vw;
+    margin: 0;
+    border-radius: 0.75em;
+  }
+
+  .mobile-only {
+    display: inline-flex;
+  }
 }
 
 .video-container button {
